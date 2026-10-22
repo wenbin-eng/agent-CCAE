@@ -9,7 +9,7 @@
 }
 
 /* ── 卡片头(标题 + 筛选/操作区) ── */
-.panel-head {
+.right-head {
   flex: none;
   display: flex;
   align-items: center;
@@ -18,7 +18,7 @@
   min-height: 1.75rem;
 }
 
-.panel-title {
+.right-title {
   display: flex;
   align-items: center;
   gap: var(--spacing-inline);
@@ -27,18 +27,18 @@
   color: var(--on-surface);
 }
 
-.title-icon {
+.right-title-icon {
   color: var(--primary);
 }
 
 /* 筛选下拉 + 竖分隔线 + 图标组 */
-.card-actions {
+.right-actions {
   display: flex;
   align-items: center;
   gap: 1rem;
 }
 
-.filter-trigger {
+.right-trigger {
   display: inline-flex;
   align-items: center;
   gap: var(--spacing-1);
@@ -48,21 +48,21 @@
   cursor: pointer;
 }
 
-.filter-trigger:hover {
+.right-trigger:hover {
   color: var(--color-brand);
 }
 
-.v-divider {
+.right-divider {
   width: 1px;
   height: 0.75rem;
   background: var(--color-border);
 }
 
-.action-icon {
+.right-action-icon {
   color: var(--on-surface-variant);
 }
 
-.action-icon:hover {
+.right-action-icon:hover {
   color: var(--color-brand);
 }
 
@@ -84,7 +84,7 @@
   gap: var(--spacing-2);
 }
 
-.section-title {
+.analysis-title {
   display: flex;
   align-items: center;
   gap: var(--spacing-inline);
@@ -94,7 +94,7 @@
 }
 
 /* ── 表格 ── */
-.rank-badge {
+.analysis-rank {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -106,17 +106,17 @@
   color: var(--on-surface-variant);
 }
 
-.rank-badge.top {
+.analysis-rank.top {
   background: var(--primary-container);
   color: var(--on-primary-container);
   font-weight: var(--font-weight-semibold);
 }
 
-.cell-link {
+.analysis-link {
   color: var(--interactive-link);
   cursor: pointer;
 }
 
-.cell-link:hover {
+.analysis-link:hover {
   color: var(--interactive-link-hover);
 }

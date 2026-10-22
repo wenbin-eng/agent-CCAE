@@ -7,7 +7,7 @@ import {
   buildingRankData,
   buildingOptions,
   deviceList,
-} from "../../mock/energy.js";
+} from "../../mock/energy-right.js";
 import "./index.css";
 
 const STATUS_COLOR = {
@@ -48,14 +48,14 @@ export default function EnergyRight() {
         key: "rank",
         width: 64,
         sorter: (a, b) => a.rank - b.rank,
-        render: (v) => <span className={v <= 3 ? "rank-badge top" : "rank-badge"}>{v}</span>,
+        render: (v) => <span className={v <= 3 ? "analysis-rank top" : "analysis-rank"}>{v}</span>,
       },
       {
         title: "设备名称",
         dataIndex: "deviceName",
         key: "deviceName",
         render: (v) => (
-          <a className="cell-link" onClick={() => message.info(`正在打开「${v}」详情…`)}>
+          <a className="analysis-link" onClick={() => message.info(`正在打开「${v}」详情…`)}>
             {v}
           </a>
         ),
@@ -120,23 +120,23 @@ export default function EnergyRight() {
 
   return (
     <section className="panel energy-right">
-      <div className="panel-head">
-        <div className="panel-title">
-          <Icon name="chart-pie" size="1rem" className="title-icon" />
+      <div className="right-head">
+        <div className="right-title">
+          <Icon name="chart-pie" size="1rem" className="right-title-icon" />
           用能分析
         </div>
-        <div className="card-actions">
+        <div className="right-actions">
           <Dropdown menu={buildingMenu}>
-            <a className="filter-trigger" onClick={(e) => e.preventDefault()}>
+            <a className="right-trigger" onClick={(e) => e.preventDefault()}>
               {building}
               <Icon name="chevron-down" size="0.875rem" />
             </a>
           </Dropdown>
-          <span className="v-divider" />
+          <span className="right-divider" />
           <Icon
             name="refresh-cw"
             size="1rem"
-            className="action-icon"
+            className="right-action-icon"
             title="刷新数据"
             onClick={() => message.success("用能数据已刷新")}
           />
@@ -144,7 +144,7 @@ export default function EnergyRight() {
             <Icon
               name="ellipsis"
               size="1rem"
-              className="action-icon"
+              className="right-action-icon"
               title="更多操作"
               onClick={(e) => e.preventDefault()}
             />
@@ -155,8 +155,8 @@ export default function EnergyRight() {
       <div className="analysis-body">
         {/* 用能构成 */}
         <div className="analysis-section">
-          <h4 className="section-title">
-            <Icon name="chart-pie" size="1rem" className="title-icon" />
+          <h4 className="analysis-title">
+            <Icon name="chart-pie" size="1rem" className="right-title-icon" />
             用能构成
           </h4>
           <Chart name="PieChart" option={pieOption} style={{ height: "13rem" }} />
@@ -164,8 +164,8 @@ export default function EnergyRight() {
 
         {/* 机楼用能排名 */}
         <div className="analysis-section">
-          <h4 className="section-title">
-            <Icon name="building-2" size="1rem" className="title-icon" />
+          <h4 className="analysis-title">
+            <Icon name="building-2" size="1rem" className="right-title-icon" />
             机楼用能排名
           </h4>
           <Chart name="BarChart" option={barOption} style={{ height: "11rem" }} />
@@ -173,8 +173,8 @@ export default function EnergyRight() {
 
         {/* 高耗能设备排名 */}
         <div className="analysis-section">
-          <h4 className="section-title">
-            <Icon name="server" size="1rem" className="title-icon" />
+          <h4 className="analysis-title">
+            <Icon name="server" size="1rem" className="right-title-icon" />
             高耗能设备排名
           </h4>
           <Table

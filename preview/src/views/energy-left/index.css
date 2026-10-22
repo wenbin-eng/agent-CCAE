@@ -1,14 +1,17 @@
+/* 左侧:今日用能总览 — 整体面板(标题栏 + 电池信息栏 + 三项指标 + 集群气泡/列表) */
 .energy-left {
   flex: none;
   width: 678px;
   min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-inset); /* 左右布局间隔 24 */
+  gap: var(--spacing-gutter);
+  padding: var(--spacing-inset);
+  overflow: hidden;
 }
 
-/* ── 卡片通用头 ── */
-.panel-head {
+/* ── 标题栏 ── */
+.left-head {
   flex: none;
   display: flex;
   align-items: center;
@@ -17,122 +20,365 @@
   min-height: 1.75rem;
 }
 
-.panel-title {
+.left-title {
   display: flex;
   align-items: center;
   gap: var(--spacing-inline);
-  font: var(--font-headline-s);
+  font: var(--font-headline-m);
   font-weight: var(--font-weight-semibold);
   color: var(--on-surface);
-}
-
-.title-icon {
-  color: var(--primary);
-}
-
-.head-link {
-  font: var(--font-body-s);
-  color: var(--interactive-link);
-  cursor: pointer;
   white-space: nowrap;
 }
 
-.head-link:hover {
-  color: var(--interactive-link-hover);
+.title-zap {
+  color: var(--icon-success);
 }
 
-/* ── 关键指标卡片 ── */
-.kpi-card {
+.left-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+}
+
+.left-action-icon {
+  color: var(--on-surface-variant);
+}
+
+.left-action-icon:hover {
+  color: var(--color-brand);
+}
+
+/* ── 信息栏:电池 + 今日总能耗 ── */
+.summary-bar {
   flex: none;
   display: flex;
-  flex-direction: column;
+  align-items: center;
   gap: var(--spacing-gutter);
-  padding: var(--spacing-inset);
-}
-
-.kpi-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--spacing-gutter);
-}
-
-.kpi-tile {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-2);
-  padding: var(--spacing-gutter);
+  padding: var(--spacing-3) var(--spacing-4);
   background: var(--surface-variant);
   border-radius: var(--radius-lg);
 }
 
-.kpi-head {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-inline);
-}
-
-.kpi-icon {
-  width: 2rem;
-  height: 2rem;
+.battery-badge {
+  width: 4.5rem;
+  height: 4.5rem;
   flex: none;
   display: grid;
   place-items: center;
   border-radius: var(--radius-md);
-  background: var(--primary-container);
-  color: var(--on-primary-container);
+  background: var(--success-container);
 }
 
-.kpi-label {
+.battery-icon {
+  color: var(--icon-success);
+}
+
+.summary-info {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-1);
+  min-width: 0;
+}
+
+.summary-label {
   font: var(--font-body-s);
   color: var(--on-surface-variant);
 }
 
-.kpi-value-row {
-  display: flex;
-  align-items: baseline;
-  gap: var(--spacing-inline);
-}
-
-.kpi-value {
+.summary-value {
   font: var(--font-display-s);
   font-weight: var(--font-weight-semibold);
   color: var(--on-surface);
   line-height: var(--line-height-xs);
 }
 
-.kpi-unit {
+.summary-unit {
+  font: var(--font-body-s);
+  color: var(--on-surface-variant);
+  margin-left: var(--spacing-1);
+}
+
+/* ── 信息栏:三项用能指标 ── */
+.stat-bar {
+  flex: none;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--spacing-gutter);
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+  padding: var(--spacing-3) var(--spacing-4);
+  background: var(--surface-variant);
+  border-radius: var(--radius-lg);
+}
+
+.stat-head {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-inline);
+}
+
+.stat-icon.success {
+  color: var(--icon-success);
+}
+
+.stat-icon.brand {
+  color: var(--primary);
+}
+
+.stat-icon.info {
+  color: var(--color-chart-4);
+}
+
+.stat-label {
   font: var(--font-body-s);
   color: var(--on-surface-variant);
 }
 
-.kpi-delta {
+.stat-value-row {
   display: flex;
-  align-items: center;
+  align-items: baseline;
   gap: var(--spacing-1);
+}
+
+.stat-value {
+  font: var(--font-headline-l);
+  font-weight: var(--font-weight-semibold);
+  color: var(--on-surface);
+  line-height: var(--line-height-sm);
+}
+
+.stat-unit {
   font: var(--font-caption-m);
+  color: var(--on-surface-variant);
 }
 
-.kpi-delta.good {
-  color: var(--success);
+/* ── 集群气泡(拓扑视图):尺寸映射能耗,色彩分档 a(高耗能)>b(中)>c(低) ── */
+.bubble-field {
+  flex: 1 1 0;
+  min-height: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  align-content: center;
+  justify-content: center;
+  gap: 0.75rem;
+  overflow-y: auto;
+  padding: var(--spacing-1);
 }
 
-.kpi-delta.bad {
-  color: var(--critical);
+.bubble {
+  position: relative;
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.125rem;
+  padding: 0.375rem;
+  border-radius: var(--radius-full);
+  text-align: center;
+  cursor: pointer;
+  transition: transform 0.2s ease, filter 0.2s ease, box-shadow 0.2s ease;
 }
 
-/* ── 趋势卡片:弹性填充,切断高度反馈回路 ── */
-.trend-card {
+.bubble:hover {
+  transform: scale(1.06);
+  filter: brightness(1.1);
+  z-index: 1;
+}
+
+.bubble-name {
+  font: var(--font-caption-s);
+  color: var(--color-text-inverse);
+  line-height: 1.3;
+}
+
+.bubble.lg .bubble-name {
+  font: var(--font-body-s);
+  font-weight: var(--font-weight-medium);
+}
+
+.bubble-value {
+  font: var(--font-caption-m);
+  color: var(--color-text-inverse);
+  line-height: 1.3;
+}
+
+.bubble-unit {
+  opacity: 0.85;
+}
+
+/* 径向渐变模拟球面受光:左上高光 → 主色 → 半透明边缘 */
+.bubble.tone-a {
+  background: radial-gradient(
+    circle at 30% 26%,
+    rgb(from var(--gray-0) r g b / 0.45),
+    rgb(from var(--color-chart-1) r g b / 0.92) 32%,
+    rgb(from var(--color-chart-1) r g b / 0.55) 68%,
+    rgb(from var(--color-chart-1) r g b / 0.26)
+  );
+  box-shadow: inset 0 0 0 1px rgb(from var(--gray-0) r g b / 0.22);
+}
+
+.bubble.tone-b {
+  background: radial-gradient(
+    circle at 30% 26%,
+    rgb(from var(--gray-0) r g b / 0.45),
+    rgb(from var(--color-chart-4) r g b / 0.92) 32%,
+    rgb(from var(--color-chart-4) r g b / 0.55) 68%,
+    rgb(from var(--color-chart-4) r g b / 0.26)
+  );
+  box-shadow: inset 0 0 0 1px rgb(from var(--gray-0) r g b / 0.22);
+}
+
+.bubble.tone-c {
+  background: radial-gradient(
+    circle at 30% 26%,
+    rgb(from var(--gray-0) r g b / 0.45),
+    rgb(from var(--color-chart-6) r g b / 0.9) 32%,
+    rgb(from var(--color-chart-6) r g b / 0.52) 68%,
+    rgb(from var(--color-chart-6) r g b / 0.24)
+  );
+  box-shadow: inset 0 0 0 1px rgb(from var(--gray-0) r g b / 0.2);
+}
+
+/* 深色模式:球心提亮 + 外发光,玻璃质感更通透 */
+.dark .energy-left .bubble.tone-a {
+  background: radial-gradient(
+    circle at 30% 26%,
+    rgb(from var(--gray-0) r g b / 0.5),
+    rgb(from var(--blue-40) r g b / 0.85) 32%,
+    rgb(from var(--color-chart-1) r g b / 0.5) 68%,
+    rgb(from var(--color-chart-1) r g b / 0.2)
+  );
+  box-shadow:
+    0 0 1.25rem rgb(from var(--color-chart-1) r g b / 0.3),
+    inset 0 0 0 1px rgb(from var(--gray-0) r g b / 0.16);
+}
+
+.dark .energy-left .bubble.tone-b {
+  background: radial-gradient(
+    circle at 30% 26%,
+    rgb(from var(--gray-0) r g b / 0.5),
+    rgb(from var(--cyan-40) r g b / 0.85) 32%,
+    rgb(from var(--color-chart-4) r g b / 0.5) 68%,
+    rgb(from var(--color-chart-4) r g b / 0.2)
+  );
+  box-shadow:
+    0 0 1.25rem rgb(from var(--color-chart-4) r g b / 0.3),
+    inset 0 0 0 1px rgb(from var(--gray-0) r g b / 0.16);
+}
+
+.dark .energy-left .bubble.tone-c {
+  background: radial-gradient(
+    circle at 30% 26%,
+    rgb(from var(--gray-0) r g b / 0.5),
+    rgb(from var(--brand-30) r g b / 0.85) 32%,
+    rgb(from var(--color-chart-6) r g b / 0.5) 68%,
+    rgb(from var(--color-chart-6) r g b / 0.18)
+  );
+  box-shadow:
+    0 0 1.25rem rgb(from var(--color-chart-6) r g b / 0.28),
+    inset 0 0 0 1px rgb(from var(--gray-0) r g b / 0.14);
+}
+
+/* ── 集群排行(列表视图) ── */
+.cluster-list {
   flex: 1 1 0;
   min-height: 0;
   display: flex;
   flex-direction: column;
+  gap: var(--spacing-1);
+  overflow-y: auto;
+  padding-right: var(--spacing-0-5);
+}
+
+.cluster-row {
+  flex: none;
+  display: flex;
+  align-items: center;
   gap: var(--spacing-gutter);
-  padding: var(--spacing-inset);
+  padding: var(--spacing-2) var(--spacing-3);
+  border-radius: var(--radius-base);
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.cluster-row:hover {
+  background: var(--color-hover);
+}
+
+.cluster-rank {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  min-width: 1.25rem;
+  height: 1.25rem;
+  padding: 0 var(--spacing-1);
+  border-radius: var(--radius-badge);
+  font: var(--font-caption-m);
+  color: var(--on-surface-variant);
+}
+
+.cluster-rank.top {
+  background: var(--primary-container);
+  color: var(--on-primary-container);
+  font-weight: var(--font-weight-semibold);
+}
+
+.cluster-name {
+  flex: none;
+  width: 6.5rem;
+  font: var(--font-body-m);
+  color: var(--on-surface);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cluster-building {
+  flex: none;
+  font: var(--font-caption-m);
+  color: var(--on-surface-variant);
+  white-space: nowrap;
+}
+
+.cluster-bar {
+  flex: 1 1 0;
+  min-width: 0;
+  height: 0.375rem;
+  border-radius: var(--radius-full);
+  background: var(--color-fill);
   overflow: hidden;
 }
 
-.trend-chart {
-  flex: 1 1 0;
-  min-height: 0;
-  min-width: 0;
+.cluster-bar-fill {
+  height: 100%;
+  border-radius: var(--radius-full);
+}
+
+.cluster-bar-fill.tone-a {
+  background: var(--color-chart-1);
+}
+
+.cluster-bar-fill.tone-b {
+  background: var(--color-chart-4);
+}
+
+.cluster-bar-fill.tone-c {
+  background: var(--color-chart-6);
+}
+
+.cluster-energy {
+  flex: none;
+  min-width: 5.5rem;
+  text-align: right;
+  font: var(--font-caption-m);
+  color: var(--on-surface);
+  white-space: nowrap;
 }

@@ -1,7 +1,7 @@
 // App entry — ICT React page
 // Layering convention (one folder per component, kebab-case + index.jsx/index.css):
 //   Layer 1 global state  → src/context.jsx        (AppProvider: global state + dark mode toggle)
-//   Layer 2 mock data     → src/mock/              (energy.js: 用能总览 mock 数据)
+//   Layer 2 mock data     → src/mock/              (energy-left.js / energy-right.js: 左右视图各自持有,独立维护)
 //   Layer 3 reusable      → src/components/{name}/ (cross-view)
 //   Layer 4 views         → src/views/{name}/      (header-bar / page-title / energy-left / energy-right)
 //   Layer 5 layout        → app.jsx                (Provider + root container assembly)
