@@ -1,0 +1,89 @@
+.header-bar {
+  flex: none;
+  height: 3rem;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-gutter);
+  padding: 0 var(--spacing-page);
+  background: var(--surface-container-highest);
+  border-bottom: 1px solid var(--divider);
+}
+
+/* ── 品牌区 ── */
+.header-brand {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-inline);
+  flex: none;
+}
+
+.brand-logo {
+  width: 2rem;
+  height: 2rem;
+  display: block;
+}
+
+.brand-name {
+  font: var(--font-headline-s);
+  font-weight: var(--font-weight-semibold);
+  color: var(--on-surface);
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+}
+
+/* ── 顶部导航(原生 nav):未选中 2px 透明下划线占位,选中品牌色下划线 ── */
+.header-nav {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  padding: 0 var(--spacing-gutter);
+  font: var(--font-body-m);
+  color: var(--on-surface-variant);
+  border-bottom: 2px solid transparent;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.nav-item:hover {
+  color: var(--color-brand);
+}
+
+.nav-item.active {
+  color: var(--color-brand);
+  border-bottom-color: var(--color-brand);
+  font-weight: var(--font-weight-medium);
+}
+
+/* ── 右侧工具区 ── */
+.header-actions {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-gutter);
+}
+
+.theme-toggle {
+  color: var(--on-surface-variant);
+}
+
+.theme-toggle:hover {
+  color: var(--color-brand);
+}
+
+.user-avatar {
+  width: 2rem;
+  height: 2rem;
+  border-radius: var(--radius-full);
+  display: block;
+  cursor: pointer;
+  border: 1px solid var(--divider);
+}

@@ -1,0 +1,79 @@
+.page-title {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: var(--spacing-gutter);
+  border-bottom: 1px solid var(--divider);
+}
+
+.title-group {
+  display: flex;
+  align-items: baseline;
+  gap: var(--spacing-gutter);
+  min-width: 0;
+}
+
+.title-text {
+  font: var(--font-headline-l);
+  font-weight: var(--font-weight-semibold);
+  color: var(--on-surface);
+  white-space: nowrap;
+}
+
+.update-info {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-1);
+  font: var(--font-caption-m);
+  color: var(--on-surface-variant);
+  white-space: nowrap;
+}
+
+.update-icon {
+  color: var(--success);
+}
+
+/* ── 节能策略弹窗 ── */
+.strategy-tip {
+  font: var(--font-body-s);
+  color: var(--on-surface-variant);
+  line-height: var(--line-height-md);
+  margin-bottom: var(--spacing-stack);
+}
+
+.strategy-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.strategy-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-gutter);
+  padding: var(--spacing-stack) 0;
+  border-bottom: 1px solid var(--divider);
+}
+
+.strategy-row:last-child {
+  border-bottom: none;
+}
+
+.strategy-info {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-1);
+  min-width: 0;
+}
+
+.strategy-name {
+  font: var(--font-body-m);
+  font-weight: var(--font-weight-medium);
+  color: var(--on-surface);
+}
+
+.strategy-desc {
+  font: var(--font-body-s);
+  color: var(--on-surface-variant);
+}
