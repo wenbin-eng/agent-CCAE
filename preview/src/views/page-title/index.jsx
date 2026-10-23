@@ -1,5 +1,4 @@
 import { useState } from "react";
-import dayjs from "dayjs";
 import { Button, Modal, Switch, message } from "antd";
 import { Icon } from "../../../assets/shared/icon.jsx";
 import "./index.css";
@@ -31,8 +30,6 @@ export default function PageTitle() {
     STRATEGY_LIST.reduce((acc, s) => ({ ...acc, [s.key]: s.defaultOn }), {})
   );
 
-  const updatedAt = dayjs().format("YYYY-MM-DD HH:mm");
-
   const handleSave = () => {
     setStrategyOpen(false);
     message.success("节能策略已保存并下发至 6 座机楼");
@@ -42,19 +39,27 @@ export default function PageTitle() {
     <div className="page-title">
       <div className="title-group">
         <h2 className="title-text">用能总览</h2>
-        <span className="update-info">
-          <Icon name="circle-check" size="0.875rem" className="update-icon" />
-          数据更新于 {updatedAt} · 每 15 分钟自动刷新
-        </span>
       </div>
 
-      <Button
-        type="primary"
-        icon={<Icon name="sliders-horizontal" size="0.875rem" />}
-        onClick={() => setStrategyOpen(true)}
-      >
-        配置节能策略
-      </Button>
+      <div className="title-actions">
+        <span className="update-time">
+          更新时间：2025-10-14 17:51:00
+          <Icon
+            name="refresh-cw"
+            size="0.875rem"
+            className="update-refresh"
+            title="刷新数据"
+            onClick={() => message.success("用能数据已刷新")}
+          />
+        </span>
+        <Button
+          type="primary"
+          icon={<Icon name="sliders-horizontal" size="0.875rem" />}
+          onClick={() => setStrategyOpen(true)}
+        >
+          配置节能策略
+        </Button>
+      </div>
 
       <Modal
         title="配置节能策略"

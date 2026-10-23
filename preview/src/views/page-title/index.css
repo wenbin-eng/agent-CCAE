@@ -4,7 +4,6 @@
   align-items: center;
   justify-content: space-between;
   padding-bottom: var(--spacing-gutter);
-  border-bottom: 1px solid var(--divider);
 }
 
 .title-group {
@@ -21,7 +20,14 @@
   white-space: nowrap;
 }
 
-.update-info {
+/* ── 右侧动作区:更新时间 + 刷新图标 + 策略按钮 ── */
+.title-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-gutter);
+}
+
+.update-time {
   display: inline-flex;
   align-items: center;
   gap: var(--spacing-1);
@@ -30,8 +36,12 @@
   white-space: nowrap;
 }
 
-.update-icon {
-  color: var(--success);
+.update-refresh {
+  color: var(--on-surface-variant);
+}
+
+.update-refresh:hover {
+  color: var(--color-brand);
 }
 
 /* ── 节能策略弹窗 ── */

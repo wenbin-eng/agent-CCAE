@@ -1,4 +1,4 @@
-/* 左侧:今日用能总览 — 整体面板(标题栏 + 电池信息栏 + 三项指标 + 集群气泡/列表) */
+/* 左侧:今日用能总览 — 无背景整体信息块(标题栏 + 总能耗 + 三项指标 + 集群气泡/列表) */
 .energy-left {
   flex: none;
   width: 678px;
@@ -6,7 +6,6 @@
   display: flex;
   flex-direction: column;
   gap: var(--spacing-gutter);
-  padding: var(--spacing-inset);
   overflow: hidden;
 }
 
@@ -48,41 +47,10 @@
   color: var(--color-brand);
 }
 
-/* ── 信息栏:电池 + 今日总能耗 ── */
+/* ── 信息栏:今日总能耗数值(无背景;与「今日用能总览」文字左对齐,即闪电图标右侧) ── */
 .summary-bar {
   flex: none;
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-gutter);
-  padding: var(--spacing-3) var(--spacing-4);
-  background: var(--surface-variant);
-  border-radius: var(--radius-lg);
-}
-
-.battery-badge {
-  width: 4.5rem;
-  height: 4.5rem;
-  flex: none;
-  display: grid;
-  place-items: center;
-  border-radius: var(--radius-md);
-  background: var(--success-container);
-}
-
-.battery-icon {
-  color: var(--icon-success);
-}
-
-.summary-info {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-1);
-  min-width: 0;
-}
-
-.summary-label {
-  font: var(--font-body-s);
-  color: var(--on-surface-variant);
+  padding-left: 1.75rem; /* 1.25rem 图标宽 + 8px 标题间距 */
 }
 
 .summary-value {
@@ -98,21 +66,40 @@
   margin-left: var(--spacing-1);
 }
 
-/* ── 信息栏:三项用能指标 ── */
+/* ── 信息栏:三项用能指标(无背景,项间竖线分割;首项居左,后两项居中) ── */
 .stat-bar {
   flex: none;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: var(--spacing-gutter);
 }
 
 .stat-item {
   display: flex;
   flex-direction: column;
+  align-items: flex-start;
   gap: var(--spacing-2);
-  padding: var(--spacing-3) var(--spacing-4);
-  background: var(--surface-variant);
-  border-radius: var(--radius-lg);
+  padding: 0 var(--spacing-4);
+}
+
+.stat-item:first-child {
+  padding-left: 0;
+}
+
+.stat-item:last-child {
+  padding-right: 1.25rem; /* 末项整体左移 20px */
+}
+
+/* 项间竖线分割;首项居左 / 第二项居中 / 末项居右,数字行随上方文字对齐 */
+.stat-item + .stat-item {
+  border-left: 1px solid var(--divider);
+}
+
+.stat-item:nth-child(2) {
+  align-items: center;
+}
+
+.stat-item:nth-child(3) {
+  align-items: flex-end;
 }
 
 .stat-head {
@@ -121,16 +108,9 @@
   gap: var(--spacing-inline);
 }
 
-.stat-icon.success {
+/* 指标图标统一绿色 */
+.stat-icon {
   color: var(--icon-success);
-}
-
-.stat-icon.brand {
-  color: var(--primary);
-}
-
-.stat-icon.info {
-  color: var(--color-chart-4);
 }
 
 .stat-label {
@@ -144,11 +124,12 @@
   gap: var(--spacing-1);
 }
 
+/* 数字固定 28px */
 .stat-value {
-  font: var(--font-headline-l);
+  font-size: var(--font-size-4xl);
+  line-height: var(--line-height-xs);
   font-weight: var(--font-weight-semibold);
   color: var(--on-surface);
-  line-height: var(--line-height-sm);
 }
 
 .stat-unit {
@@ -156,134 +137,313 @@
   color: var(--on-surface-variant);
 }
 
-/* ── 集群气泡(拓扑视图):尺寸映射能耗,色彩分档 a(高耗能)>b(中)>c(低) ── */
+/* ── 集群气泡(拓扑视图):大球居中,小球四周环绕,球间留距 ── */
+/* 最上方球顶距信息栏 ≈70px(43 margin + 16 父级 gap + 4 padding + 7 舞台内偏移);不出滚动条 */
 .bubble-field {
   flex: 1 1 0;
   min-height: 0;
   display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  align-content: center;
-  justify-content: center;
-  gap: 0.75rem;
-  overflow-y: auto;
+  overflow: hidden;
+  margin-top: 2.6875rem;
   padding: var(--spacing-1);
 }
 
-.bubble {
+/* 固定舞台:球心 (x,y) 以舞台中心为原点,顶部对齐(横向居中),尺寸随 rem 等比缩放 */
+.bubble-stage {
   position: relative;
   flex: none;
+  width: 41rem;
+  height: 35rem;
+  margin: 0 auto;
+}
+
+.bubble {
+  position: absolute;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 0.125rem;
-  padding: 0.375rem;
+  padding: 0.25rem;
   border-radius: var(--radius-full);
   text-align: center;
   cursor: pointer;
-  transition: transform 0.2s ease, filter 0.2s ease, box-shadow 0.2s ease;
+  transform: translate(-50%, -50%);
+  /* 点击展开:点击球渐隐 / 其余球离心飞散(内联样式驱动过渡) */
+  transition: transform 0.65s ease-out, opacity 0.65s ease-out;
+}
+
+/* hover:不放大;两道彗星光韵沿圆周游走(对角 180° 分布,旋转动画) */
+.bubble::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: var(--radius-full);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+  background: conic-gradient(
+    from 0deg,
+    transparent 0deg,
+    rgb(from var(--mint-10) r g b / 0.45) 15deg,
+    var(--gray-0) 40deg,
+    rgb(from var(--mint-10) r g b / 0.45) 65deg,
+    transparent 90deg,
+    transparent 180deg,
+    rgb(from var(--mint-10) r g b / 0.45) 195deg,
+    var(--gray-0) 220deg,
+    rgb(from var(--mint-10) r g b / 0.45) 245deg,
+    transparent 270deg,
+    transparent 360deg
+  );
+  /* 环带置于静态亮环内侧的过渡区(78%~88%),避免与实色亮边重叠而失去对比 */
+  -webkit-mask: radial-gradient(circle, transparent 0 62%, var(--gray-0) 78%, var(--gray-0) 88%, transparent 94%);
+  mask: radial-gradient(circle, transparent 0 62%, var(--gray-0) 78%, var(--gray-0) 88%, transparent 94%);
+}
+
+/* 关闭球:游走光改为白色(浅色模式用深灰保证可见) */
+.bubble.off::before {
+  background: conic-gradient(
+    from 0deg,
+    transparent 0deg,
+    rgb(from var(--gray-90) r g b / 0.5) 15deg,
+    var(--gray-90) 40deg,
+    rgb(from var(--gray-90) r g b / 0.5) 65deg,
+    transparent 90deg,
+    transparent 180deg,
+    rgb(from var(--gray-90) r g b / 0.5) 195deg,
+    var(--gray-90) 220deg,
+    rgb(from var(--gray-90) r g b / 0.5) 245deg,
+    transparent 270deg,
+    transparent 360deg
+  );
+}
+
+.dark .energy-left .bubble.off::before {
+  background: conic-gradient(
+    from 0deg,
+    transparent 0deg,
+    rgb(from var(--gray-0) r g b / 0.5) 15deg,
+    var(--gray-0) 40deg,
+    rgb(from var(--gray-0) r g b / 0.5) 65deg,
+    transparent 90deg,
+    transparent 180deg,
+    rgb(from var(--gray-0) r g b / 0.5) 195deg,
+    var(--gray-0) 220deg,
+    rgb(from var(--gray-0) r g b / 0.5) 245deg,
+    transparent 270deg,
+    transparent 360deg
+  );
 }
 
 .bubble:hover {
-  transform: scale(1.06);
-  filter: brightness(1.1);
   z-index: 1;
 }
 
+.bubble:hover::before {
+  opacity: 1;
+  animation: bubble-rim-run 3s linear infinite;
+}
+
+@keyframes bubble-rim-run {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* 标题:不换行;start 弹性裁剪 + end 固定末字 → 超宽时中间省略(如 逻...K) */
 .bubble-name {
-  font: var(--font-caption-s);
+  display: flex;
+  justify-content: center;
+  min-width: 0;
+  max-width: 100%;
+  font: var(--font-caption-s); /* 62: 10px */
   color: var(--color-text-inverse);
   line-height: 1.3;
 }
 
-.bubble.lg .bubble-name {
-  font: var(--font-body-s);
-  font-weight: var(--font-weight-medium);
+.bubble-name .name-start {
+  flex: 0 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.bubble-name .name-end {
+  flex: none;
+  white-space: nowrap;
+}
+
+/* 描述(今日总能耗):与标题间距 16px;14px(仅 218/296 显示) */
+.bubble-desc {
+  font-size: var(--font-size-md);
+  color: rgb(from var(--gray-0) r g b / 0.85);
+  line-height: 1.3;
+  white-space: nowrap;
+}
+
+.bubble-name + .bubble-desc {
+  margin-top: calc(1rem - 0.125rem);
 }
 
 .bubble-value {
   font: var(--font-caption-m);
+  font-weight: var(--font-weight-semibold);
   color: var(--color-text-inverse);
   line-height: 1.3;
+  white-space: nowrap;
 }
 
 .bubble-unit {
+  font-size: 0.75em;
   opacity: 0.85;
 }
 
-/* 径向渐变模拟球面受光:左上高光 → 主色 → 半透明边缘 */
-.bubble.tone-a {
-  background: radial-gradient(
-    circle at 30% 26%,
-    rgb(from var(--gray-0) r g b / 0.45),
-    rgb(from var(--color-chart-1) r g b / 0.92) 32%,
-    rgb(from var(--color-chart-1) r g b / 0.55) 68%,
-    rgb(from var(--color-chart-1) r g b / 0.26)
-  );
-  box-shadow: inset 0 0 0 1px rgb(from var(--gray-0) r g b / 0.22);
+/* ── 分级内容与字号:140(md) 标题+数字;218(lg) 标题+描述+数字;296(xl) 完整结构 ──
+   296 规格:标题 16 / 描述 14 / 数字 48 / 细节文字 14 / 细节数字 24;小球等比缩小 */
+.bubble.md .bubble-name {
+  font: var(--font-body-s);
+  font-weight: var(--font-weight-medium);
 }
 
-.bubble.tone-b {
-  background: radial-gradient(
-    circle at 30% 26%,
-    rgb(from var(--gray-0) r g b / 0.45),
-    rgb(from var(--color-chart-4) r g b / 0.92) 32%,
-    rgb(from var(--color-chart-4) r g b / 0.55) 68%,
-    rgb(from var(--color-chart-4) r g b / 0.26)
-  );
-  box-shadow: inset 0 0 0 1px rgb(from var(--gray-0) r g b / 0.22);
+.bubble.md .bubble-value {
+  font-size: var(--font-size-lg);
+  line-height: var(--line-height-xs);
 }
 
-.bubble.tone-c {
-  background: radial-gradient(
-    circle at 30% 26%,
-    rgb(from var(--gray-0) r g b / 0.45),
-    rgb(from var(--color-chart-6) r g b / 0.9) 32%,
-    rgb(from var(--color-chart-6) r g b / 0.52) 68%,
-    rgb(from var(--color-chart-6) r g b / 0.24)
-  );
-  box-shadow: inset 0 0 0 1px rgb(from var(--gray-0) r g b / 0.2);
+.bubble.lg .bubble-name {
+  font: var(--font-body-m);
+  font-weight: var(--font-weight-semibold);
 }
 
-/* 深色模式:球心提亮 + 外发光,玻璃质感更通透 */
-.dark .energy-left .bubble.tone-a {
-  background: radial-gradient(
-    circle at 30% 26%,
-    rgb(from var(--gray-0) r g b / 0.5),
-    rgb(from var(--blue-40) r g b / 0.85) 32%,
-    rgb(from var(--color-chart-1) r g b / 0.5) 68%,
-    rgb(from var(--color-chart-1) r g b / 0.2)
-  );
-  box-shadow:
-    0 0 1.25rem rgb(from var(--color-chart-1) r g b / 0.3),
-    inset 0 0 0 1px rgb(from var(--gray-0) r g b / 0.16);
+.bubble.lg .bubble-value {
+  font-size: var(--font-size-5xl);
+  line-height: var(--line-height-xs);
 }
 
-.dark .energy-left .bubble.tone-b {
-  background: radial-gradient(
-    circle at 30% 26%,
-    rgb(from var(--gray-0) r g b / 0.5),
-    rgb(from var(--cyan-40) r g b / 0.85) 32%,
-    rgb(from var(--color-chart-4) r g b / 0.5) 68%,
-    rgb(from var(--color-chart-4) r g b / 0.2)
-  );
-  box-shadow:
-    0 0 1.25rem rgb(from var(--color-chart-4) r g b / 0.3),
-    inset 0 0 0 1px rgb(from var(--gray-0) r g b / 0.16);
+.bubble.xl .bubble-name {
+  font: var(--font-body-l);
+  font-weight: var(--font-weight-semibold);
 }
 
-.dark .energy-left .bubble.tone-c {
+.bubble.xl .bubble-value {
+  font-size: var(--font-size-6xl);
+  line-height: var(--line-height-xs);
+}
+
+/* xl 细节行:左右两项,每项上标签(14)下数值(24) */
+.bubble-detail {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-6);
+  margin-top: calc(0.75rem - 0.125rem);
+  white-space: nowrap;
+}
+
+.detail-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.125rem;
+}
+
+.detail-label {
+  font-size: var(--font-size-md);
+  line-height: 1.3;
+  color: rgb(from var(--gray-0) r g b / 0.8);
+}
+
+.detail-value {
+  font-size: var(--font-size-4xl);
+  line-height: var(--line-height-xs);
+  color: var(--color-text-inverse);
+}
+
+/* ── 气泡状态 ──
+   开启:淡绿球体 + 中心节能叶子水印 + 边缘白色光韵;
+   关闭:背景全透明,仅边缘白色光韵(由外向内渐淡,约 1/3 半径处消失,不进入中心) */
+/* 开启:半透明淡绿球体(通透感) + 圆周明亮的白绿光韵(加宽加亮,圆周实色) + 淡叶子水印 */
+.bubble.on {
+  background:
+    radial-gradient(
+      circle,
+      transparent 0 36%,
+      rgb(from var(--mint-10) r g b / 0.14) 52%,
+      rgb(from var(--mint-10) r g b / 0.36) 66%,
+      rgb(from var(--mint-10) r g b / 0.68) 80%,
+      var(--mint-10) 92%,
+      var(--mint-05) 100%
+    ),
+    radial-gradient(
+      circle at 32% 28%,
+      rgb(from var(--mint-20) r g b / 0.26),
+      rgb(from var(--mint-40) r g b / 0.22) 42%,
+      rgb(from var(--mint-50) r g b / 0.28) 78%,
+      rgb(from var(--mint-60) r g b / 0.18)
+    );
+  box-shadow: inset 0 0 0.5rem rgb(from var(--mint-10) r g b / 0.65);
+}
+
+/* 关闭:背景全透明;光韵只在圆内、不向外延伸:圆周最亮,向内过渡带占 60% 半径,内圈尾段按缓起渐陡的曲线淡出(自然衰减) */
+.bubble.off {
   background: radial-gradient(
-    circle at 30% 26%,
-    rgb(from var(--gray-0) r g b / 0.5),
-    rgb(from var(--brand-30) r g b / 0.85) 32%,
-    rgb(from var(--color-chart-6) r g b / 0.5) 68%,
-    rgb(from var(--color-chart-6) r g b / 0.18)
+    circle,
+    transparent 0 40%,
+    rgb(from var(--gray-90) r g b / 0.04) 46%,
+    rgb(from var(--gray-90) r g b / 0.12) 53%,
+    rgb(from var(--gray-90) r g b / 0.27) 62%,
+    rgb(from var(--gray-90) r g b / 0.62) 81%,
+    var(--gray-90) 94%,
+    var(--gray-90) 100%
   );
-  box-shadow:
-    0 0 1.25rem rgb(from var(--color-chart-6) r g b / 0.28),
-    inset 0 0 0 1px rgb(from var(--gray-0) r g b / 0.14);
+  box-shadow: inset 0 0 0.375rem rgb(from var(--gray-90) r g b / 0.5);
+}
+
+/* 浅色下关闭球无背景,文字改深色保证可读 */
+.bubble.off .bubble-name,
+.bubble.off .bubble-desc,
+.bubble.off .bubble-value,
+.bubble.off .detail-label,
+.bubble.off .detail-value {
+  color: var(--color-text-primary);
+}
+
+.dark .energy-left .bubble.off {
+  background: radial-gradient(
+    circle,
+    transparent 0 40%,
+    rgb(from var(--gray-0) r g b / 0.05) 46%,
+    rgb(from var(--gray-0) r g b / 0.16) 53%,
+    rgb(from var(--gray-0) r g b / 0.34) 62%,
+    rgb(from var(--gray-0) r g b / 0.7) 81%,
+    var(--gray-0) 94%,
+    var(--gray-0) 100%
+  );
+  box-shadow: inset 0 0 0.375rem rgb(from var(--gray-0) r g b / 0.55);
+}
+
+.dark .energy-left .bubble.off .bubble-name,
+.dark .energy-left .bubble.off .bubble-desc,
+.dark .energy-left .bubble.off .bubble-value,
+.dark .energy-left .bubble.off .detail-label,
+.dark .energy-left .bubble.off .detail-value {
+  color: var(--color-text-inverse);
+}
+
+/* 节能叶子水印:居中垫底(负层级,位于球体之上、文字之下),随球径等比缩放,淡雅不抢文字 */
+.bubble-leaf {
+  position: absolute;
+  inset: 24%;
+  z-index: -1;
+  opacity: 0.18;
+  color: var(--gray-0);
+  pointer-events: none;
+}
+
+.bubble-leaf svg {
+  width: 100%;
+  height: 100%;
 }
 
 /* ── 集群排行(列表视图) ── */
@@ -362,16 +522,12 @@
   border-radius: var(--radius-full);
 }
 
-.cluster-bar-fill.tone-a {
-  background: var(--color-chart-1);
+.cluster-bar-fill.on {
+  background: var(--color-success);
 }
 
-.cluster-bar-fill.tone-b {
-  background: var(--color-chart-4);
-}
-
-.cluster-bar-fill.tone-c {
-  background: var(--color-chart-6);
+.cluster-bar-fill.off {
+  background: var(--color-none);
 }
 
 .cluster-energy {
@@ -381,4 +537,66 @@
   font: var(--font-caption-m);
   color: var(--on-surface);
   white-space: nowrap;
+}
+
+/* -- ????(???????,??????????;?? 48�48) -- */
+.honey-wrap {
+  position: relative;
+  flex: none;
+  width: 41rem;
+  height: 35rem;
+  margin: 0 auto;
+}
+
+.honey-bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-gutter);
+}
+
+.honey-title {
+  font: var(--font-body-s);
+  color: var(--on-surface-variant);
+  white-space: nowrap;
+}
+
+.honey-cell {
+  position: absolute;
+  width: 3rem;   /* 48�48 */
+  height: 3rem;
+  clip-path: polygon(25% 0, 75% 0, 100% 50%, 75% 100%, 25% 100%, 0 50%);
+  animation: honey-in 0.32s ease-out both;
+  transition: filter 0.2s ease;
+  cursor: default;
+}
+
+.honey-cell:hover {
+  filter: brightness(1.6);
+}
+
+.honey-cell.v0 {
+  background: rgb(from var(--mint-50) r g b / 0.08);
+}
+
+.honey-cell.v1 {
+  background: rgb(from var(--mint-50) r g b / 0.18);
+}
+
+.honey-cell.v2 {
+  background: rgb(from var(--mint-40) r g b / 0.6);
+}
+
+@keyframes honey-in {
+  from {
+    opacity: 0;
+    transform: scale(0.2);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }

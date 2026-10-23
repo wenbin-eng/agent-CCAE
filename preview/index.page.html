@@ -4191,7 +4191,6 @@ input.ant-input.ant-input-sm {
   align-items: center;
   justify-content: space-between;
   padding-bottom: var(--spacing-gutter);
-  border-bottom: 1px solid var(--divider);
 }
 
 .title-group {
@@ -4208,7 +4207,14 @@ input.ant-input.ant-input-sm {
   white-space: nowrap;
 }
 
-.update-info {
+/* ── 右侧动作区:更新时间 + 刷新图标 + 策略按钮 ── */
+.title-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-gutter);
+}
+
+.update-time {
   display: inline-flex;
   align-items: center;
   gap: var(--spacing-1);
@@ -4217,8 +4223,12 @@ input.ant-input.ant-input-sm {
   white-space: nowrap;
 }
 
-.update-icon {
-  color: var(--success);
+.update-refresh {
+  color: var(--on-surface-variant);
+}
+
+.update-refresh:hover {
+  color: var(--color-brand);
 }
 
 /* ── 节能策略弹窗 ── */
@@ -4266,7 +4276,7 @@ input.ant-input.ant-input-sm {
 }
 
 
-/* 左侧:今日用能总览 — 整体面板(标题栏 + 电池信息栏 + 三项指标 + 集群气泡/列表) */
+/* 左侧:今日用能总览 — 无背景整体信息块(标题栏 + 总能耗 + 三项指标 + 集群气泡/列表) */
 .energy-left {
   flex: none;
   width: 678px;
@@ -4274,7 +4284,6 @@ input.ant-input.ant-input-sm {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-gutter);
-  padding: var(--spacing-inset);
   overflow: hidden;
 }
 
@@ -4316,41 +4325,10 @@ input.ant-input.ant-input-sm {
   color: var(--color-brand);
 }
 
-/* ── 信息栏:电池 + 今日总能耗 ── */
+/* ── 信息栏:今日总能耗数值(无背景;与「今日用能总览」文字左对齐,即闪电图标右侧) ── */
 .summary-bar {
   flex: none;
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-gutter);
-  padding: var(--spacing-3) var(--spacing-4);
-  background: var(--surface-variant);
-  border-radius: var(--radius-lg);
-}
-
-.battery-badge {
-  width: 4.5rem;
-  height: 4.5rem;
-  flex: none;
-  display: grid;
-  place-items: center;
-  border-radius: var(--radius-md);
-  background: var(--success-container);
-}
-
-.battery-icon {
-  color: var(--icon-success);
-}
-
-.summary-info {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-1);
-  min-width: 0;
-}
-
-.summary-label {
-  font: var(--font-body-s);
-  color: var(--on-surface-variant);
+  padding-left: 1.75rem; /* 1.25rem 图标宽 + 8px 标题间距 */
 }
 
 .summary-value {
@@ -4366,21 +4344,40 @@ input.ant-input.ant-input-sm {
   margin-left: var(--spacing-1);
 }
 
-/* ── 信息栏:三项用能指标 ── */
+/* ── 信息栏:三项用能指标(无背景,项间竖线分割;首项居左,后两项居中) ── */
 .stat-bar {
   flex: none;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: var(--spacing-gutter);
 }
 
 .stat-item {
   display: flex;
   flex-direction: column;
+  align-items: flex-start;
   gap: var(--spacing-2);
-  padding: var(--spacing-3) var(--spacing-4);
-  background: var(--surface-variant);
-  border-radius: var(--radius-lg);
+  padding: 0 var(--spacing-4);
+}
+
+.stat-item:first-child {
+  padding-left: 0;
+}
+
+.stat-item:last-child {
+  padding-right: 1.25rem; /* 末项整体左移 20px */
+}
+
+/* 项间竖线分割;首项居左 / 第二项居中 / 末项居右,数字行随上方文字对齐 */
+.stat-item + .stat-item {
+  border-left: 1px solid var(--divider);
+}
+
+.stat-item:nth-child(2) {
+  align-items: center;
+}
+
+.stat-item:nth-child(3) {
+  align-items: flex-end;
 }
 
 .stat-head {
@@ -4389,16 +4386,9 @@ input.ant-input.ant-input-sm {
   gap: var(--spacing-inline);
 }
 
-.stat-icon.success {
+/* 指标图标统一绿色 */
+.stat-icon {
   color: var(--icon-success);
-}
-
-.stat-icon.brand {
-  color: var(--primary);
-}
-
-.stat-icon.info {
-  color: var(--color-chart-4);
 }
 
 .stat-label {
@@ -4412,11 +4402,12 @@ input.ant-input.ant-input-sm {
   gap: var(--spacing-1);
 }
 
+/* 数字固定 28px */
 .stat-value {
-  font: var(--font-headline-l);
+  font-size: var(--font-size-4xl);
+  line-height: var(--line-height-xs);
   font-weight: var(--font-weight-semibold);
   color: var(--on-surface);
-  line-height: var(--line-height-sm);
 }
 
 .stat-unit {
@@ -4424,134 +4415,313 @@ input.ant-input.ant-input-sm {
   color: var(--on-surface-variant);
 }
 
-/* ── 集群气泡(拓扑视图):尺寸映射能耗,色彩分档 a(高耗能)>b(中)>c(低) ── */
+/* ── 集群气泡(拓扑视图):大球居中,小球四周环绕,球间留距 ── */
+/* 最上方球顶距信息栏 ≈70px(43 margin + 16 父级 gap + 4 padding + 7 舞台内偏移);不出滚动条 */
 .bubble-field {
   flex: 1 1 0;
   min-height: 0;
   display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  align-content: center;
-  justify-content: center;
-  gap: 0.75rem;
-  overflow-y: auto;
+  overflow: hidden;
+  margin-top: 2.6875rem;
   padding: var(--spacing-1);
 }
 
-.bubble {
+/* 固定舞台:球心 (x,y) 以舞台中心为原点,顶部对齐(横向居中),尺寸随 rem 等比缩放 */
+.bubble-stage {
   position: relative;
   flex: none;
+  width: 41rem;
+  height: 35rem;
+  margin: 0 auto;
+}
+
+.bubble {
+  position: absolute;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 0.125rem;
-  padding: 0.375rem;
+  padding: 0.25rem;
   border-radius: var(--radius-full);
   text-align: center;
   cursor: pointer;
-  transition: transform 0.2s ease, filter 0.2s ease, box-shadow 0.2s ease;
+  transform: translate(-50%, -50%);
+  /* 点击展开:点击球渐隐 / 其余球离心飞散(内联样式驱动过渡) */
+  transition: transform 0.65s ease-out, opacity 0.65s ease-out;
+}
+
+/* hover:不放大;两道彗星光韵沿圆周游走(对角 180° 分布,旋转动画) */
+.bubble::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: var(--radius-full);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+  background: conic-gradient(
+    from 0deg,
+    transparent 0deg,
+    rgb(from var(--mint-10) r g b / 0.45) 15deg,
+    var(--gray-0) 40deg,
+    rgb(from var(--mint-10) r g b / 0.45) 65deg,
+    transparent 90deg,
+    transparent 180deg,
+    rgb(from var(--mint-10) r g b / 0.45) 195deg,
+    var(--gray-0) 220deg,
+    rgb(from var(--mint-10) r g b / 0.45) 245deg,
+    transparent 270deg,
+    transparent 360deg
+  );
+  /* 环带置于静态亮环内侧的过渡区(78%~88%),避免与实色亮边重叠而失去对比 */
+  -webkit-mask: radial-gradient(circle, transparent 0 62%, var(--gray-0) 78%, var(--gray-0) 88%, transparent 94%);
+  mask: radial-gradient(circle, transparent 0 62%, var(--gray-0) 78%, var(--gray-0) 88%, transparent 94%);
+}
+
+/* 关闭球:游走光改为白色(浅色模式用深灰保证可见) */
+.bubble.off::before {
+  background: conic-gradient(
+    from 0deg,
+    transparent 0deg,
+    rgb(from var(--gray-90) r g b / 0.5) 15deg,
+    var(--gray-90) 40deg,
+    rgb(from var(--gray-90) r g b / 0.5) 65deg,
+    transparent 90deg,
+    transparent 180deg,
+    rgb(from var(--gray-90) r g b / 0.5) 195deg,
+    var(--gray-90) 220deg,
+    rgb(from var(--gray-90) r g b / 0.5) 245deg,
+    transparent 270deg,
+    transparent 360deg
+  );
+}
+
+.dark .energy-left .bubble.off::before {
+  background: conic-gradient(
+    from 0deg,
+    transparent 0deg,
+    rgb(from var(--gray-0) r g b / 0.5) 15deg,
+    var(--gray-0) 40deg,
+    rgb(from var(--gray-0) r g b / 0.5) 65deg,
+    transparent 90deg,
+    transparent 180deg,
+    rgb(from var(--gray-0) r g b / 0.5) 195deg,
+    var(--gray-0) 220deg,
+    rgb(from var(--gray-0) r g b / 0.5) 245deg,
+    transparent 270deg,
+    transparent 360deg
+  );
 }
 
 .bubble:hover {
-  transform: scale(1.06);
-  filter: brightness(1.1);
   z-index: 1;
 }
 
+.bubble:hover::before {
+  opacity: 1;
+  animation: bubble-rim-run 3s linear infinite;
+}
+
+@keyframes bubble-rim-run {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* 标题:不换行;start 弹性裁剪 + end 固定末字 → 超宽时中间省略(如 逻...K) */
 .bubble-name {
-  font: var(--font-caption-s);
+  display: flex;
+  justify-content: center;
+  min-width: 0;
+  max-width: 100%;
+  font: var(--font-caption-s); /* 62: 10px */
   color: var(--color-text-inverse);
   line-height: 1.3;
 }
 
-.bubble.lg .bubble-name {
-  font: var(--font-body-s);
-  font-weight: var(--font-weight-medium);
+.bubble-name .name-start {
+  flex: 0 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.bubble-name .name-end {
+  flex: none;
+  white-space: nowrap;
+}
+
+/* 描述(今日总能耗):与标题间距 16px;14px(仅 218/296 显示) */
+.bubble-desc {
+  font-size: var(--font-size-md);
+  color: rgb(from var(--gray-0) r g b / 0.85);
+  line-height: 1.3;
+  white-space: nowrap;
+}
+
+.bubble-name + .bubble-desc {
+  margin-top: calc(1rem - 0.125rem);
 }
 
 .bubble-value {
   font: var(--font-caption-m);
+  font-weight: var(--font-weight-semibold);
   color: var(--color-text-inverse);
   line-height: 1.3;
+  white-space: nowrap;
 }
 
 .bubble-unit {
+  font-size: 0.75em;
   opacity: 0.85;
 }
 
-/* 径向渐变模拟球面受光:左上高光 → 主色 → 半透明边缘 */
-.bubble.tone-a {
-  background: radial-gradient(
-    circle at 30% 26%,
-    rgb(from var(--gray-0) r g b / 0.45),
-    rgb(from var(--color-chart-1) r g b / 0.92) 32%,
-    rgb(from var(--color-chart-1) r g b / 0.55) 68%,
-    rgb(from var(--color-chart-1) r g b / 0.26)
-  );
-  box-shadow: inset 0 0 0 1px rgb(from var(--gray-0) r g b / 0.22);
+/* ── 分级内容与字号:140(md) 标题+数字;218(lg) 标题+描述+数字;296(xl) 完整结构 ──
+   296 规格:标题 16 / 描述 14 / 数字 48 / 细节文字 14 / 细节数字 24;小球等比缩小 */
+.bubble.md .bubble-name {
+  font: var(--font-body-s);
+  font-weight: var(--font-weight-medium);
 }
 
-.bubble.tone-b {
-  background: radial-gradient(
-    circle at 30% 26%,
-    rgb(from var(--gray-0) r g b / 0.45),
-    rgb(from var(--color-chart-4) r g b / 0.92) 32%,
-    rgb(from var(--color-chart-4) r g b / 0.55) 68%,
-    rgb(from var(--color-chart-4) r g b / 0.26)
-  );
-  box-shadow: inset 0 0 0 1px rgb(from var(--gray-0) r g b / 0.22);
+.bubble.md .bubble-value {
+  font-size: var(--font-size-lg);
+  line-height: var(--line-height-xs);
 }
 
-.bubble.tone-c {
-  background: radial-gradient(
-    circle at 30% 26%,
-    rgb(from var(--gray-0) r g b / 0.45),
-    rgb(from var(--color-chart-6) r g b / 0.9) 32%,
-    rgb(from var(--color-chart-6) r g b / 0.52) 68%,
-    rgb(from var(--color-chart-6) r g b / 0.24)
-  );
-  box-shadow: inset 0 0 0 1px rgb(from var(--gray-0) r g b / 0.2);
+.bubble.lg .bubble-name {
+  font: var(--font-body-m);
+  font-weight: var(--font-weight-semibold);
 }
 
-/* 深色模式:球心提亮 + 外发光,玻璃质感更通透 */
-.dark .energy-left .bubble.tone-a {
-  background: radial-gradient(
-    circle at 30% 26%,
-    rgb(from var(--gray-0) r g b / 0.5),
-    rgb(from var(--blue-40) r g b / 0.85) 32%,
-    rgb(from var(--color-chart-1) r g b / 0.5) 68%,
-    rgb(from var(--color-chart-1) r g b / 0.2)
-  );
-  box-shadow:
-    0 0 1.25rem rgb(from var(--color-chart-1) r g b / 0.3),
-    inset 0 0 0 1px rgb(from var(--gray-0) r g b / 0.16);
+.bubble.lg .bubble-value {
+  font-size: var(--font-size-5xl);
+  line-height: var(--line-height-xs);
 }
 
-.dark .energy-left .bubble.tone-b {
-  background: radial-gradient(
-    circle at 30% 26%,
-    rgb(from var(--gray-0) r g b / 0.5),
-    rgb(from var(--cyan-40) r g b / 0.85) 32%,
-    rgb(from var(--color-chart-4) r g b / 0.5) 68%,
-    rgb(from var(--color-chart-4) r g b / 0.2)
-  );
-  box-shadow:
-    0 0 1.25rem rgb(from var(--color-chart-4) r g b / 0.3),
-    inset 0 0 0 1px rgb(from var(--gray-0) r g b / 0.16);
+.bubble.xl .bubble-name {
+  font: var(--font-body-l);
+  font-weight: var(--font-weight-semibold);
 }
 
-.dark .energy-left .bubble.tone-c {
+.bubble.xl .bubble-value {
+  font-size: var(--font-size-6xl);
+  line-height: var(--line-height-xs);
+}
+
+/* xl 细节行:左右两项,每项上标签(14)下数值(24) */
+.bubble-detail {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-6);
+  margin-top: calc(0.75rem - 0.125rem);
+  white-space: nowrap;
+}
+
+.detail-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.125rem;
+}
+
+.detail-label {
+  font-size: var(--font-size-md);
+  line-height: 1.3;
+  color: rgb(from var(--gray-0) r g b / 0.8);
+}
+
+.detail-value {
+  font-size: var(--font-size-4xl);
+  line-height: var(--line-height-xs);
+  color: var(--color-text-inverse);
+}
+
+/* ── 气泡状态 ──
+   开启:淡绿球体 + 中心节能叶子水印 + 边缘白色光韵;
+   关闭:背景全透明,仅边缘白色光韵(由外向内渐淡,约 1/3 半径处消失,不进入中心) */
+/* 开启:半透明淡绿球体(通透感) + 圆周明亮的白绿光韵(加宽加亮,圆周实色) + 淡叶子水印 */
+.bubble.on {
+  background:
+    radial-gradient(
+      circle,
+      transparent 0 36%,
+      rgb(from var(--mint-10) r g b / 0.14) 52%,
+      rgb(from var(--mint-10) r g b / 0.36) 66%,
+      rgb(from var(--mint-10) r g b / 0.68) 80%,
+      var(--mint-10) 92%,
+      var(--mint-05) 100%
+    ),
+    radial-gradient(
+      circle at 32% 28%,
+      rgb(from var(--mint-20) r g b / 0.26),
+      rgb(from var(--mint-40) r g b / 0.22) 42%,
+      rgb(from var(--mint-50) r g b / 0.28) 78%,
+      rgb(from var(--mint-60) r g b / 0.18)
+    );
+  box-shadow: inset 0 0 0.5rem rgb(from var(--mint-10) r g b / 0.65);
+}
+
+/* 关闭:背景全透明;光韵只在圆内、不向外延伸:圆周最亮,向内过渡带占 60% 半径,内圈尾段按缓起渐陡的曲线淡出(自然衰减) */
+.bubble.off {
   background: radial-gradient(
-    circle at 30% 26%,
-    rgb(from var(--gray-0) r g b / 0.5),
-    rgb(from var(--brand-30) r g b / 0.85) 32%,
-    rgb(from var(--color-chart-6) r g b / 0.5) 68%,
-    rgb(from var(--color-chart-6) r g b / 0.18)
+    circle,
+    transparent 0 40%,
+    rgb(from var(--gray-90) r g b / 0.04) 46%,
+    rgb(from var(--gray-90) r g b / 0.12) 53%,
+    rgb(from var(--gray-90) r g b / 0.27) 62%,
+    rgb(from var(--gray-90) r g b / 0.62) 81%,
+    var(--gray-90) 94%,
+    var(--gray-90) 100%
   );
-  box-shadow:
-    0 0 1.25rem rgb(from var(--color-chart-6) r g b / 0.28),
-    inset 0 0 0 1px rgb(from var(--gray-0) r g b / 0.14);
+  box-shadow: inset 0 0 0.375rem rgb(from var(--gray-90) r g b / 0.5);
+}
+
+/* 浅色下关闭球无背景,文字改深色保证可读 */
+.bubble.off .bubble-name,
+.bubble.off .bubble-desc,
+.bubble.off .bubble-value,
+.bubble.off .detail-label,
+.bubble.off .detail-value {
+  color: var(--color-text-primary);
+}
+
+.dark .energy-left .bubble.off {
+  background: radial-gradient(
+    circle,
+    transparent 0 40%,
+    rgb(from var(--gray-0) r g b / 0.05) 46%,
+    rgb(from var(--gray-0) r g b / 0.16) 53%,
+    rgb(from var(--gray-0) r g b / 0.34) 62%,
+    rgb(from var(--gray-0) r g b / 0.7) 81%,
+    var(--gray-0) 94%,
+    var(--gray-0) 100%
+  );
+  box-shadow: inset 0 0 0.375rem rgb(from var(--gray-0) r g b / 0.55);
+}
+
+.dark .energy-left .bubble.off .bubble-name,
+.dark .energy-left .bubble.off .bubble-desc,
+.dark .energy-left .bubble.off .bubble-value,
+.dark .energy-left .bubble.off .detail-label,
+.dark .energy-left .bubble.off .detail-value {
+  color: var(--color-text-inverse);
+}
+
+/* 节能叶子水印:居中垫底(负层级,位于球体之上、文字之下),随球径等比缩放,淡雅不抢文字 */
+.bubble-leaf {
+  position: absolute;
+  inset: 24%;
+  z-index: -1;
+  opacity: 0.18;
+  color: var(--gray-0);
+  pointer-events: none;
+}
+
+.bubble-leaf svg {
+  width: 100%;
+  height: 100%;
 }
 
 /* ── 集群排行(列表视图) ── */
@@ -4630,16 +4800,12 @@ input.ant-input.ant-input-sm {
   border-radius: var(--radius-full);
 }
 
-.cluster-bar-fill.tone-a {
-  background: var(--color-chart-1);
+.cluster-bar-fill.on {
+  background: var(--color-success);
 }
 
-.cluster-bar-fill.tone-b {
-  background: var(--color-chart-4);
-}
-
-.cluster-bar-fill.tone-c {
-  background: var(--color-chart-6);
+.cluster-bar-fill.off {
+  background: var(--color-none);
 }
 
 .cluster-energy {
@@ -4649,6 +4815,68 @@ input.ant-input.ant-input-sm {
   font: var(--font-caption-m);
   color: var(--on-surface);
   white-space: nowrap;
+}
+
+/* -- ????(???????,??????????;?? 48�48) -- */
+.honey-wrap {
+  position: relative;
+  flex: none;
+  width: 41rem;
+  height: 35rem;
+  margin: 0 auto;
+}
+
+.honey-bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-gutter);
+}
+
+.honey-title {
+  font: var(--font-body-s);
+  color: var(--on-surface-variant);
+  white-space: nowrap;
+}
+
+.honey-cell {
+  position: absolute;
+  width: 3rem;   /* 48�48 */
+  height: 3rem;
+  clip-path: polygon(25% 0, 75% 0, 100% 50%, 75% 100%, 25% 100%, 0 50%);
+  animation: honey-in 0.32s ease-out both;
+  transition: filter 0.2s ease;
+  cursor: default;
+}
+
+.honey-cell:hover {
+  filter: brightness(1.6);
+}
+
+.honey-cell.v0 {
+  background: rgb(from var(--mint-50) r g b / 0.08);
+}
+
+.honey-cell.v1 {
+  background: rgb(from var(--mint-50) r g b / 0.18);
+}
+
+.honey-cell.v2 {
+  background: rgb(from var(--mint-40) r g b / 0.6);
+}
+
+@keyframes honey-in {
+  from {
+    opacity: 0;
+    transform: scale(0.2);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 
@@ -5104,14 +5332,13 @@ function useApp() {
 (function () {
   const LUCIDE = {
     "arrow-down-up": [["path",{"d":"m3 16 4 4 4-4"}],["path",{"d":"M7 20V4"}],["path",{"d":"m21 8-4-4-4 4"}],["path",{"d":"M17 4v16"}]],
+    "arrow-left": [["path",{"d":"m12 19-7-7 7-7"}],["path",{"d":"M19 12H5"}]],
     "arrow-up-down": [["path",{"d":"m21 16-4 4-4-4"}],["path",{"d":"M17 20V4"}],["path",{"d":"m3 8 4-4 4 4"}],["path",{"d":"M7 4v16"}]],
-    "battery-charging": [["path",{"d":"m11 7-3 5h4l-3 5"}],["path",{"d":"M14.856 6H16a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-2.935"}],["path",{"d":"M22 14v-4"}],["path",{"d":"M5.14 18H4a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h2.936"}]],
     "bell-ring": [["path",{"d":"M10.268 21a2 2 0 0 0 3.464 0"}],["path",{"d":"M22 8c0-2.3-.8-4.3-2-6"}],["path",{"d":"M3.262 15.326A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.673C19.41 13.956 18 12.499 18 8A6 6 0 0 0 6 8c0 4.499-1.411 5.956-2.738 7.326"}],["path",{"d":"M4 2C2.8 3.7 2 5.7 2 8"}]],
     "boxes": [["path",{"d":"M2.97 12.92A2 2 0 0 0 2 14.63v3.24a2 2 0 0 0 .97 1.71l3 1.8a2 2 0 0 0 2.06 0L12 19v-5.5l-5-3-4.03 2.42Z"}],["path",{"d":"m7 16.5-4.74-2.85"}],["path",{"d":"m7 16.5 5-3"}],["path",{"d":"M7 16.5v5.17"}],["path",{"d":"M12 13.5V19l3.97 2.38a2 2 0 0 0 2.06 0l3-1.8a2 2 0 0 0 .97-1.71v-3.24a2 2 0 0 0-.97-1.71L17 10.5l-5 3Z"}],["path",{"d":"m17 16.5-5-3"}],["path",{"d":"m17 16.5 4.74-2.85"}],["path",{"d":"M17 16.5v5.17"}],["path",{"d":"M7.97 4.42A2 2 0 0 0 7 6.13v4.37l5 3 5-3V6.13a2 2 0 0 0-.97-1.71l-3-1.8a2 2 0 0 0-2.06 0l-3 1.8Z"}],["path",{"d":"M12 8 7.26 5.15"}],["path",{"d":"m12 8 4.74-2.85"}],["path",{"d":"M12 13.5V8"}]],
     "building-2": [["path",{"d":"M10 12h4"}],["path",{"d":"M10 8h4"}],["path",{"d":"M14 21v-3a2 2 0 0 0-4 0v3"}],["path",{"d":"M6 10H4a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-2"}],["path",{"d":"M6 21V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v16"}]],
     "chart-pie": [["path",{"d":"M21 12c.552 0 1.005-.449.95-.998a10 10 0 0 0-8.953-8.951c-.55-.055-.998.398-.998.95v8a1 1 0 0 0 1 1z"}],["path",{"d":"M21.21 15.89A10 10 0 1 1 8 2.83"}]],
     "chevron-down": [["path",{"d":"m6 9 6 6 6-6"}]],
-    "circle-check": [["circle",{"cx":"12","cy":"12","r":"10"}],["path",{"d":"m9 12 2 2 4-4"}]],
     "ellipsis": [["circle",{"cx":"12","cy":"12","r":"1"}],["circle",{"cx":"19","cy":"12","r":"1"}],["circle",{"cx":"5","cy":"12","r":"1"}]],
     "file-down": [["path",{"d":"M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z"}],["path",{"d":"M14 2v5a1 1 0 0 0 1 1h5"}],["path",{"d":"M12 18v-6"}],["path",{"d":"m9 15 3 3 3-3"}]],
     "funnel": [["path",{"d":"M10 20a1 1 0 0 0 .553.895l2 1A1 1 0 0 0 14 21v-7a2 2 0 0 1 .517-1.341L21.74 4.67A1 1 0 0 0 21 3H3a1 1 0 0 0-.742 1.67l7.225 7.989A2 2 0 0 1 10 14z"}]],
@@ -5122,6 +5349,7 @@ function useApp() {
     "server": [["rect",{"width":"20","height":"8","x":"2","y":"2","rx":"2","ry":"2"}],["rect",{"width":"20","height":"8","x":"2","y":"14","rx":"2","ry":"2"}],["line",{"x1":"6","x2":"6.01","y1":"6","y2":"6"}],["line",{"x1":"6","x2":"6.01","y1":"18","y2":"18"}]],
     "sliders-horizontal": [["path",{"d":"M10 5H3"}],["path",{"d":"M12 19H3"}],["path",{"d":"M14 3v4"}],["path",{"d":"M16 17v4"}],["path",{"d":"M21 12h-9"}],["path",{"d":"M21 19h-5"}],["path",{"d":"M21 5h-7"}],["path",{"d":"M8 10v4"}],["path",{"d":"M8 12H3"}]],
     "sun": [["circle",{"cx":"12","cy":"12","r":"4"}],["path",{"d":"M12 2v2"}],["path",{"d":"M12 20v2"}],["path",{"d":"m4.93 4.93 1.41 1.41"}],["path",{"d":"m17.66 17.66 1.41 1.41"}],["path",{"d":"M2 12h2"}],["path",{"d":"M20 12h2"}],["path",{"d":"m6.34 17.66-1.41 1.41"}],["path",{"d":"m19.07 4.93-1.41 1.41"}]],
+    "trending-down": [["path",{"d":"M16 17h6v-6"}],["path",{"d":"m22 17-8.5-8.5-5 5L2 7"}]],
     "trending-up": [["path",{"d":"M16 7h6v6"}],["path",{"d":"m22 7-8.5 8.5-5-5L2 17"}]],
     "zap": [["path",{"d":"M15.914 4a1.5 1.5 0 00-2.474-1.561l-9 9A1.5 1.5 0 005.5 14h4.002a.5.5 0 01.471.666L8.086 20a1.5 1.5 0 002.475 1.56l9-9A1.5 1.5 0 0018.5 10h-3.997a.5.5 0 01-.472-.667z"}]],
   };
@@ -5613,8 +5841,6 @@ function PageTitle() {
     STRATEGY_LIST.reduce((acc, s) => ({ ...acc, [s.key]: s.defaultOn }), {})
   );
 
-  const updatedAt = dayjs().format("YYYY-MM-DD HH:mm");
-
   const handleSave = () => {
     setStrategyOpen(false);
     message.success("节能策略已保存并下发至 6 座机楼");
@@ -5624,19 +5850,27 @@ function PageTitle() {
     <div className="page-title">
       <div className="title-group">
         <h2 className="title-text">用能总览</h2>
-        <span className="update-info">
-          <Icon name="circle-check" size="0.875rem" className="update-icon" />
-          数据更新于 {updatedAt} · 每 15 分钟自动刷新
-        </span>
       </div>
 
-      <Button
-        type="primary"
-        icon={<Icon name="sliders-horizontal" size="0.875rem" />}
-        onClick={() => setStrategyOpen(true)}
-      >
-        配置节能策略
-      </Button>
+      <div className="title-actions">
+        <span className="update-time">
+          更新时间：2025-10-14 17:51:00
+          <Icon
+            name="refresh-cw"
+            size="0.875rem"
+            className="update-refresh"
+            title="刷新数据"
+            onClick={() => message.success("用能数据已刷新")}
+          />
+        </span>
+        <Button
+          type="primary"
+          icon={<Icon name="sliders-horizontal" size="0.875rem" />}
+          onClick={() => setStrategyOpen(true)}
+        >
+          配置节能策略
+        </Button>
+      </div>
 
       <Modal
         title="配置节能策略"
@@ -5680,27 +5914,35 @@ const energySummary = {
   unit: "kWh",
 };
 
-// ── 用能指标(三项信息栏) ───────────────────────────────────────
+// ── 用能指标(三项信息栏,图标统一绿色) ─────────────────────────
 const statItems = [
-  { key: "saved", label: "节省能耗", value: "38,945", unit: "kWh", icon: "leaf", tone: "success" },
-  { key: "gain", label: "节能增益", value: "8.01", unit: "%", icon: "trending-up", tone: "brand" },
-  { key: "cluster", label: "纳管集群", value: "24", unit: "个", icon: "boxes", tone: "info" },
+  { key: "saved", label: "节省能耗", value: "38,945", unit: "kWh", icon: "trending-down" },
+  { key: "gain", label: "节能增益", value: "8.01", unit: "%", icon: "trending-up" },
+  { key: "cluster", label: "纳管集群", value: "24", unit: "个", icon: "boxes" },
 ];
 
-// ── 集群用能气泡(12 个集群,size 为球径 rem,映射能耗;tone 为色彩档位) ──
+// ── 集群用能气泡(14 个集群) ────────────────────────────────────
+// size/x/y 为设计画布 px(1rem=16px):(x,y) 为球心相对舞台中心的偏移;
+// 大球(296)居中,218×1 左下角,140×3 分居右上/右下/左上;
+// 62×9 环绕分布:上2 / 左1 / 右4(两列左右交错) / 下2;球间留 10~25px 间距;
+// 气泡文本四级:标题(name) / 描述(统一"今日总能耗") / 数字(energy) / 细节(nodeCount,savedEnergy);
+// 显示分级:296 全部,218 标题+描述+数字,140 标题+数字,62 仅标题;
+// 状态:on=true 开启(淡绿球体+叶子水印+光韵) / false 关闭(透明+白色光韵)
 const clusterList = [
-  { id: 1, name: "核心网集群", building: "华东·机楼A", energy: 86420, size: 10, tone: "a" },
-  { id: 2, name: "政企云集群", building: "华东·机楼A", energy: 64380, size: 8.25, tone: "a" },
-  { id: 3, name: "承载网集群", building: "华北·机楼B", energy: 52140, size: 7.5, tone: "b" },
-  { id: 4, name: "数据湖集群", building: "华东·机楼A", energy: 45720, size: 6.75, tone: "b" },
-  { id: 5, name: "视频云集群", building: "华南·机楼C", energy: 38650, size: 6, tone: "b" },
-  { id: 6, name: "CDN集群", building: "华南·机楼C", energy: 31280, size: 5.5, tone: "b" },
-  { id: 7, name: "AI训练集群", building: "华北·机楼B", energy: 27940, size: 5, tone: "c" },
-  { id: 8, name: "边缘计算集群", building: "西南·机楼D", energy: 22310, size: 4.5, tone: "c" },
-  { id: 9, name: "安全资源池", building: "西南·机楼D", energy: 18560, size: 4.25, tone: "c" },
-  { id: 10, name: "容器平台", building: "华中·机楼E", energy: 15240, size: 4, tone: "c" },
-  { id: 11, name: "测试集群", building: "华中·机楼E", energy: 11830, size: 3.75, tone: "c" },
-  { id: 12, name: "灾备集群", building: "东北·机楼F", energy: 9120, size: 3.5, tone: "c" },
+  { id: 1, name: "逻辑集群A", building: "华东·机楼A", energy: 41860, nodeCount: 428, savedEnergy: 3265, size: 296, x: 0, y: 0, on: true },
+  { id: 2, name: "逻辑集群B", building: "华东·机楼A", energy: 32540, nodeCount: 356, savedEnergy: 2540, size: 218, x: -216, y: 163, on: false },
+  { id: 3, name: "逻辑集群C", building: "华北·机楼B", energy: 26830, nodeCount: 292, savedEnergy: 2010, size: 140, x: 117, y: -203, on: false },
+  { id: 4, name: "逻辑集群D", building: "华东·机楼A", energy: 23470, nodeCount: 268, savedEnergy: 1720, size: 140, x: 124, y: 198, on: true },
+  { id: 5, name: "逻辑集群E", building: "华南·机楼C", energy: 19620, nodeCount: 236, savedEnergy: 1480, size: 140, x: -203, y: -117, on: true },
+  { id: 6, name: "逻辑集群F", building: "华南·机楼C", energy: 15240, nodeCount: 180, savedEnergy: 1150, size: 62, x: 191, y: -110, on: true },
+  { id: 7, name: "逻辑集群G", building: "华北·机楼B", energy: 13460, nodeCount: 165, savedEnergy: 980, size: 62, x: 247, y: -37, on: false },
+  { id: 8, name: "逻辑集群H", building: "西南·机楼D", energy: 11830, nodeCount: 150, savedEnergy: 860, size: 62, x: 191, y: 37, on: false },
+  { id: 9, name: "逻辑集群J", building: "西南·机楼D", energy: 9870, nodeCount: 138, savedEnergy: 740, size: 62, x: 247, y: 110, on: false },
+  { id: 10, name: "逻辑集群K", building: "华东·机楼A", energy: 8420, nodeCount: 120, savedEnergy: 620, size: 62, x: -103, y: -165, on: false },
+  { id: 11, name: "逻辑集群L", building: "华中·机楼E", energy: 7150, nodeCount: 105, savedEnergy: 510, size: 62, x: -34, y: -192, on: false },
+  { id: 12, name: "逻辑集群M", building: "华中·机楼E", energy: 6380, nodeCount: 92, savedEnergy: 430, size: 62, x: 7, y: 195, on: false },
+  { id: 13, name: "逻辑集群N", building: "东北·机楼F", energy: 5520, nodeCount: 80, savedEnergy: 350, size: 62, x: -67, y: 183, on: true },
+  { id: 14, name: "逻辑集群P", building: "华北·机楼B", energy: 4860, nodeCount: 68, savedEnergy: 280, size: 62, x: -195, y: 0, on: false },
 ];
 
 // ── 机楼筛选项(气泡过滤下拉) ───────────────────────────────────
@@ -5716,20 +5958,99 @@ const buildingOptions = [
   Object.assign(__export, { energySummary, statItems, clusterList, buildingOptions });
 })();
 
+/* ===== src/views/energy-left/honeycomb.jsx ===== */
+(function () {
+  const { Button } = antd;
+  const { Icon } = __export;
+// 蜂窝矩阵:点击集群气泡飞散后,从中心向外逐渐呈现的节点矩阵
+// 六边形单元 48×48(设计画布 px),平顶蜂窝错位排布,按距中心距离波纹式入场
+const COLS = 17;
+const ROWS = 9;
+const COL_STEP = 36;
+const ROW_STEP = 48;
+const ROW_OFFSET = 24;
+
+const toRem = (px) => `${px / 16}rem`;
+
+// 生成蜂窝单元:位置 + 距中心的呈现延迟 + 明暗档位(确定性伪随机)
+function buildCells() {
+  const cells = [];
+  const cc = (COLS - 1) / 2;
+  const cr = (ROWS - 1) / 2;
+  for (let r = 0; r < ROWS; r += 1) {
+    for (let c = 0; c < COLS; c += 1) {
+      cells.push({
+        key: `${r}-${c}`,
+        x: 16 + c * COL_STEP,
+        y: 48 + r * ROW_STEP + (c % 2 ? ROW_OFFSET : 0),
+        delay: Math.round(Math.hypot(c - cc, (r - cr) * 1.2) * 45),
+        v: (c * 7 + r * 13) % 10,
+      });
+    }
+  }
+  return cells;
+}
+
+function Honeycomb({ cluster, onBack }) {
+  const cells = buildCells();
+
+  return (
+    <div className="honey-wrap">
+      <div className="honey-bar">
+        <Button icon={<Icon name="arrow-left" size="0.875rem" />} onClick={onBack}>
+          返回
+        </Button>
+        <span className="honey-title">
+          {cluster.name} · 节点矩阵 · 共 {cluster.nodeCount} 节点
+        </span>
+      </div>
+      {cells.map((cell) => (
+        <div
+          key={cell.key}
+          className={`honey-cell v${cell.v < 2 ? "2" : cell.v > 7 ? "0" : "1"}`}
+          style={{
+            left: toRem(cell.x),
+            top: toRem(cell.y),
+            animationDelay: `${cell.delay}ms`,
+          }}
+        />
+      ))}
+    </div>
+  );
+}
+  Object.assign(__export, { Honeycomb });
+})();
+
 /* ===== src/views/energy-left/index.jsx ===== */
 (function () {
   const { useMemo, useState } = React;
   const { Dropdown, Segmented, message } = antd;
   const { Icon, energySummary, statItems, clusterList, buildingOptions } = __export;
-// 左侧:今日用能总览 — 一个整体面板
+  const Honeycomb = __export.Honeycomb;
+// 左侧:今日用能总览 — 无背景整体信息块
 // 结构:标题栏(绿色闪电 + 标题 | 过滤/排序/视图切换)
-//     → 电池信息栏(今日总能耗)
-//     → 三项指标信息栏(节省能耗/节能增益/纳管集群)
-//     → 集群用能气泡云(拓扑) / 排行列表(列表)
+//     → 今日总能耗信息栏(纯文本两行)
+//     → 三项指标信息栏(节省能耗/节能增益/纳管集群,竖线分割)
+//     → 集群用能拓扑(大球居中,小球切线环绕) / 排行列表(列表)
+
+// 设计画布 px → rem(1920 基准 1rem=16px),随视口等比缩放
+const toRem = (px) => `${px / 16}rem`;
+
 function EnergyLeft() {
   const [view, setView] = useState("拓扑");
   const [building, setBuilding] = useState("全部机楼");
   const [sortDesc, setSortDesc] = useState(true);
+
+  // 拓扑点击展开:idle 气泡 → scatter(点击球渐隐/四周球离心飞散) → honeycomb 蜂窝矩阵
+  const [phase, setPhase] = useState("idle");
+  const [origin, setOrigin] = useState(null);
+
+  const handleBubbleClick = (c) => {
+    if (phase !== "idle") return;
+    setOrigin(c);
+    setPhase("scatter");
+    window.setTimeout(() => setPhase("honeycomb"), 850);
+  };
 
   // 过滤(按机楼) + 排序(按能耗)
   const clusters = useMemo(() => {
@@ -5751,7 +6072,7 @@ function EnergyLeft() {
   };
 
   return (
-    <section className="energy-left panel">
+    <section className="energy-left">
       {/* 标题栏:绿色闪电 + 标题 | 过滤 / 排序 / 拓扑列表切换 */}
       <div className="left-head">
         <div className="left-title">
@@ -5778,23 +6099,20 @@ function EnergyLeft() {
           <Segmented
             options={["拓扑", "列表"]}
             value={view}
-            onChange={(v) => setView(v)}
+            onChange={(v) => {
+              setView(v);
+              if (v !== "拓扑") setPhase("idle");
+            }}
           />
         </div>
       </div>
 
-      {/* 信息栏:电池 + 今日总能耗 */}
+      {/* 信息栏:今日总能耗数值(与标题文字左对齐) */}
       <div className="summary-bar">
-        <div className="battery-badge">
-          <Icon name="battery-charging" size="2.5rem" className="battery-icon" />
-        </div>
-        <div className="summary-info">
-          <span className="summary-label">{energySummary.label}</span>
-          <span className="summary-value">
-            {energySummary.value}
-            <span className="summary-unit">{energySummary.unit}</span>
-          </span>
-        </div>
+        <span className="summary-value">
+          {energySummary.value}
+          <span className="summary-unit">{energySummary.unit}</span>
+        </span>
       </div>
 
       {/* 信息栏:三项用能指标 */}
@@ -5802,7 +6120,7 @@ function EnergyLeft() {
         {statItems.map((s) => (
           <div className="stat-item" key={s.key}>
             <div className="stat-head">
-              <Icon name={s.icon} size="1rem" className={`stat-icon ${s.tone}`} />
+              <Icon name={s.icon} size="1rem" className="stat-icon" />
               <span className="stat-label">{s.label}</span>
             </div>
             <div className="stat-value-row">
@@ -5813,26 +6131,87 @@ function EnergyLeft() {
         ))}
       </div>
 
-      {/* 集群用能:拓扑气泡 / 排行列表 */}
+      {/* 集群用能:拓扑(大球居中,小球环绕;点击展开蜂窝) / 排行列表 */}
       {view === "拓扑" ? (
         <div className="bubble-field">
-          {clusters.map((c) => (
-            <div
-              key={c.id}
-              className={`bubble tone-${c.tone} ${c.size >= 6 ? "lg" : ""}`}
-              style={{ width: `${c.size}rem`, height: `${c.size}rem` }}
-              title={`${c.name} · ${c.energy.toLocaleString("zh-CN")} kWh · ${c.building}`}
-              onClick={() => message.info(`正在查看「${c.name}」集群用能详情…`)}
-            >
-              <span className="bubble-name">{c.name}</span>
-              {c.size >= 6 && (
-                <span className="bubble-value">
-                  {c.energy.toLocaleString("zh-CN")}
-                  <span className="bubble-unit"> kWh</span>
-                </span>
-              )}
+          {phase === "honeycomb" && origin ? (
+            <Honeycomb cluster={origin} onBack={() => setPhase("idle")} />
+          ) : (
+            <div className="bubble-stage">
+              {clusters.map((c) => {
+                const isOrigin = origin && c.id === origin.id;
+                // scatter 阶段:点击球渐隐;其余球沿离心方向飞散渐隐(按距离错峰)
+                let animStyle = {};
+                if (phase === "scatter") {
+                  if (isOrigin) {
+                    animStyle = { opacity: 0, transitionDuration: "0.45s", pointerEvents: "none" };
+                  } else {
+                    const dx = c.x - origin.x;
+                    const dy = c.y - origin.y;
+                    const len = Math.hypot(dx, dy) || 1;
+                    animStyle = {
+                      transform: `translate(-50%, -50%) translate(${Math.round((dx / len) * 420) / 16}rem, ${Math.round((dy / len) * 420) / 16}rem)`,
+                      opacity: 0,
+                      transitionDelay: `${Math.round(len * 0.3)}ms`,
+                      pointerEvents: "none",
+                    };
+                  }
+                }
+                return (
+                  <div
+                    key={c.id}
+                    className={`bubble ${c.on ? "on" : "off"} ${c.size >= 280 ? "xl" : c.size >= 200 ? "lg" : c.size >= 120 ? "md" : ""}`}
+                    style={{
+                      width: toRem(c.size),
+                      height: toRem(c.size),
+                      left: `calc(50% + ${toRem(c.x)})`,
+                      top: `calc(50% + ${toRem(c.y)})`,
+                      ...animStyle,
+                    }}
+                    title={`${c.name} · ${c.energy.toLocaleString("zh-CN")} kWh · ${c.building} · ${c.on ? "开启" : "关闭"}`}
+                    onClick={() => handleBubbleClick(c)}
+                  >
+                    {/* 节能叶子水印(仅开启状态,垫在文字下方) */}
+                    {c.on && (
+                      <span className="bubble-leaf" aria-hidden="true">
+                        <Icon name="leaf" />
+                      </span>
+                    )}
+                    {/* 标题:全部显示;小球超宽时中间省略 */}
+                    <span className="bubble-name">
+                      <span className="name-start">{c.name.slice(0, -1)}</span>
+                      <span className="name-end">{c.name.slice(-1)}</span>
+                    </span>
+                    {/* 描述:218 及以上 */}
+                    {c.size >= 200 && <span className="bubble-desc">今日总能耗</span>}
+                    {/* 数字:140 及以上 */}
+                    {c.size >= 120 && (
+                      <span className="bubble-value">
+                        {c.energy.toLocaleString("zh-CN")}
+                        <span className="bubble-unit"> kWh</span>
+                      </span>
+                    )}
+                    {/* 细节行(节点数量 / 今日节省总能耗):仅最大球 */}
+                    {c.size >= 280 && (
+                      <div className="bubble-detail">
+                        <div className="detail-item">
+                          <span className="detail-label">节点数量</span>
+                          <span className="detail-value">{c.nodeCount}个</span>
+                        </div>
+                        <div className="detail-item">
+                          <span className="detail-label">今日节省总能耗</span>
+                          <span className="detail-value">
+                            {c.savedEnergy.toLocaleString("zh-CN")}
+                            <span className="bubble-unit"> kWh</span>
+                          </span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
             </div>
-          ))}
+          )}
         </div>
       ) : (
         <div className="cluster-list">
@@ -5849,7 +6228,7 @@ function EnergyLeft() {
               <span className="cluster-building">{c.building}</span>
               <div className="cluster-bar">
                 <div
-                  className={`cluster-bar-fill tone-${c.tone}`}
+                  className={c.on ? "cluster-bar-fill on" : "cluster-bar-fill off"}
                   style={{ width: `${(c.energy / maxEnergy) * 100}%` }}
                 />
               </div>
