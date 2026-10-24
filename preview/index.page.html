@@ -4514,21 +4514,23 @@ input.ant-input.ant-input-sm {
   background: conic-gradient(
     from -16deg,
     transparent 0deg,
-    rgb(from var(--gray-90) r g b / 0.3) 5deg,
+    rgb(from var(--gray-90) r g b / 0.5) 6deg,
     var(--gray-90) 16deg,
-    rgb(from var(--gray-90) r g b / 0.6) 26deg,
-    rgb(from var(--gray-90) r g b / 0.35) 36deg,
-    rgb(from var(--gray-90) r g b / 0.18) 46deg,
-    rgb(from var(--gray-90) r g b / 0.06) 56deg,
-    transparent 66deg,
+    rgb(from var(--gray-90) r g b / 0.85) 26deg,
+    rgb(from var(--gray-90) r g b / 0.65) 36deg,
+    rgb(from var(--gray-90) r g b / 0.45) 48deg,
+    rgb(from var(--gray-90) r g b / 0.25) 60deg,
+    rgb(from var(--gray-90) r g b / 0.1) 70deg,
+    transparent 78deg,
     transparent 180deg,
-    rgb(from var(--gray-90) r g b / 0.3) 185deg,
+    rgb(from var(--gray-90) r g b / 0.5) 186deg,
     var(--gray-90) 196deg,
-    rgb(from var(--gray-90) r g b / 0.6) 206deg,
-    rgb(from var(--gray-90) r g b / 0.35) 216deg,
-    rgb(from var(--gray-90) r g b / 0.18) 226deg,
-    rgb(from var(--gray-90) r g b / 0.06) 236deg,
-    transparent 246deg
+    rgb(from var(--gray-90) r g b / 0.85) 206deg,
+    rgb(from var(--gray-90) r g b / 0.65) 216deg,
+    rgb(from var(--gray-90) r g b / 0.45) 228deg,
+    rgb(from var(--gray-90) r g b / 0.25) 240deg,
+    rgb(from var(--gray-90) r g b / 0.1) 250deg,
+    transparent 258deg
   );
   /* 径向蒙版:66% 起向圆周(71% 刻度)线性增亮,深度为原版 20% —— 极薄贴边 */
   -webkit-mask: radial-gradient(circle, transparent 0 66%, var(--gray-0) 71%);
@@ -4536,26 +4538,34 @@ input.ant-input.ant-input-sm {
   filter: drop-shadow(0 0 0.375rem rgb(from var(--gray-0) r g b / 0.9));
 }
 
+/* 大球(296)绝对像素更厚,深度再收浅一档 */
+.bubble.xl::before {
+  -webkit-mask: radial-gradient(circle, transparent 0 68%, var(--gray-0) 71%);
+  mask: radial-gradient(circle, transparent 0 68%, var(--gray-0) 71%);
+}
+
 /* 深色模式:流光统一亮白 */
 .dark .energy-left .bubble::before {
   background: conic-gradient(
     from -16deg,
     transparent 0deg,
-    rgb(from var(--gray-0) r g b / 0.3) 5deg,
+    rgb(from var(--gray-0) r g b / 0.5) 6deg,
     var(--gray-0) 16deg,
-    rgb(from var(--gray-0) r g b / 0.6) 26deg,
-    rgb(from var(--gray-0) r g b / 0.35) 36deg,
-    rgb(from var(--gray-0) r g b / 0.18) 46deg,
-    rgb(from var(--gray-0) r g b / 0.06) 56deg,
-    transparent 66deg,
+    rgb(from var(--gray-0) r g b / 0.85) 26deg,
+    rgb(from var(--gray-0) r g b / 0.65) 36deg,
+    rgb(from var(--gray-0) r g b / 0.45) 48deg,
+    rgb(from var(--gray-0) r g b / 0.25) 60deg,
+    rgb(from var(--gray-0) r g b / 0.1) 70deg,
+    transparent 78deg,
     transparent 180deg,
-    rgb(from var(--gray-0) r g b / 0.3) 185deg,
+    rgb(from var(--gray-0) r g b / 0.5) 186deg,
     var(--gray-0) 196deg,
-    rgb(from var(--gray-0) r g b / 0.6) 206deg,
-    rgb(from var(--gray-0) r g b / 0.35) 216deg,
-    rgb(from var(--gray-0) r g b / 0.18) 226deg,
-    rgb(from var(--gray-0) r g b / 0.06) 236deg,
-    transparent 246deg
+    rgb(from var(--gray-0) r g b / 0.85) 206deg,
+    rgb(from var(--gray-0) r g b / 0.65) 216deg,
+    rgb(from var(--gray-0) r g b / 0.45) 228deg,
+    rgb(from var(--gray-0) r g b / 0.25) 240deg,
+    rgb(from var(--gray-0) r g b / 0.1) 250deg,
+    transparent 258deg
   );
 }
 
@@ -4801,21 +4811,24 @@ input.ant-input.ant-input-sm {
   background:
     radial-gradient(
       circle,
-      transparent 0 36%,
-      rgb(from var(--mint-10) r g b / 0.14) 52%,
-      rgb(from var(--mint-10) r g b / 0.36) 66%,
-      rgb(from var(--mint-10) r g b / 0.68) 80%,
-      var(--mint-10) 92%,
-      var(--mint-05) 100%
+      transparent 0 47%,
+      rgb(63 198 174 / 0.04) 52%,
+      rgb(63 198 174 / 0.08) 57%,
+      rgb(63 198 174 / 0.15) 61%,
+      rgb(63 198 174 / 0.21) 64%,
+      rgb(63 198 174 / 0.28) 66.5%,
+      rgb(63 198 174 / 0.35) 68%,
+      rgb(63 198 174 / 0.4) 69.5%,
+      rgb(63 198 174 / 0.45) 71%,
+      rgb(63 198 174 / 0.45) 100%
     ),
     radial-gradient(
       circle at 32% 28%,
-      rgb(from var(--mint-20) r g b / 0.26),
-      rgb(from var(--mint-40) r g b / 0.22) 42%,
-      rgb(from var(--mint-50) r g b / 0.28) 78%,
-      rgb(from var(--mint-60) r g b / 0.18)
+      rgb(31 57 45 / 0.9),
+      rgb(17 39 30 / 0.88) 55%,
+      rgb(14 33 25 / 0.82) 100%
     );
-  box-shadow: inset 0 0 0.5rem rgb(from var(--mint-10) r g b / 0.65);
+  box-shadow: inset 0 0 0.5rem rgb(63 198 174 / 0.28);
 }
 
 /* 关闭:光韵自圆心延伸至圆周;整体提亮,边缘色取设计稿 #cdcdcd(≈ gray-20) */
