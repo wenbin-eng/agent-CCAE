@@ -8,9 +8,46 @@
 
 .title-group {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   gap: var(--spacing-gutter);
   min-width: 0;
+}
+
+/* 蜂窝阶段:返回箭头(< 形) */
+.title-back {
+  color: var(--on-surface-variant);
+}
+
+.title-back:hover {
+  color: var(--color-brand);
+}
+
+/* 蜂窝阶段:开关状态胶囊(绿点=开启,灰点=关闭) */
+.head-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-1);
+  padding: 0.125rem 0.625rem;
+  border-radius: var(--radius-full);
+  background: rgb(from var(--gray-05) r g b / 0.2);
+  font: var(--font-caption-m);
+  color: var(--on-surface-variant);
+  white-space: nowrap;
+}
+
+.head-dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  flex: none;
+  border-radius: var(--radius-full);
+}
+
+.head-dot.on {
+  background: var(--color-success);
+}
+
+.head-dot.off {
+  background: var(--color-none);
 }
 
 .title-text {

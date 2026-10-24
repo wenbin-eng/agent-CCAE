@@ -94,6 +94,13 @@
   border-left: 1px solid var(--divider);
 }
 
+/* 蜂窝状态第 3 项的 "|" 分隔符 */
+.stat-pipe {
+  color: var(--on-surface-variant);
+  font-weight: var(--font-weight-normal);
+  margin: 0 0.25em;
+}
+
 .stat-item:nth-child(2) {
   align-items: center;
 }
@@ -173,7 +180,8 @@
   transition: transform 0.65s ease-out, opacity 0.65s ease-out;
 }
 
-/* hover:不放大;两道彗星光韵沿圆周游走(对角 180° 分布,旋转动画) */
+/* hover:不放大;两道彗星式流光(对角 180°):亮头 sharp、尾迹细长渐弱,
+   头尾不对称打破规整感;径向越贴轮廓越亮,深度为原版 20%,只在圆内 */
 .bubble::before {
   content: "";
   position: absolute;
@@ -183,56 +191,71 @@
   pointer-events: none;
   transition: opacity 0.3s ease;
   background: conic-gradient(
-    from 0deg,
+    from -16deg,
     transparent 0deg,
-    rgb(from var(--mint-10) r g b / 0.45) 15deg,
-    var(--gray-0) 40deg,
-    rgb(from var(--mint-10) r g b / 0.45) 65deg,
-    transparent 90deg,
+    rgb(from var(--gray-90) r g b / 0.3) 5deg,
+    var(--gray-90) 16deg,
+    rgb(from var(--gray-90) r g b / 0.6) 26deg,
+    rgb(from var(--gray-90) r g b / 0.35) 36deg,
+    rgb(from var(--gray-90) r g b / 0.18) 46deg,
+    rgb(from var(--gray-90) r g b / 0.06) 56deg,
+    transparent 66deg,
     transparent 180deg,
-    rgb(from var(--mint-10) r g b / 0.45) 195deg,
-    var(--gray-0) 220deg,
-    rgb(from var(--mint-10) r g b / 0.45) 245deg,
-    transparent 270deg,
-    transparent 360deg
+    rgb(from var(--gray-90) r g b / 0.3) 185deg,
+    var(--gray-90) 196deg,
+    rgb(from var(--gray-90) r g b / 0.6) 206deg,
+    rgb(from var(--gray-90) r g b / 0.35) 216deg,
+    rgb(from var(--gray-90) r g b / 0.18) 226deg,
+    rgb(from var(--gray-90) r g b / 0.06) 236deg,
+    transparent 246deg
   );
-  /* 环带置于静态亮环内侧的过渡区(78%~88%),避免与实色亮边重叠而失去对比 */
-  -webkit-mask: radial-gradient(circle, transparent 0 62%, var(--gray-0) 78%, var(--gray-0) 88%, transparent 94%);
-  mask: radial-gradient(circle, transparent 0 62%, var(--gray-0) 78%, var(--gray-0) 88%, transparent 94%);
+  /* 径向蒙版:66% 起向圆周(71% 刻度)线性增亮,深度为原版 20% —— 极薄贴边 */
+  -webkit-mask: radial-gradient(circle, transparent 0 66%, var(--gray-0) 71%);
+  mask: radial-gradient(circle, transparent 0 66%, var(--gray-0) 71%);
+  filter: drop-shadow(0 0 0.375rem rgb(from var(--gray-0) r g b / 0.9));
 }
 
-/* 关闭球:游走光改为白色(浅色模式用深灰保证可见) */
-.bubble.off::before {
+/* 深色模式:流光统一亮白 */
+.dark .energy-left .bubble::before {
   background: conic-gradient(
-    from 0deg,
+    from -16deg,
     transparent 0deg,
-    rgb(from var(--gray-90) r g b / 0.5) 15deg,
-    var(--gray-90) 40deg,
-    rgb(from var(--gray-90) r g b / 0.5) 65deg,
-    transparent 90deg,
+    rgb(from var(--gray-0) r g b / 0.3) 5deg,
+    var(--gray-0) 16deg,
+    rgb(from var(--gray-0) r g b / 0.6) 26deg,
+    rgb(from var(--gray-0) r g b / 0.35) 36deg,
+    rgb(from var(--gray-0) r g b / 0.18) 46deg,
+    rgb(from var(--gray-0) r g b / 0.06) 56deg,
+    transparent 66deg,
     transparent 180deg,
-    rgb(from var(--gray-90) r g b / 0.5) 195deg,
-    var(--gray-90) 220deg,
-    rgb(from var(--gray-90) r g b / 0.5) 245deg,
-    transparent 270deg,
-    transparent 360deg
+    rgb(from var(--gray-0) r g b / 0.3) 185deg,
+    var(--gray-0) 196deg,
+    rgb(from var(--gray-0) r g b / 0.6) 206deg,
+    rgb(from var(--gray-0) r g b / 0.35) 216deg,
+    rgb(from var(--gray-0) r g b / 0.18) 226deg,
+    rgb(from var(--gray-0) r g b / 0.06) 236deg,
+    transparent 246deg
   );
 }
 
-.dark .energy-left .bubble.off::before {
+/* 深色模式:游走光统一亮白 */
+.dark .energy-left .bubble::before {
   background: conic-gradient(
-    from 0deg,
+    from -30deg,
     transparent 0deg,
-    rgb(from var(--gray-0) r g b / 0.5) 15deg,
-    var(--gray-0) 40deg,
-    rgb(from var(--gray-0) r g b / 0.5) 65deg,
-    transparent 90deg,
+    rgb(from var(--gray-0) r g b / 0.1) 12deg,
+    rgb(from var(--gray-0) r g b / 0.7) 20deg,
+    var(--gray-0) 30deg,
+    rgb(from var(--gray-0) r g b / 0.7) 40deg,
+    rgb(from var(--gray-0) r g b / 0.1) 48deg,
+    transparent 60deg,
     transparent 180deg,
-    rgb(from var(--gray-0) r g b / 0.5) 195deg,
-    var(--gray-0) 220deg,
-    rgb(from var(--gray-0) r g b / 0.5) 245deg,
-    transparent 270deg,
-    transparent 360deg
+    rgb(from var(--gray-0) r g b / 0.1) 192deg,
+    rgb(from var(--gray-0) r g b / 0.7) 200deg,
+    var(--gray-0) 210deg,
+    rgb(from var(--gray-0) r g b / 0.7) 220deg,
+    rgb(from var(--gray-0) r g b / 0.1) 228deg,
+    transparent 240deg
   );
 }
 
@@ -249,6 +272,95 @@
   to {
     transform: rotate(360deg);
   }
+}
+
+/* ── 蜂窝下方左右信息条 ── */
+.honey-foot {
+  position: absolute;
+  top: 43.25rem;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-gutter);
+}
+
+/* 条体:8px 圆角(非胶囊),#1d1d1d 底 */
+.foot-bar {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  height: 2rem;
+  padding: 0 0.875rem;
+  border-radius: 0.5rem;
+  background: #1d1d1d;
+  white-space: nowrap;
+}
+
+/* 方形背景的时钟图标 */
+.foot-clock {
+  width: 1.5rem;
+  height: 1.5rem;
+  flex: none;
+  display: grid;
+  place-items: center;
+  border-radius: var(--radius-base);
+  background: rgb(from var(--gray-05) r g b / 0.3);
+  color: var(--on-surface-variant);
+}
+
+.foot-label {
+  font: var(--font-caption-m);
+  color: var(--on-surface-variant);
+}
+
+.foot-value {
+  font: var(--font-caption-m);
+  font-weight: var(--font-weight-medium);
+  color: var(--on-surface);
+}
+
+.foot-unit {
+  font-size: var(--font-size-sm);
+  color: var(--on-surface-variant);
+}
+
+/* 4 段色标:每段 40×8、间隔 2px;两端胶囊圆角,中段无圆角,颜色内联 */
+.foot-scale {
+  display: inline-flex;
+  gap: 2px;
+  flex: none;
+  height: 0.5rem;
+}
+
+.foot-scale .seg {
+  flex: none;
+  width: 2.5rem; /* 每段长 40 */
+}
+
+.foot-scale .seg:first-child {
+  border-radius: var(--radius-full) 0 0 var(--radius-full);
+}
+
+.foot-scale .seg:last-child {
+  border-radius: 0 var(--radius-full) var(--radius-full) 0;
+}
+
+.foot-max {
+  font: var(--font-caption-m);
+  color: var(--on-surface-variant);
+}
+
+.foot-more {
+  cursor: pointer;
+  font: var(--font-caption-m);
+  color: var(--on-surface);
+  transition: filter 0.2s ease;
+}
+
+.foot-more:hover {
+  filter: brightness(1.3);
 }
 
 /* 标题:不换行;start 弹性裁剪 + end 固定末字 → 超宽时中间省略(如 逻...K) */
@@ -385,19 +497,19 @@
   box-shadow: inset 0 0 0.5rem rgb(from var(--mint-10) r g b / 0.65);
 }
 
-/* 关闭:背景全透明;光韵只在圆内、不向外延伸:圆周最亮,向内过渡带占 60% 半径,内圈尾段按缓起渐陡的曲线淡出(自然衰减) */
+/* 关闭:光韵自圆心延伸至圆周;整体提亮,边缘色取设计稿 #cdcdcd(≈ gray-20) */
 .bubble.off {
   background: radial-gradient(
     circle,
-    transparent 0 40%,
-    rgb(from var(--gray-90) r g b / 0.04) 46%,
-    rgb(from var(--gray-90) r g b / 0.12) 53%,
-    rgb(from var(--gray-90) r g b / 0.27) 62%,
-    rgb(from var(--gray-90) r g b / 0.62) 81%,
+    rgb(from var(--gray-90) r g b / 0.06) 0%,
+    rgb(from var(--gray-90) r g b / 0.12) 25%,
+    rgb(from var(--gray-90) r g b / 0.22) 45%,
+    rgb(from var(--gray-90) r g b / 0.45) 65%,
+    rgb(from var(--gray-90) r g b / 0.75) 82%,
     var(--gray-90) 94%,
     var(--gray-90) 100%
   );
-  box-shadow: inset 0 0 0.375rem rgb(from var(--gray-90) r g b / 0.5);
+  box-shadow: inset 0 0 0.375rem rgb(from var(--gray-90) r g b / 0.55);
 }
 
 /* 浅色下关闭球无背景,文字改深色保证可读 */
@@ -412,15 +524,15 @@
 .dark .energy-left .bubble.off {
   background: radial-gradient(
     circle,
-    transparent 0 40%,
-    rgb(from var(--gray-0) r g b / 0.05) 46%,
-    rgb(from var(--gray-0) r g b / 0.16) 53%,
-    rgb(from var(--gray-0) r g b / 0.34) 62%,
-    rgb(from var(--gray-0) r g b / 0.7) 81%,
-    var(--gray-0) 94%,
-    var(--gray-0) 100%
+    rgb(from var(--gray-20) r g b / 0.08) 0%,
+    rgb(from var(--gray-20) r g b / 0.16) 25%,
+    rgb(from var(--gray-20) r g b / 0.28) 45%,
+    rgb(from var(--gray-20) r g b / 0.5) 65%,
+    rgb(from var(--gray-20) r g b / 0.8) 82%,
+    var(--gray-20) 94%,
+    var(--gray-20) 100%
   );
-  box-shadow: inset 0 0 0.375rem rgb(from var(--gray-0) r g b / 0.55);
+  box-shadow: inset 0 0 0.375rem rgb(from var(--gray-20) r g b / 0.6);
 }
 
 .dark .energy-left .bubble.off .bubble-name,

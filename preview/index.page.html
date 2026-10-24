@@ -4200,9 +4200,46 @@ input.ant-input.ant-input-sm {
 
 .title-group {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   gap: var(--spacing-gutter);
   min-width: 0;
+}
+
+/* 蜂窝阶段:返回箭头(< 形) */
+.title-back {
+  color: var(--on-surface-variant);
+}
+
+.title-back:hover {
+  color: var(--color-brand);
+}
+
+/* 蜂窝阶段:开关状态胶囊(绿点=开启,灰点=关闭) */
+.head-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-1);
+  padding: 0.125rem 0.625rem;
+  border-radius: var(--radius-full);
+  background: rgb(from var(--gray-05) r g b / 0.2);
+  font: var(--font-caption-m);
+  color: var(--on-surface-variant);
+  white-space: nowrap;
+}
+
+.head-dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  flex: none;
+  border-radius: var(--radius-full);
+}
+
+.head-dot.on {
+  background: var(--color-success);
+}
+
+.head-dot.off {
+  background: var(--color-none);
 }
 
 .title-text {
@@ -4378,6 +4415,13 @@ input.ant-input.ant-input-sm {
   border-left: 1px solid var(--divider);
 }
 
+/* 蜂窝状态第 3 项的 "|" 分隔符 */
+.stat-pipe {
+  color: var(--on-surface-variant);
+  font-weight: var(--font-weight-normal);
+  margin: 0 0.25em;
+}
+
 .stat-item:nth-child(2) {
   align-items: center;
 }
@@ -4457,7 +4501,8 @@ input.ant-input.ant-input-sm {
   transition: transform 0.65s ease-out, opacity 0.65s ease-out;
 }
 
-/* hover:不放大;两道彗星光韵沿圆周游走(对角 180° 分布,旋转动画) */
+/* hover:不放大;两道彗星式流光(对角 180°):亮头 sharp、尾迹细长渐弱,
+   头尾不对称打破规整感;径向越贴轮廓越亮,深度为原版 20%,只在圆内 */
 .bubble::before {
   content: "";
   position: absolute;
@@ -4467,56 +4512,71 @@ input.ant-input.ant-input-sm {
   pointer-events: none;
   transition: opacity 0.3s ease;
   background: conic-gradient(
-    from 0deg,
+    from -16deg,
     transparent 0deg,
-    rgb(from var(--mint-10) r g b / 0.45) 15deg,
-    var(--gray-0) 40deg,
-    rgb(from var(--mint-10) r g b / 0.45) 65deg,
-    transparent 90deg,
+    rgb(from var(--gray-90) r g b / 0.3) 5deg,
+    var(--gray-90) 16deg,
+    rgb(from var(--gray-90) r g b / 0.6) 26deg,
+    rgb(from var(--gray-90) r g b / 0.35) 36deg,
+    rgb(from var(--gray-90) r g b / 0.18) 46deg,
+    rgb(from var(--gray-90) r g b / 0.06) 56deg,
+    transparent 66deg,
     transparent 180deg,
-    rgb(from var(--mint-10) r g b / 0.45) 195deg,
-    var(--gray-0) 220deg,
-    rgb(from var(--mint-10) r g b / 0.45) 245deg,
-    transparent 270deg,
-    transparent 360deg
+    rgb(from var(--gray-90) r g b / 0.3) 185deg,
+    var(--gray-90) 196deg,
+    rgb(from var(--gray-90) r g b / 0.6) 206deg,
+    rgb(from var(--gray-90) r g b / 0.35) 216deg,
+    rgb(from var(--gray-90) r g b / 0.18) 226deg,
+    rgb(from var(--gray-90) r g b / 0.06) 236deg,
+    transparent 246deg
   );
-  /* 环带置于静态亮环内侧的过渡区(78%~88%),避免与实色亮边重叠而失去对比 */
-  -webkit-mask: radial-gradient(circle, transparent 0 62%, var(--gray-0) 78%, var(--gray-0) 88%, transparent 94%);
-  mask: radial-gradient(circle, transparent 0 62%, var(--gray-0) 78%, var(--gray-0) 88%, transparent 94%);
+  /* 径向蒙版:66% 起向圆周(71% 刻度)线性增亮,深度为原版 20% —— 极薄贴边 */
+  -webkit-mask: radial-gradient(circle, transparent 0 66%, var(--gray-0) 71%);
+  mask: radial-gradient(circle, transparent 0 66%, var(--gray-0) 71%);
+  filter: drop-shadow(0 0 0.375rem rgb(from var(--gray-0) r g b / 0.9));
 }
 
-/* 关闭球:游走光改为白色(浅色模式用深灰保证可见) */
-.bubble.off::before {
+/* 深色模式:流光统一亮白 */
+.dark .energy-left .bubble::before {
   background: conic-gradient(
-    from 0deg,
+    from -16deg,
     transparent 0deg,
-    rgb(from var(--gray-90) r g b / 0.5) 15deg,
-    var(--gray-90) 40deg,
-    rgb(from var(--gray-90) r g b / 0.5) 65deg,
-    transparent 90deg,
+    rgb(from var(--gray-0) r g b / 0.3) 5deg,
+    var(--gray-0) 16deg,
+    rgb(from var(--gray-0) r g b / 0.6) 26deg,
+    rgb(from var(--gray-0) r g b / 0.35) 36deg,
+    rgb(from var(--gray-0) r g b / 0.18) 46deg,
+    rgb(from var(--gray-0) r g b / 0.06) 56deg,
+    transparent 66deg,
     transparent 180deg,
-    rgb(from var(--gray-90) r g b / 0.5) 195deg,
-    var(--gray-90) 220deg,
-    rgb(from var(--gray-90) r g b / 0.5) 245deg,
-    transparent 270deg,
-    transparent 360deg
+    rgb(from var(--gray-0) r g b / 0.3) 185deg,
+    var(--gray-0) 196deg,
+    rgb(from var(--gray-0) r g b / 0.6) 206deg,
+    rgb(from var(--gray-0) r g b / 0.35) 216deg,
+    rgb(from var(--gray-0) r g b / 0.18) 226deg,
+    rgb(from var(--gray-0) r g b / 0.06) 236deg,
+    transparent 246deg
   );
 }
 
-.dark .energy-left .bubble.off::before {
+/* 深色模式:游走光统一亮白 */
+.dark .energy-left .bubble::before {
   background: conic-gradient(
-    from 0deg,
+    from -30deg,
     transparent 0deg,
-    rgb(from var(--gray-0) r g b / 0.5) 15deg,
-    var(--gray-0) 40deg,
-    rgb(from var(--gray-0) r g b / 0.5) 65deg,
-    transparent 90deg,
+    rgb(from var(--gray-0) r g b / 0.1) 12deg,
+    rgb(from var(--gray-0) r g b / 0.7) 20deg,
+    var(--gray-0) 30deg,
+    rgb(from var(--gray-0) r g b / 0.7) 40deg,
+    rgb(from var(--gray-0) r g b / 0.1) 48deg,
+    transparent 60deg,
     transparent 180deg,
-    rgb(from var(--gray-0) r g b / 0.5) 195deg,
-    var(--gray-0) 220deg,
-    rgb(from var(--gray-0) r g b / 0.5) 245deg,
-    transparent 270deg,
-    transparent 360deg
+    rgb(from var(--gray-0) r g b / 0.1) 192deg,
+    rgb(from var(--gray-0) r g b / 0.7) 200deg,
+    var(--gray-0) 210deg,
+    rgb(from var(--gray-0) r g b / 0.7) 220deg,
+    rgb(from var(--gray-0) r g b / 0.1) 228deg,
+    transparent 240deg
   );
 }
 
@@ -4533,6 +4593,95 @@ input.ant-input.ant-input-sm {
   to {
     transform: rotate(360deg);
   }
+}
+
+/* ── 蜂窝下方左右信息条 ── */
+.honey-foot {
+  position: absolute;
+  top: 43.25rem;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-gutter);
+}
+
+/* 条体:8px 圆角(非胶囊),#1d1d1d 底 */
+.foot-bar {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  height: 2rem;
+  padding: 0 0.875rem;
+  border-radius: 0.5rem;
+  background: #1d1d1d;
+  white-space: nowrap;
+}
+
+/* 方形背景的时钟图标 */
+.foot-clock {
+  width: 1.5rem;
+  height: 1.5rem;
+  flex: none;
+  display: grid;
+  place-items: center;
+  border-radius: var(--radius-base);
+  background: rgb(from var(--gray-05) r g b / 0.3);
+  color: var(--on-surface-variant);
+}
+
+.foot-label {
+  font: var(--font-caption-m);
+  color: var(--on-surface-variant);
+}
+
+.foot-value {
+  font: var(--font-caption-m);
+  font-weight: var(--font-weight-medium);
+  color: var(--on-surface);
+}
+
+.foot-unit {
+  font-size: var(--font-size-sm);
+  color: var(--on-surface-variant);
+}
+
+/* 4 段色标:每段 40×8、间隔 2px;两端胶囊圆角,中段无圆角,颜色内联 */
+.foot-scale {
+  display: inline-flex;
+  gap: 2px;
+  flex: none;
+  height: 0.5rem;
+}
+
+.foot-scale .seg {
+  flex: none;
+  width: 2.5rem; /* 每段长 40 */
+}
+
+.foot-scale .seg:first-child {
+  border-radius: var(--radius-full) 0 0 var(--radius-full);
+}
+
+.foot-scale .seg:last-child {
+  border-radius: 0 var(--radius-full) var(--radius-full) 0;
+}
+
+.foot-max {
+  font: var(--font-caption-m);
+  color: var(--on-surface-variant);
+}
+
+.foot-more {
+  cursor: pointer;
+  font: var(--font-caption-m);
+  color: var(--on-surface);
+  transition: filter 0.2s ease;
+}
+
+.foot-more:hover {
+  filter: brightness(1.3);
 }
 
 /* 标题:不换行;start 弹性裁剪 + end 固定末字 → 超宽时中间省略(如 逻...K) */
@@ -4669,19 +4818,19 @@ input.ant-input.ant-input-sm {
   box-shadow: inset 0 0 0.5rem rgb(from var(--mint-10) r g b / 0.65);
 }
 
-/* 关闭:背景全透明;光韵只在圆内、不向外延伸:圆周最亮,向内过渡带占 60% 半径,内圈尾段按缓起渐陡的曲线淡出(自然衰减) */
+/* 关闭:光韵自圆心延伸至圆周;整体提亮,边缘色取设计稿 #cdcdcd(≈ gray-20) */
 .bubble.off {
   background: radial-gradient(
     circle,
-    transparent 0 40%,
-    rgb(from var(--gray-90) r g b / 0.04) 46%,
-    rgb(from var(--gray-90) r g b / 0.12) 53%,
-    rgb(from var(--gray-90) r g b / 0.27) 62%,
-    rgb(from var(--gray-90) r g b / 0.62) 81%,
+    rgb(from var(--gray-90) r g b / 0.06) 0%,
+    rgb(from var(--gray-90) r g b / 0.12) 25%,
+    rgb(from var(--gray-90) r g b / 0.22) 45%,
+    rgb(from var(--gray-90) r g b / 0.45) 65%,
+    rgb(from var(--gray-90) r g b / 0.75) 82%,
     var(--gray-90) 94%,
     var(--gray-90) 100%
   );
-  box-shadow: inset 0 0 0.375rem rgb(from var(--gray-90) r g b / 0.5);
+  box-shadow: inset 0 0 0.375rem rgb(from var(--gray-90) r g b / 0.55);
 }
 
 /* 浅色下关闭球无背景,文字改深色保证可读 */
@@ -4696,15 +4845,15 @@ input.ant-input.ant-input-sm {
 .dark .energy-left .bubble.off {
   background: radial-gradient(
     circle,
-    transparent 0 40%,
-    rgb(from var(--gray-0) r g b / 0.05) 46%,
-    rgb(from var(--gray-0) r g b / 0.16) 53%,
-    rgb(from var(--gray-0) r g b / 0.34) 62%,
-    rgb(from var(--gray-0) r g b / 0.7) 81%,
-    var(--gray-0) 94%,
-    var(--gray-0) 100%
+    rgb(from var(--gray-20) r g b / 0.08) 0%,
+    rgb(from var(--gray-20) r g b / 0.16) 25%,
+    rgb(from var(--gray-20) r g b / 0.28) 45%,
+    rgb(from var(--gray-20) r g b / 0.5) 65%,
+    rgb(from var(--gray-20) r g b / 0.8) 82%,
+    var(--gray-20) 94%,
+    var(--gray-20) 100%
   );
-  box-shadow: inset 0 0 0.375rem rgb(from var(--gray-0) r g b / 0.55);
+  box-shadow: inset 0 0 0.375rem rgb(from var(--gray-20) r g b / 0.6);
 }
 
 .dark .energy-left .bubble.off .bubble-name,
@@ -5417,6 +5566,9 @@ function AppProvider({ children }) {
   // 页面需求为深色背景,默认进入深色模式
   const [isDark, setIsDark] = useState(true);
 
+  // 蜂窝展开的源集群(null=未展开):页首标题与左侧拓扑视图共享
+  const [honeyOrigin, setHoneyOrigin] = useState(null);
+
   useEffect(() => {
     document.documentElement.classList.toggle("dark", isDark);
   }, [isDark]);
@@ -5424,6 +5576,8 @@ function AppProvider({ children }) {
   const value = {
     isDark,
     toggleDark: () => setIsDark((d) => !d),
+    honeyOrigin,
+    setHoneyOrigin,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
@@ -5445,6 +5599,8 @@ function useApp() {
     "building-2": [["path",{"d":"M10 12h4"}],["path",{"d":"M10 8h4"}],["path",{"d":"M14 21v-3a2 2 0 0 0-4 0v3"}],["path",{"d":"M6 10H4a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-2"}],["path",{"d":"M6 21V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v16"}]],
     "chart-pie": [["path",{"d":"M21 12c.552 0 1.005-.449.95-.998a10 10 0 0 0-8.953-8.951c-.55-.055-.998.398-.998.95v8a1 1 0 0 0 1 1z"}],["path",{"d":"M21.21 15.89A10 10 0 1 1 8 2.83"}]],
     "chevron-down": [["path",{"d":"m6 9 6 6 6-6"}]],
+    "chevron-left": [["path",{"d":"m15 18-6-6 6-6"}]],
+    "clock": [["circle",{"cx":"12","cy":"12","r":"10"}],["path",{"d":"M12 6v6l4 2"}]],
     "ellipsis": [["circle",{"cx":"12","cy":"12","r":"1"}],["circle",{"cx":"19","cy":"12","r":"1"}],["circle",{"cx":"5","cy":"12","r":"1"}]],
     "file-down": [["path",{"d":"M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z"}],["path",{"d":"M14 2v5a1 1 0 0 0 1 1h5"}],["path",{"d":"M12 18v-6"}],["path",{"d":"m9 15 3 3 3-3"}]],
     "funnel": [["path",{"d":"M10 20a1 1 0 0 0 .553.895l2 1A1 1 0 0 0 14 21v-7a2 2 0 0 1 .517-1.341L21.74 4.67A1 1 0 0 0 21 3H3a1 1 0 0 0-.742 1.67l7.225 7.989A2 2 0 0 1 10 14z"}]],
@@ -5916,7 +6072,7 @@ function HeaderBar() {
 (function () {
   const { useState } = React;
   const { Button, Modal, Switch, message } = antd;
-  const { Icon } = __export;
+  const { Icon, useApp } = __export;
 const STRATEGY_LIST = [
   {
     key: "smartSleep",
@@ -5939,6 +6095,8 @@ const STRATEGY_LIST = [
 ];
 
 function PageTitle() {
+  // 蜂窝展开时标题切换为:返回三角 + 集群名称 + 开关状态胶囊
+  const { honeyOrigin, setHoneyOrigin } = useApp();
   const [strategyOpen, setStrategyOpen] = useState(false);
   const [strategyState, setStrategyState] = useState(() =>
     STRATEGY_LIST.reduce((acc, s) => ({ ...acc, [s.key]: s.defaultOn }), {})
@@ -5951,9 +6109,26 @@ function PageTitle() {
 
   return (
     <div className="page-title">
-      <div className="title-group">
-        <h2 className="title-text">用能总览</h2>
-      </div>
+      {honeyOrigin ? (
+        <div className="title-group">
+          <Icon
+            name="chevron-left"
+            size="1.75rem"
+            className="title-back"
+            title="返回"
+            onClick={() => setHoneyOrigin(null)}
+          />
+          <h2 className="title-text">集群名称：{honeyOrigin.name}</h2>
+          <span className="head-pill">
+            <span className={honeyOrigin.on ? "head-dot on" : "head-dot off"} />
+            {honeyOrigin.on ? "已开启节能监控" : "未开启节能监控"}
+          </span>
+        </div>
+      ) : (
+        <div className="title-group">
+          <h2 className="title-text">用能总览</h2>
+        </div>
+      )}
 
       <div className="title-actions">
         <span className="update-time">
@@ -6183,9 +6358,9 @@ function Honeycomb({ origin }) {
 
 /* ===== src/views/energy-left/index.jsx ===== */
 (function () {
-  const { useMemo, useState } = React;
+  const { useEffect, useMemo, useState } = React;
   const { Dropdown, Segmented, message } = antd;
-  const { Icon, energySummary, statItems, clusterList, buildingOptions } = __export;
+  const { Icon, useApp, energySummary, statItems, clusterList, buildingOptions } = __export;
   const Honeycomb = __export.Honeycomb;
 // 左侧:今日用能总览 — 无背景整体信息块
 // 结构:标题栏(绿色闪电 + 标题 | 过滤/排序/视图切换)
@@ -6197,6 +6372,8 @@ function Honeycomb({ origin }) {
 const toRem = (px) => `${px / 16}rem`;
 
 function EnergyLeft() {
+  // 蜂窝源集群走全局状态:页首标题(返回箭头)与本视图共享
+  const { honeyOrigin, setHoneyOrigin } = useApp();
   const [view, setView] = useState("拓扑");
   const [building, setBuilding] = useState("全部机楼");
   const [sortDesc, setSortDesc] = useState(true);
@@ -6204,12 +6381,19 @@ function EnergyLeft() {
   // 拓扑点击展开:idle 气泡 → scatter(点击球渐隐/四周球离心飞散) → honeycomb 蜂窝矩阵
   // fading:气泡层是否仍在退场(蜂窝出现后保留至飞散结束,交叉过渡)
   const [phase, setPhase] = useState("idle");
-  const [origin, setOrigin] = useState(null);
   const [fading, setFading] = useState(false);
+
+  // 页首返回箭头/切列表会清空 honeyOrigin,此处同步复位局部阶段
+  useEffect(() => {
+    if (!honeyOrigin && phase !== "idle") {
+      setPhase("idle");
+      setFading(false);
+    }
+  }, [honeyOrigin]);
 
   const handleBubbleClick = (c) => {
     if (phase !== "idle") return;
-    setOrigin(c);
+    setHoneyOrigin(c);
     // 点击瞬间蜂窝立即开始呈现:与点击球淡出/四周飞散同步进行,透过气泡即可见蜂窝
     setPhase("honeycomb");
     setFading(true);
@@ -6263,10 +6447,7 @@ function EnergyLeft() {
             value={view}
             onChange={(v) => {
               setView(v);
-              if (v !== "拓扑") {
-                setPhase("idle");
-                setFading(false);
-              }
+              if (v !== "拓扑") setHoneyOrigin(null);
             }}
           />
         </div>
@@ -6280,20 +6461,42 @@ function EnergyLeft() {
         </span>
       </div>
 
-      {/* 信息栏:三项用能指标 */}
+      {/* 信息栏:三项用能指标;蜂窝状态下第 3 项改为 节能态|节点总数 */}
       <div className="stat-bar">
-        {statItems.map((s) => (
-          <div className="stat-item" key={s.key}>
-            <div className="stat-head">
-              <Icon name={s.icon} size="1rem" className="stat-icon" />
-              <span className="stat-label">{s.label}</span>
+        {statItems.map((s, i) => {
+          const honeyThird = honeyOrigin && i === 2;
+          return (
+            <div className="stat-item" key={s.key}>
+              <div className="stat-head">
+                <Icon name={honeyThird ? "server" : s.icon} size="1rem" className="stat-icon" />
+                <span className="stat-label">
+                  {honeyThird ? (
+                    <>
+                      节能态<span className="stat-pipe">|</span>节点总数
+                    </>
+                  ) : (
+                    s.label
+                  )}
+                </span>
+              </div>
+              <div className="stat-value-row">
+                {honeyThird ? (
+                  <>
+                    <span className="stat-value">213</span>
+                    <span className="stat-pipe">|</span>
+                    <span className="stat-value">{honeyOrigin.nodeCount}</span>
+                    <span className="stat-unit">个</span>
+                  </>
+                ) : (
+                  <>
+                    <span className="stat-value">{s.value}</span>
+                    <span className="stat-unit">{s.unit}</span>
+                  </>
+                )}
+              </div>
             </div>
-            <div className="stat-value-row">
-              <span className="stat-value">{s.value}</span>
-              <span className="stat-unit">{s.unit}</span>
-            </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       {/* 集群用能:拓扑(大球居中,小球环绕;点击展开蜂窝) / 排行列表 */}
@@ -6304,7 +6507,7 @@ function EnergyLeft() {
             <div className="bubble-field">
             <div className="bubble-stage">
               {clusters.map((c) => {
-                const isOrigin = origin && c.id === origin.id;
+                const isOrigin = honeyOrigin && c.id === honeyOrigin.id;
                 // scatter 及其后的退场期:点击球渐隐;其余球沿离心方向飞散渐隐(按距离错峰)
                 let animStyle = {};
                 if (phase !== "idle") {
@@ -6312,8 +6515,8 @@ function EnergyLeft() {
                     // 点击球:快速淡出(0.18s,快于四周飞散)
                     animStyle = { opacity: 0, transitionDuration: "0.18s", pointerEvents: "none" };
                   } else {
-                    const dx = c.x - origin.x;
-                    const dy = c.y - origin.y;
+                    const dx = c.x - honeyOrigin.x;
+                    const dy = c.y - honeyOrigin.y;
                     const len = Math.hypot(dx, dy) || 1;
                     animStyle = {
                       transform: `translate(-50%, -50%) translate(${Math.round((dx / len) * 420) / 16}rem, ${Math.round((dy / len) * 420) / 16}rem)`,
@@ -6398,7 +6601,36 @@ function EnergyLeft() {
           )}
 
           {/* 蜂窝层:点击球快消失时即开始呈现,叠加在气泡层之上交叉过渡 */}
-          {phase === "honeycomb" && origin && <Honeycomb origin={origin} />}
+          {phase === "honeycomb" && honeyOrigin && (
+            <>
+              <Honeycomb origin={honeyOrigin} />
+              {/* 蜂窝下方:左(近24h总能耗 + 4段色标) / 右(查看更多) */}
+              <div className="honey-foot">
+                <div className="foot-bar">
+                  <span className="foot-clock">
+                    <Icon name="clock" size="0.875rem" />
+                  </span>
+                  <span className="foot-label">近24h总能耗</span>
+                  <span className="foot-value">
+                    0<span className="foot-unit"> kWh</span>
+                  </span>
+                  <span className="foot-scale">
+                    <span className="seg" style={{ background: "#dff4cc" }} />
+                    <span className="seg" style={{ background: "#8fe5c2" }} />
+                    <span className="seg" style={{ background: "#abd881" }} />
+                    <span className="seg" style={{ background: "#058358" }} />
+                  </span>
+                  <span className="foot-max">100 kWh</span>
+                </div>
+                <div
+                  className="foot-bar foot-more"
+                  onClick={() => message.info("正在加载更多节点…")}
+                >
+                  查看更多 300+ 节点
+                </div>
+              </div>
+            </>
+          )}
         </div>
       ) : (
         <div className="cluster-cards">

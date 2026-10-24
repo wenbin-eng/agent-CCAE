@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Button, Modal, Switch, message } from "antd";
 import { Icon } from "../../../assets/shared/icon.jsx";
+import { useApp } from "../../context.jsx";
 import "./index.css";
 
 const STRATEGY_LIST = [
@@ -25,6 +26,8 @@ const STRATEGY_LIST = [
 ];
 
 export default function PageTitle() {
+  // 蜂窝展开时标题切换为:返回三角 + 集群名称 + 开关状态胶囊
+  const { honeyOrigin, setHoneyOrigin } = useApp();
   const [strategyOpen, setStrategyOpen] = useState(false);
   const [strategyState, setStrategyState] = useState(() =>
     STRATEGY_LIST.reduce((acc, s) => ({ ...acc, [s.key]: s.defaultOn }), {})
@@ -37,9 +40,26 @@ export default function PageTitle() {
 
   return (
     <div className="page-title">
-      <div className="title-group">
-        <h2 className="title-text">用能总览</h2>
-      </div>
+      {honeyOrigin ? (
+        <div className="title-group">
+          <Icon
+            name="chevron-left"
+            size="1.75rem"
+            className="title-back"
+            title="返回"
+            onClick={() => setHoneyOrigin(null)}
+          />
+          <h2 className="title-text">集群名称：{honeyOrigin.name}</h2>
+          <span className="head-pill">
+            <span className={honeyOrigin.on ? "head-dot on" : "head-dot off"} />
+            {honeyOrigin.on ? "已开启节能监控" : "未开启节能监控"}
+          </span>
+        </div>
+      ) : (
+        <div className="title-group">
+          <h2 className="title-text">用能总览</h2>
+        </div>
+      )}
 
       <div className="title-actions">
         <span className="update-time">

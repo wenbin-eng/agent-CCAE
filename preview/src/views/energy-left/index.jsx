@@ -1,6 +1,7 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Dropdown, Segmented, message } from "antd";
 import { Icon } from "../../../assets/shared/icon.jsx";
+import { useApp } from "../../context.jsx";
 import { energySummary, statItems, clusterList, buildingOptions } from "../../mock/energy-left.js";
 import Honeycomb from "./honeycomb.jsx";
 import "./index.css";
@@ -15,6 +16,8 @@ import "./index.css";
 const toRem = (px) => `${px / 16}rem`;
 
 export default function EnergyLeft() {
+  // 蜂窝源集群走全局状态:页首标题(返回箭头)与本视图共享
+  const { honeyOrigin, setHoneyOrigin } = useApp();
   const [view, setView] = useState("拓扑");
   const [building, setBuilding] = useState("全部机楼");
   const [sortDesc, setSortDesc] = useState(true);
@@ -22,12 +25,19 @@ export default function EnergyLeft() {
   // 拓扑点击展开:idle 气泡 → scatter(点击球渐隐/四周球离心飞散) → honeycomb 蜂窝矩阵
   // fading:气泡层是否仍在退场(蜂窝出现后保留至飞散结束,交叉过渡)
   const [phase, setPhase] = useState("idle");
-  const [origin, setOrigin] = useState(null);
   const [fading, setFading] = useState(false);
+
+  // 页首返回箭头/切列表会清空 honeyOrigin,此处同步复位局部阶段
+  useEffect(() => {
+    if (!honeyOrigin && phase !== "idle") {
+      setPhase("idle");
+      setFading(false);
+    }
+  }, [honeyOrigin]);
 
   const handleBubbleClick = (c) => {
     if (phase !== "idle") return;
-    setOrigin(c);
+    setHoneyOrigin(c);
     // 点击瞬间蜂窝立即开始呈现:与点击球淡出/四周飞散同步进行,透过气泡即可见蜂窝
     setPhase("honeycomb");
     setFading(true);
@@ -81,10 +91,7 @@ export default function EnergyLeft() {
             value={view}
             onChange={(v) => {
               setView(v);
-              if (v !== "拓扑") {
-                setPhase("idle");
-                setFading(false);
-              }
+              if (v !== "拓扑") setHoneyOrigin(null);
             }}
           />
         </div>
@@ -98,20 +105,42 @@ export default function EnergyLeft() {
         </span>
       </div>
 
-      {/* 信息栏:三项用能指标 */}
+      {/* 信息栏:三项用能指标;蜂窝状态下第 3 项改为 节能态|节点总数 */}
       <div className="stat-bar">
-        {statItems.map((s) => (
-          <div className="stat-item" key={s.key}>
-            <div className="stat-head">
-              <Icon name={s.icon} size="1rem" className="stat-icon" />
-              <span className="stat-label">{s.label}</span>
+        {statItems.map((s, i) => {
+          const honeyThird = honeyOrigin && i === 2;
+          return (
+            <div className="stat-item" key={s.key}>
+              <div className="stat-head">
+                <Icon name={honeyThird ? "server" : s.icon} size="1rem" className="stat-icon" />
+                <span className="stat-label">
+                  {honeyThird ? (
+                    <>
+                      节能态<span className="stat-pipe">|</span>节点总数
+                    </>
+                  ) : (
+                    s.label
+                  )}
+                </span>
+              </div>
+              <div className="stat-value-row">
+                {honeyThird ? (
+                  <>
+                    <span className="stat-value">213</span>
+                    <span className="stat-pipe">|</span>
+                    <span className="stat-value">{honeyOrigin.nodeCount}</span>
+                    <span className="stat-unit">个</span>
+                  </>
+                ) : (
+                  <>
+                    <span className="stat-value">{s.value}</span>
+                    <span className="stat-unit">{s.unit}</span>
+                  </>
+                )}
+              </div>
             </div>
-            <div className="stat-value-row">
-              <span className="stat-value">{s.value}</span>
-              <span className="stat-unit">{s.unit}</span>
-            </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       {/* 集群用能:拓扑(大球居中,小球环绕;点击展开蜂窝) / 排行列表 */}
@@ -122,7 +151,7 @@ export default function EnergyLeft() {
             <div className="bubble-field">
             <div className="bubble-stage">
               {clusters.map((c) => {
-                const isOrigin = origin && c.id === origin.id;
+                const isOrigin = honeyOrigin && c.id === honeyOrigin.id;
                 // scatter 及其后的退场期:点击球渐隐;其余球沿离心方向飞散渐隐(按距离错峰)
                 let animStyle = {};
                 if (phase !== "idle") {
@@ -130,8 +159,8 @@ export default function EnergyLeft() {
                     // 点击球:快速淡出(0.18s,快于四周飞散)
                     animStyle = { opacity: 0, transitionDuration: "0.18s", pointerEvents: "none" };
                   } else {
-                    const dx = c.x - origin.x;
-                    const dy = c.y - origin.y;
+                    const dx = c.x - honeyOrigin.x;
+                    const dy = c.y - honeyOrigin.y;
                     const len = Math.hypot(dx, dy) || 1;
                     animStyle = {
                       transform: `translate(-50%, -50%) translate(${Math.round((dx / len) * 420) / 16}rem, ${Math.round((dy / len) * 420) / 16}rem)`,
@@ -216,7 +245,36 @@ export default function EnergyLeft() {
           )}
 
           {/* 蜂窝层:点击球快消失时即开始呈现,叠加在气泡层之上交叉过渡 */}
-          {phase === "honeycomb" && origin && <Honeycomb origin={origin} />}
+          {phase === "honeycomb" && honeyOrigin && (
+            <>
+              <Honeycomb origin={honeyOrigin} />
+              {/* 蜂窝下方:左(近24h总能耗 + 4段色标) / 右(查看更多) */}
+              <div className="honey-foot">
+                <div className="foot-bar">
+                  <span className="foot-clock">
+                    <Icon name="clock" size="0.875rem" />
+                  </span>
+                  <span className="foot-label">近24h总能耗</span>
+                  <span className="foot-value">
+                    0<span className="foot-unit"> kWh</span>
+                  </span>
+                  <span className="foot-scale">
+                    <span className="seg" style={{ background: "#dff4cc" }} />
+                    <span className="seg" style={{ background: "#8fe5c2" }} />
+                    <span className="seg" style={{ background: "#abd881" }} />
+                    <span className="seg" style={{ background: "#058358" }} />
+                  </span>
+                  <span className="foot-max">100 kWh</span>
+                </div>
+                <div
+                  className="foot-bar foot-more"
+                  onClick={() => message.info("正在加载更多节点…")}
+                >
+                  查看更多 300+ 节点
+                </div>
+              </div>
+            </>
+          )}
         </div>
       ) : (
         <div className="cluster-cards">

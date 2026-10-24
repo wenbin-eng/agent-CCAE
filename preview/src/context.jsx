@@ -9,6 +9,9 @@ export function AppProvider({ children }) {
   // 页面需求为深色背景,默认进入深色模式
   const [isDark, setIsDark] = useState(true);
 
+  // 蜂窝展开的源集群(null=未展开):页首标题与左侧拓扑视图共享
+  const [honeyOrigin, setHoneyOrigin] = useState(null);
+
   useEffect(() => {
     document.documentElement.classList.toggle("dark", isDark);
   }, [isDark]);
@@ -16,6 +19,8 @@ export function AppProvider({ children }) {
   const value = {
     isDark,
     toggleDark: () => setIsDark((d) => !d),
+    honeyOrigin,
+    setHoneyOrigin,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
