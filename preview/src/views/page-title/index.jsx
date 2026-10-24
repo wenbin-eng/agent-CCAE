@@ -46,7 +46,7 @@ export default function PageTitle() {
           更新时间：2025-10-14 17:51:00
           <Icon
             name="refresh-cw"
-            size="0.875rem"
+            size="1rem"
             className="update-refresh"
             title="刷新数据"
             onClick={() => message.success("用能数据已刷新")}
@@ -54,7 +54,6 @@ export default function PageTitle() {
         </span>
         <Button
           type="primary"
-          icon={<Icon name="sliders-horizontal" size="0.875rem" />}
           onClick={() => setStrategyOpen(true)}
         >
           配置节能策略

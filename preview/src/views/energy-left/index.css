@@ -431,13 +431,14 @@
   color: var(--color-text-inverse);
 }
 
-/* 节能叶子水印:居中垫底(负层级,位于球体之上、文字之下),随球径等比缩放,淡雅不抢文字 */
+/* 节能叶子水印:居中垫底(负层级,位于球体之上、文字之下),随球径等比缩放,统一左右镜像 */
 .bubble-leaf {
   position: absolute;
   inset: 24%;
   z-index: -1;
   opacity: 0.18;
   color: var(--gray-0);
+  transform: scaleX(-1);
   pointer-events: none;
 }
 
@@ -446,157 +447,257 @@
   height: 100%;
 }
 
-/* ── 集群排行(列表视图) ── */
-.cluster-list {
+/* ── 集群卡片(列表视图):垂直分布,占满宽度,16px 圆角,#191919 底 ── */
+.cluster-cards {
   flex: 1 1 0;
   min-height: 0;
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-1);
+  gap: var(--spacing-gutter);
   overflow-y: auto;
-  padding-right: var(--spacing-0-5);
+  padding: var(--spacing-0-5) var(--spacing-2) var(--spacing-0-5) 0;
 }
 
-.cluster-row {
+/* 滚动条右移(卡片右侧留 8px),滚动条颜色 #595959 */
+.cluster-cards::-webkit-scrollbar {
+  width: 6px;
+}
+
+.cluster-cards::-webkit-scrollbar-thumb {
+  background: var(--gray-60); /* #595959 */
+  border-radius: var(--radius-full);
+}
+
+.cluster-cards::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.cluster-card {
   flex: none;
   display: flex;
-  align-items: center;
-  gap: var(--spacing-gutter);
-  padding: var(--spacing-2) var(--spacing-3);
-  border-radius: var(--radius-base);
+  flex-direction: column;
+  gap: var(--spacing-3);
+  padding: var(--spacing-4);
+  background: var(--gray-90); /* #191919 */
+  border-radius: 1rem; /* 16px */
   cursor: pointer;
-  transition: background 0.2s ease;
+  transition: filter 0.2s ease;
 }
 
-.cluster-row:hover {
-  background: var(--color-hover);
+.cluster-card:hover {
+  filter: brightness(1.15);
 }
 
-.cluster-rank {
+/* 标题栏:开关图标+名称(与下方指标行左对齐) | 状态胶囊 */
+.card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.card-title {
   display: inline-flex;
   align-items: center;
-  justify-content: center;
-  flex: none;
-  min-width: 1.25rem;
+  gap: var(--spacing-2);
+}
+
+.card-switch {
+  width: 1.25rem;
   height: 1.25rem;
-  padding: 0 var(--spacing-1);
-  border-radius: var(--radius-badge);
-  font: var(--font-caption-m);
-  color: var(--on-surface-variant);
-}
-
-.cluster-rank.top {
-  background: var(--primary-container);
-  color: var(--on-primary-container);
-  font-weight: var(--font-weight-semibold);
-}
-
-.cluster-name {
   flex: none;
-  width: 6.5rem;
+  display: block;
+}
+
+.card-name {
   font: var(--font-body-m);
+  font-weight: var(--font-weight-semibold);
   color: var(--on-surface);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
-.cluster-building {
-  flex: none;
+/* 状态胶囊:开启=绿叶图标+文本,关闭=灰点+文本;底色 #f3f3f3 带 20% 透明度 */
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-1);
+  padding: 0.125rem 0.625rem;
+  border-radius: var(--radius-full);
+  background: rgb(from var(--gray-05) r g b / 0.2);
   font: var(--font-caption-m);
   color: var(--on-surface-variant);
   white-space: nowrap;
 }
 
-.cluster-bar {
-  flex: 1 1 0;
-  min-width: 0;
-  height: 0.375rem;
+.pill-leaf {
+  color: var(--icon-success);
+}
+
+.pill-dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  flex: none;
   border-radius: var(--radius-full);
-  background: var(--color-fill);
-  overflow: hidden;
-}
-
-.cluster-bar-fill {
-  height: 100%;
-  border-radius: var(--radius-full);
-}
-
-.cluster-bar-fill.on {
-  background: var(--color-success);
-}
-
-.cluster-bar-fill.off {
   background: var(--color-none);
 }
 
-.cluster-energy {
-  flex: none;
-  min-width: 5.5rem;
-  text-align: right;
+/* 四项描述:均分一行,每项上下文本 */
+.card-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--spacing-gutter);
+}
+
+.card-stat {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-1);
+}
+
+.stat-caption {
   font: var(--font-caption-m);
+  color: var(--on-surface-variant);
+}
+
+.stat-figure {
+  font-size: var(--font-size-3xl); /* 数字 24px */
+  line-height: var(--line-height-xs);
+  font-weight: var(--font-weight-medium);
   color: var(--on-surface);
   white-space: nowrap;
 }
 
-/* -- ????(???????,??????????;?? 48�48) -- */
-.honey-wrap {
-  position: relative;
-  flex: none;
-  width: 41rem;
-  height: 35rem;
-  margin: 0 auto;
+/* 单位:12px 小号,与数字留隙 */
+.stat-unit {
+  font-size: var(--font-size-base);
+  color: var(--on-surface-variant);
+  margin-left: 0.25em;
 }
 
-.honey-bar {
+/* ── 拓扑主体区:气泡层与蜂窝层叠加交叉过渡的舞台 ── */
+.topo-body {
+  position: relative;
+  flex: 1 1 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── 蜂窝矩阵(点击集群飞散后,从中心向外波纹式呈现) ──
+   单元 48×48、尖角朝上、间隙 10;共 14 行,四色按 4/4/4/2 行分段(颜色内联);
+   绝对定位叠加在气泡层之上,实现交叉过渡 */
+.honey-wrap {
   position: absolute;
   top: 0;
   left: 0;
-  z-index: 2;
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-gutter);
-}
-
-.honey-title {
-  font: var(--font-body-s);
-  color: var(--on-surface-variant);
-  white-space: nowrap;
+  right: 0;
+  flex: none;
+  width: 41rem;
+  height: 41.875rem;
+  margin: 0 auto;
 }
 
 .honey-cell {
   position: absolute;
-  width: 3rem;   /* 48�48 */
+  width: 3rem;   /* 48×48,尖角朝上(六边形由 ::after 裁剪呈现) */
   height: 3rem;
-  clip-path: polygon(25% 0, 75% 0, 100% 50%, 75% 100%, 25% 100%, 0 50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* 入场淡入;颜色闪变波挂在 .honey-hex 上 */
   animation: honey-in 0.32s ease-out both;
   transition: filter 0.2s ease;
   cursor: default;
+}
+
+/* 六边形本体:子元素负责裁剪与底色;波扫过时底色闪变为浅色再还原(无位移无发光) */
+.honey-hex {
+  position: absolute;
+  inset: 0;
+  clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%);
+  animation: honey-tint 0.26s ease-out;
+}
+
+/* 颜色闪变:仅定义峰值帧(原色轻微提亮,色相不变),0%/100% 自动取原状态 */
+@keyframes honey-tint {
+  35% {
+    filter: brightness(1.35);
+  }
+}
+
+/* 随机叶子水印:居中垫底,被六边形裁剪;统一左右镜像换向(与圆球叶子一致) */
+.honey-leaf {
+  position: absolute;
+  inset: 25%;
+  z-index: 1;
+  opacity: 0.45;
+  transform: scaleX(-1);
+  pointer-events: none;
+}
+
+.honey-leaf svg {
+  width: 100%;
+  height: 100%;
+}
+
+/* 末格文本(300+) */
+.honey-more {
+  position: relative;
+  z-index: 1;
+  font: var(--font-caption-m);
+  font-weight: var(--font-weight-semibold);
+  line-height: 1;
+  white-space: nowrap;
 }
 
 .honey-cell:hover {
   filter: brightness(1.6);
 }
 
-.honey-cell.v0 {
-  background: rgb(from var(--mint-50) r g b / 0.08);
-}
-
-.honey-cell.v1 {
-  background: rgb(from var(--mint-50) r g b / 0.18);
-}
-
-.honey-cell.v2 {
-  background: rgb(from var(--mint-40) r g b / 0.6);
-}
-
 @keyframes honey-in {
   from {
     opacity: 0;
-    transform: scale(0.2);
   }
   to {
     opacity: 1;
-    transform: scale(1);
   }
+}
+
+/* ── 状态图例(气泡容器下方,整体居中;圆点-文本-数字有间隔) ── */
+.legend-bar {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-8);
+}
+
+.legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2);
+}
+
+.legend-dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  flex: none;
+  border-radius: var(--radius-full);
+}
+
+.legend-dot.on {
+  background: var(--color-success);
+}
+
+.legend-dot.off {
+  background: var(--color-none);
+}
+
+.legend-text {
+  font: var(--font-body-s);
+  color: var(--on-surface-variant);
+}
+
+.legend-num {
+  font: var(--font-body-s);
+  font-weight: var(--font-weight-medium);
+  color: var(--on-surface);
 }

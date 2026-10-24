@@ -79,11 +79,17 @@
   color: var(--color-brand);
 }
 
+/* 人头像轮廓图标(无外圈) */
 .user-avatar {
   width: 2rem;
   height: 2rem;
-  border-radius: var(--radius-full);
-  display: block;
+  flex: none;
+  display: grid;
+  place-items: center;
+  color: var(--on-surface-variant);
   cursor: pointer;
-  border: 1px solid var(--divider);
+}
+
+.user-avatar:hover {
+  color: var(--color-brand);
 }

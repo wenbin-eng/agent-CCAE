@@ -14,13 +14,14 @@
 }
 
 .title-text {
-  font: var(--font-headline-l);
+  font-size: var(--font-size-4xl); /* 28px */
+  line-height: var(--line-height-xs);
   font-weight: var(--font-weight-semibold);
   color: var(--on-surface);
   white-space: nowrap;
 }
 
-/* ── 右侧动作区:更新时间 + 刷新图标 + 策略按钮 ── */
+/* ── 右侧动作区:更新时间 + 刷新图标 + 策略按钮(图标与文本隔 8px,与按钮隔 16px) ── */
 .title-actions {
   display: flex;
   align-items: center;
@@ -30,8 +31,8 @@
 .update-time {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-1);
-  font: var(--font-caption-m);
+  gap: var(--spacing-2);
+  font: var(--font-body-m); /* 14px */
   color: var(--on-surface-variant);
   white-space: nowrap;
 }

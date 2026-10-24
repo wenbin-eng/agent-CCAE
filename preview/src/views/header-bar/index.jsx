@@ -5,24 +5,24 @@ import "./index.css";
 
 // 顶部导航:原生 nav 自写(非 antd Menu)
 const NAV_ITEMS = [
-  { key: "overview", label: "总览" },
-  { key: "topology", label: "拓扑管理" },
-  { key: "device", label: "设备管理" },
-  { key: "alarm", label: "告警管理" },
-  { key: "performance", label: "性能监控" },
-  { key: "energy", label: "用能总览" },
-  { key: "strategy", label: "节能策略" },
-  { key: "settings", label: "系统设置" },
+  { key: "map", label: "数字地图" },
+  { key: "health", label: "健康评估" },
+  { key: "fault", label: "故障" },
+  { key: "business", label: "业务" },
+  { key: "deploy", label: "部署" },
+  { key: "monitor", label: "监控" },
+  { key: "resource", label: "资源" },
+  { key: "system", label: "系统" },
 ];
 
 export default function HeaderBar() {
   const { isDark, toggleDark } = useApp();
-  const [activeKey, setActiveKey] = useState("energy");
+  const [activeKey, setActiveKey] = useState("monitor");
 
   return (
     <header className="header-bar">
       <div className="header-brand">
-        <img src="./assets/uploads/logo.svg" alt="iMaster CCAE" className="brand-logo" />
+        <img src="./assets/uploads/header.svg" alt="iMaster CCAE" className="brand-logo" />
         <span className="brand-name">iMaster CCAE</span>
       </div>
 
@@ -46,12 +46,9 @@ export default function HeaderBar() {
           title={isDark ? "切换为浅色背景" : "切换为深色背景"}
           onClick={toggleDark}
         />
-        <img
-          src="./assets/uploads/user.png"
-          alt="用户头像"
-          title="张工 · 系统管理员"
-          className="user-avatar"
-        />
+        <span className="user-avatar" title="张工 · 系统管理员">
+          <Icon name="user" size="1.25rem" />
+        </span>
       </div>
     </header>
   );

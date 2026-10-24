@@ -20,14 +20,19 @@ export default function EnergyLeft() {
   const [sortDesc, setSortDesc] = useState(true);
 
   // 拓扑点击展开:idle 气泡 → scatter(点击球渐隐/四周球离心飞散) → honeycomb 蜂窝矩阵
+  // fading:气泡层是否仍在退场(蜂窝出现后保留至飞散结束,交叉过渡)
   const [phase, setPhase] = useState("idle");
   const [origin, setOrigin] = useState(null);
+  const [fading, setFading] = useState(false);
 
   const handleBubbleClick = (c) => {
     if (phase !== "idle") return;
     setOrigin(c);
-    setPhase("scatter");
-    window.setTimeout(() => setPhase("honeycomb"), 850);
+    // 点击瞬间蜂窝立即开始呈现:与点击球淡出/四周飞散同步进行,透过气泡即可见蜂窝
+    setPhase("honeycomb");
+    setFading(true);
+    // 其余球飞散(0.55s + 距离错峰)结束后移除气泡层
+    window.setTimeout(() => setFading(false), 900);
   };
 
   // 过滤(按机楼) + 排序(按能耗)
@@ -40,9 +45,6 @@ export default function EnergyLeft() {
       sortDesc ? b.energy - a.energy : a.energy - b.energy
     );
   }, [building, sortDesc]);
-
-  // 列表视图占比条宽度基准
-  const maxEnergy = Math.max(...clusterList.map((c) => c.energy));
 
   const filterMenu = {
     items: buildingOptions.map((b) => ({ key: b, label: b })),
@@ -79,7 +81,10 @@ export default function EnergyLeft() {
             value={view}
             onChange={(v) => {
               setView(v);
-              if (v !== "拓扑") setPhase("idle");
+              if (v !== "拓扑") {
+                setPhase("idle");
+                setFading(false);
+              }
             }}
           />
         </div>
@@ -111,18 +116,19 @@ export default function EnergyLeft() {
 
       {/* 集群用能:拓扑(大球居中,小球环绕;点击展开蜂窝) / 排行列表 */}
       {view === "拓扑" ? (
-        <div className="bubble-field">
-          {phase === "honeycomb" && origin ? (
-            <Honeycomb cluster={origin} onBack={() => setPhase("idle")} />
-          ) : (
+        <div className="topo-body">
+          {/* 气泡层:蜂窝出现后仍保留至飞散结束(交叉过渡) */}
+          {(phase !== "honeycomb" || fading) && (
+            <div className="bubble-field">
             <div className="bubble-stage">
               {clusters.map((c) => {
                 const isOrigin = origin && c.id === origin.id;
-                // scatter 阶段:点击球渐隐;其余球沿离心方向飞散渐隐(按距离错峰)
+                // scatter 及其后的退场期:点击球渐隐;其余球沿离心方向飞散渐隐(按距离错峰)
                 let animStyle = {};
-                if (phase === "scatter") {
+                if (phase !== "idle") {
                   if (isOrigin) {
-                    animStyle = { opacity: 0, transitionDuration: "0.45s", pointerEvents: "none" };
+                    // 点击球:快速淡出(0.18s,快于四周飞散)
+                    animStyle = { opacity: 0, transitionDuration: "0.18s", pointerEvents: "none" };
                   } else {
                     const dx = c.x - origin.x;
                     const dy = c.y - origin.y;
@@ -130,7 +136,8 @@ export default function EnergyLeft() {
                     animStyle = {
                       transform: `translate(-50%, -50%) translate(${Math.round((dx / len) * 420) / 16}rem, ${Math.round((dy / len) * 420) / 16}rem)`,
                       opacity: 0,
-                      transitionDelay: `${Math.round(len * 0.3)}ms`,
+                      transitionDuration: "0.55s",
+                      transitionDelay: `${Math.round(len * 0.2)}ms`,
                       pointerEvents: "none",
                     };
                   }
@@ -189,32 +196,104 @@ export default function EnergyLeft() {
                 );
               })}
             </div>
+            </div>
           )}
-        </div>
-      ) : (
-        <div className="cluster-list">
-          {clusters.map((c, i) => (
-            <div
-              className="cluster-row"
-              key={c.id}
-              onClick={() => message.info(`正在查看「${c.name}」集群用能详情…`)}
-            >
-              <span className={i < 3 ? "cluster-rank top" : "cluster-rank"}>
-                {i + 1}
+
+          {/* 状态图例:气泡容器下方,居中(蜂窝阶段隐藏) */}
+          {phase !== "honeycomb" && (
+            <div className="legend-bar">
+              <span className="legend-item">
+                <span className="legend-dot on" />
+                <span className="legend-text">已开启节能监控</span>
+                <span className="legend-num">12</span>
               </span>
-              <span className="cluster-name">{c.name}</span>
-              <span className="cluster-building">{c.building}</span>
-              <div className="cluster-bar">
-                <div
-                  className={c.on ? "cluster-bar-fill on" : "cluster-bar-fill off"}
-                  style={{ width: `${(c.energy / maxEnergy) * 100}%` }}
-                />
-              </div>
-              <span className="cluster-energy">
-                {c.energy.toLocaleString("zh-CN")} kWh
+              <span className="legend-item">
+                <span className="legend-dot off" />
+                <span className="legend-text">未开启节能监控</span>
+                <span className="legend-num">12</span>
               </span>
             </div>
-          ))}
+          )}
+
+          {/* 蜂窝层:点击球快消失时即开始呈现,叠加在气泡层之上交叉过渡 */}
+          {phase === "honeycomb" && origin && <Honeycomb origin={origin} />}
+        </div>
+      ) : (
+        <div className="cluster-cards">
+          {clusters.map((c) => {
+            // 节能增益 = 节省能耗 / 总能耗
+            const gain = (c.savedEnergy / c.energy) * 100;
+            return (
+              <div
+                className="cluster-card"
+                key={c.id}
+                onClick={() => message.info(`正在查看「${c.name}」用能详情…`)}
+              >
+                {/* 标题栏:开关图标 + 名称(与下方指标左对齐) | 状态胶囊 */}
+                <div className="card-head">
+                  <span className="card-title">
+                    <img
+                      src={c.on ? "./assets/uploads/on.svg" : "./assets/uploads/off.svg"}
+                      alt=""
+                      className="card-switch"
+                    />
+                    <span className="card-name">{c.name}</span>
+                  </span>
+                  <span className={c.on ? "status-pill on" : "status-pill off"}>
+                    {c.on ? (
+                      <Icon name="leaf" size="0.75rem" className="pill-leaf" />
+                    ) : (
+                      <span className="pill-dot" />
+                    )}
+                    {c.on ? "已开启节能监控" : "未开启节能监控"}
+                  </span>
+                </div>
+                {/* 四项描述:数字 24px / 单位 12px;关闭态的节省能耗/节能增益显示 -- */}
+                <div className="card-stats">
+                  <div className="card-stat">
+                    <span className="stat-caption">节点数量</span>
+                    <span className="stat-figure">
+                      {c.nodeCount}
+                      <span className="stat-unit">个</span>
+                    </span>
+                  </div>
+                  <div className="card-stat">
+                    <span className="stat-caption">今日总能耗</span>
+                    <span className="stat-figure">
+                      {c.energy.toLocaleString("zh-CN")}
+                      <span className="stat-unit">kWh</span>
+                    </span>
+                  </div>
+                  <div className="card-stat">
+                    <span className="stat-caption">今日节省能耗</span>
+                    <span className="stat-figure">
+                      {c.on ? (
+                        <>
+                          {c.savedEnergy.toLocaleString("zh-CN")}
+                          <span className="stat-unit">kWh</span>
+                        </>
+                      ) : (
+                        "--"
+                      )}
+                    </span>
+                  </div>
+                  <div className="card-stat">
+                    <span className="stat-caption">今日节能增益</span>
+                    <span className="stat-figure">
+                      {c.on ? (
+                        <>
+                          {gain.toFixed(2)}
+                          <span className="stat-unit">%</span>
+                        </>
+                      ) : (
+                        "--"
+                      )}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
         </div>
       )}
     </section>
