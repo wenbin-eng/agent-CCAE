@@ -5256,8 +5256,43 @@ input.ant-input.ant-input-sm {
   color: var(--er-text);
 }
 
-/* ── 卡片头(标题 + 筛选/操作区) ── */
-.right-head {
+/* 设计稿精确深色值 */
+.dark .energy-right {
+  --er-bg-top: #0d1117;
+  --er-bg-bottom: #161b22;
+  --er-card: #1c2128;
+  --er-text: #e6edf3;
+  --er-text-sub: #8b949e;
+  --er-blue: #58a6ff;
+  --er-green: #3fb950;
+  --er-gray: #6e7681;
+  --er-border: #30363d;
+  --er-grid: #21262d;
+  --er-ctrl-bg: #21262d;
+  --er-tag-blue-bg: #1a3a5c;
+  --er-tag-gray-bg: #2d333b;
+  --er-tag-gray-text: #8b949e;
+  --er-build-a: #232930;
+  --er-build-b: #1b2027;
+  --er-mesh: rgba(230, 237, 243, 0.07);
+  --er-glow: rgba(63, 185, 80, 0.38);
+  --er-grid-line: rgba(110, 118, 129, 0.16);
+  --er-zap-color: #ffffff;
+  --er-zap-glow: rgba(88, 166, 255, 0.7);
+  --er-num-shadow: 0 2px 10px rgba(0, 0, 0, 0.45);
+}
+
+/* 内容滚动区 */
+.er-scroll {
+  flex: 1 1 0;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── 顶部导航条 ── */
+.er-nav {
   flex: none;
   height: 3rem;
   display: flex;
@@ -5266,7 +5301,7 @@ input.ant-input.ant-input-sm {
   padding: 0 1.25rem;
 }
 
-.right-title {
+.er-nav-title {
   display: flex;
   align-items: center;
   gap: var(--spacing-inline);
@@ -5275,19 +5310,99 @@ input.ant-input.ant-input-sm {
   color: var(--er-text);
 }
 
-.right-title-icon {
-  color: var(--primary);
+.er-zap {
+  color: var(--er-green);
 }
 
-/* 筛选下拉 + 竖分隔线 + 图标组 */
-.right-actions {
+.er-nav-time {
+  font-size: 13px;
+  color: var(--er-text-sub);
+  font-family: var(--er-num-font);
+}
+
+/* ── 英雄区:3D 机楼 + 累计指标 ── */
+.er-hero {
+  flex: none;
+  position: relative;
+  height: 15rem;
+  margin: 0 1rem 1rem;
+  overflow: hidden;
+  border-radius: var(--radius-xl);
+}
+
+/* 模糊网格背景 */
+.er-hero-grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(var(--er-grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--er-grid-line) 1px, transparent 1px);
+  background-size: 30px 30px;
+  filter: blur(1px);
+  opacity: 0.55;
+  -webkit-mask-image: radial-gradient(ellipse 85% 95% at 55% 45%, #000 25%, transparent 78%);
+  mask-image: radial-gradient(ellipse 85% 95% at 55% 45%, #000 25%, transparent 78%);
+}
+
+/* 底部绿色渐变发光 */
+.er-hero-glow {
+  position: absolute;
+  left: 4%;
+  right: 4%;
+  bottom: -18%;
+  height: 72%;
+  background: radial-gradient(ellipse at 50% 100%, var(--er-glow), transparent 68%);
+  filter: blur(10px);
+}
+
+/* 机楼:菱形网格长方体 + 右侧阶梯状切口 */
+.er-hero-building {
+  position: absolute;
+  left: 13%;
+  right: 13%;
+  top: 8%;
+  bottom: 4%;
+  background-image:
+    repeating-linear-gradient(45deg, var(--er-mesh) 0 1px, transparent 1px 15px),
+    repeating-linear-gradient(-45deg, var(--er-mesh) 0 1px, transparent 1px 15px),
+    linear-gradient(180deg, var(--er-build-a), var(--er-build-b));
+  clip-path: polygon(0 0, 76% 0, 76% 28%, 87% 28%, 87% 60%, 100% 60%, 100% 100%, 0 100%);
+  opacity: 0.92;
+}
+
+/* 切口处白色闪电装饰 */
+.er-hero-zap {
+  position: absolute;
+  left: 82%;
+  top: 68%;
+  color: var(--er-zap-color);
+  filter: drop-shadow(0 0 8px var(--er-zap-glow));
+}
+
+/* 指标叠层:无背景框,文字直压图上 */
+.er-hero-stats {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 1.75rem 2rem;
 }
 
-.right-trigger {
+.er-stat-col {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-stack);
+}
+
+.er-stat {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-1);
+}
+
+.er-stat-label {
   display: inline-flex;
   align-items: center;
   gap: var(--spacing-1);
@@ -5395,28 +5510,13 @@ input.ant-input.ant-input-sm {
   transition: color 0.2s ease, border-color 0.2s ease;
 }
 
-.right-trigger:hover {
-  color: var(--color-brand);
+.er-ctrl:hover {
+  color: var(--er-blue);
+  border-color: var(--er-blue);
 }
 
-.right-divider {
-  width: 1px;
-  height: 0.75rem;
-  background: var(--color-border);
-}
-
-.right-action-icon {
-  color: var(--on-surface-variant);
-}
-
-.right-action-icon:hover {
-  color: var(--color-brand);
-}
-
-/* ── 内容区:纵向分区,超高时滚动 ── */
-.analysis-body {
-  flex: 1 1 0;
-  min-height: 0;
+/* ── 本周汇总行 ── */
+.er-sum-row {
   display: flex;
   gap: var(--spacing-gutter);
   margin-top: var(--spacing-gutter);
@@ -5532,41 +5632,41 @@ input.ant-input.ant-input-sm {
   gap: var(--spacing-2);
 }
 
-.analysis-title {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-inline);
-  font: var(--font-headline-s);
-  font-weight: var(--font-weight-semibold);
-  color: var(--on-surface);
+.er-metric-value {
+  font-family: var(--er-num-font);
+  font-size: var(--font-size-3xl);
+  font-weight: var(--font-weight-bold);
+  line-height: var(--line-height-xs);
+  color: var(--er-text);
 }
 
-/* ── 表格 ── */
-.analysis-rank {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 1.25rem;
-  height: 1.25rem;
-  padding: 0 var(--spacing-1);
-  border-radius: var(--radius-badge);
-  font: var(--font-caption-m);
-  color: var(--on-surface-variant);
+.er-metric-unit {
+  font-size: var(--font-size-md);
+  color: var(--er-text-sub);
 }
 
-.analysis-rank.top {
-  background: var(--primary-container);
-  color: var(--on-primary-container);
-  font-weight: var(--font-weight-semibold);
+.er-tag {
+  padding: 4px 8px;
+  border-radius: var(--radius-base);
+  font-size: var(--font-size-md);
+  line-height: 1;
+  white-space: nowrap;
 }
 
-.analysis-link {
-  color: var(--interactive-link);
-  cursor: pointer;
+.er-tag.blue {
+  background: var(--er-tag-blue-bg);
+  color: var(--er-blue);
 }
 
-.analysis-link:hover {
-  color: var(--interactive-link-hover);
+.er-tag.gray {
+  background: var(--er-tag-gray-bg);
+  color: var(--er-tag-gray-text);
+}
+
+/* 24 小时堆叠柱图容器(ECharts) */
+.er-schart {
+  height: 208px;
+  min-width: 0;
 }
 
 </style>
@@ -5904,17 +6004,13 @@ function useApp() {
   const LUCIDE = {
     "arrow-down-up": [["path",{"d":"m3 16 4 4 4-4"}],["path",{"d":"M7 20V4"}],["path",{"d":"m21 8-4-4-4 4"}],["path",{"d":"M17 4v16"}]],
     "arrow-up-down": [["path",{"d":"m21 16-4 4-4-4"}],["path",{"d":"M17 20V4"}],["path",{"d":"m3 8 4-4 4 4"}],["path",{"d":"M7 4v16"}]],
-    "bell-ring": [["path",{"d":"M10.268 21a2 2 0 0 0 3.464 0"}],["path",{"d":"M22 8c0-2.3-.8-4.3-2-6"}],["path",{"d":"M3.262 15.326A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.673C19.41 13.956 18 12.499 18 8A6 6 0 0 0 6 8c0 4.499-1.411 5.956-2.738 7.326"}],["path",{"d":"M4 2C2.8 3.7 2 5.7 2 8"}]],
     "boxes": [["path",{"d":"M2.97 12.92A2 2 0 0 0 2 14.63v3.24a2 2 0 0 0 .97 1.71l3 1.8a2 2 0 0 0 2.06 0L12 19v-5.5l-5-3-4.03 2.42Z"}],["path",{"d":"m7 16.5-4.74-2.85"}],["path",{"d":"m7 16.5 5-3"}],["path",{"d":"M7 16.5v5.17"}],["path",{"d":"M12 13.5V19l3.97 2.38a2 2 0 0 0 2.06 0l3-1.8a2 2 0 0 0 .97-1.71v-3.24a2 2 0 0 0-.97-1.71L17 10.5l-5 3Z"}],["path",{"d":"m17 16.5-5-3"}],["path",{"d":"m17 16.5 4.74-2.85"}],["path",{"d":"M17 16.5v5.17"}],["path",{"d":"M7.97 4.42A2 2 0 0 0 7 6.13v4.37l5 3 5-3V6.13a2 2 0 0 0-.97-1.71l-3-1.8a2 2 0 0 0-2.06 0l-3 1.8Z"}],["path",{"d":"M12 8 7.26 5.15"}],["path",{"d":"m12 8 4.74-2.85"}],["path",{"d":"M12 13.5V8"}]],
-    "building-2": [["path",{"d":"M10 12h4"}],["path",{"d":"M10 8h4"}],["path",{"d":"M14 21v-3a2 2 0 0 0-4 0v3"}],["path",{"d":"M6 10H4a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-2"}],["path",{"d":"M6 21V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v16"}]],
-    "chart-pie": [["path",{"d":"M21 12c.552 0 1.005-.449.95-.998a10 10 0 0 0-8.953-8.951c-.55-.055-.998.398-.998.95v8a1 1 0 0 0 1 1z"}],["path",{"d":"M21.21 15.89A10 10 0 1 1 8 2.83"}]],
+    "calendar": [["path",{"d":"M8 2v3"}],["path",{"d":"M16 2v3"}],["rect",{"x":"3","y":"3","width":"18","height":"18","rx":"2"}],["path",{"d":"M3 9h18"}]],
     "chevron-down": [["path",{"d":"m6 9 6 6 6-6"}]],
     "chevron-left": [["path",{"d":"m15 18-6-6 6-6"}]],
+    "circle-question-mark": [["circle",{"cx":"12","cy":"12","r":"10"}],["path",{"d":"M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"}],["path",{"d":"M12 17h.01"}]],
     "clock": [["circle",{"cx":"12","cy":"12","r":"10"}],["path",{"d":"M12 6v6l4 2"}]],
-    "ellipsis": [["circle",{"cx":"12","cy":"12","r":"1"}],["circle",{"cx":"19","cy":"12","r":"1"}],["circle",{"cx":"5","cy":"12","r":"1"}]],
-    "file-down": [["path",{"d":"M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z"}],["path",{"d":"M14 2v5a1 1 0 0 0 1 1h5"}],["path",{"d":"M12 18v-6"}],["path",{"d":"m9 15 3 3 3-3"}]],
     "funnel": [["path",{"d":"M10 20a1 1 0 0 0 .553.895l2 1A1 1 0 0 0 14 21v-7a2 2 0 0 1 .517-1.341L21.74 4.67A1 1 0 0 0 21 3H3a1 1 0 0 0-.742 1.67l7.225 7.989A2 2 0 0 1 10 14z"}]],
-    "image-down": [["path",{"d":"M10.3 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v10l-3.1-3.1a2 2 0 0 0-2.814.014L6 21"}],["path",{"d":"m14 19 3 3v-5.5"}],["path",{"d":"m17 22 3-3"}],["circle",{"cx":"9","cy":"9","r":"2"}]],
     "leaf": [["path",{"d":"M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"}],["path",{"d":"M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"}]],
     "moon": [["path",{"d":"M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401"}]],
     "refresh-cw": [["path",{"d":"M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"}],["path",{"d":"M21 3v5h-5"}],["path",{"d":"M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"}],["path",{"d":"M8 16H3v5"}]],
@@ -7027,136 +7123,9 @@ function EnergyLeft() {
   Object.assign(__export, { EnergyLeft });
 })();
 
-/* ===== assets/shared/chart.jsx ===== */
-(function () {
-  const { useRef, useEffect, useState, forwardRef, useImperativeHandle } = React;
-// Chart — HUICharts 的 React 封装(命令式 → 声明式)
-// 底层: echarts + hui-charts.umd.js(全局 HUICharts),配置项 option 原样透传给 setSimpleOption。
-// 暗色联动:自动监听 <html> 的 .dark class,切换 hdesign-light / hdesign-dark 主题并重建图表。
-const Chart = forwardRef(function Chart(
-  { name, option, className, style, onChartRendered },
-  ref
-) {
-  const containerRef = useRef(null);
-  const chartRef = useRef(null);
-  const renderedRef = useRef(onChartRendered);
-  renderedRef.current = onChartRendered;
-
-  // .dark 切换 → 递增 tick 触发主 effect 重建(走同一条 init/dispose 路径)
-  const [darkTick, setDarkTick] = useState(0);
-  useEffect(() => {
-    const mo = new MutationObserver(() => setDarkTick((t) => t + 1));
-    mo.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
-    return () => mo.disconnect();
-  }, []);
-
-  useEffect(() => {
-    const dom = containerRef.current;
-    if (!dom || !window.HUICharts) return;
-
-    const isDark = document.documentElement.classList.contains("dark");
-    const chart = new HUICharts();
-    chart.init(dom, { renderer: "svg"});
-    chart.setSimpleOption(name, {
-      theme: isDark ? "hdesign-dark" : "hdesign-light",
-      a2ui: true,
-      ...option,
-    });
-    chart.render();
-    chartRef.current = chart;
-    if (renderedRef.current) renderedRef.current(chart);
-
-    // 容器尺寸变化(侧栏折叠/窗口缩放/响应式) → 同步画布
-    const ro = new ResizeObserver(() => {
-      if (chartRef.current && !chartRef.current._disposed) chart.resize();
-    });
-    ro.observe(dom);
-
-    return () => {
-      ro.disconnect();
-      try { chart.dispose(); } catch (e) { /* 容器已卸载时静默 */ }
-      chartRef.current = null;
-    };
-    // JSON.stringify 作 dep:option 是 JSX 内联对象,内容不变则不重建
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [name, JSON.stringify(option), darkTick]);
-
-  useImperativeHandle(ref, () => ({
-    getEchartsInstance: () => (chartRef.current ? chartRef.current.getEchartsInstance() : null),
-    resizeHandler: () => {
-      if (chartRef.current) chartRef.current.resize();
-    },
-  }), []);
-
-  const wrapperStyle = { width: "100%", height: "100%", ...style };
-  return <div ref={containerRef} className={className} style={wrapperStyle} />;
-});
-  Object.assign(__export, { Chart });
-})();
-
 /* ===== src/mock/energy-right.js ===== */
 (function () {
-// Layer 2: 用能总览 · 右侧面板 mock 数据(energy-right 视图专用,由右侧开发维护)
-// 与 energy-left.js 互不依赖;buildingOptions 为两侧各自的副本,可独立演化
-
-// ── 用能构成(饼图) ───────────────────────────────────────────
-const compositionData = [
-  { name: "IT 设备", value: 7458 },
-  { name: "制冷系统", value: 3472 },
-  { name: "供配电系统", value: 1158 },
-  { name: "照明及其他", value: 772 },
-];
-
-// ── 机楼用能排名(横向柱状图) ─────────────────────────────────
-const buildingRankData = [
-  { 机楼: "华东·机楼A", 用电量: 2864 },
-  { 机楼: "华北·机楼B", 用电量: 2432 },
-  { 机楼: "华南·机楼C", 用电量: 2108 },
-  { 机楼: "西南·机楼D", 用电量: 1976 },
-  { 机楼: "华中·机楼E", 用电量: 1734 },
-  { 机楼: "东北·机楼F", 用电量: 1426 },
-];
-
-// ── 机楼筛选项(卡片头下拉) ────────────────────────────────────
-const buildingOptions = [
-  "全部机楼",
-  "华东·机楼A",
-  "华北·机楼B",
-  "华南·机楼C",
-  "西南·机楼D",
-  "华中·机楼E",
-  "东北·机楼F",
-];
-
-// ── 高耗能设备列表(≥20 条,状态多样) ──────────────────────────
-const deviceList = [
-  { rank: 1, deviceName: "核心路由器 NE8000-M8A", building: "华东·机楼A", type: "路由器", power: 862, ratio: 6.7, status: "运行中" },
-  { rank: 2, deviceName: "集群服务器 Atlas 900", building: "华东·机楼A", type: "服务器", power: 815, ratio: 6.3, status: "节能模式" },
-  { rank: 3, deviceName: "精密空调 CRV-120", building: "华东·机楼A", type: "制冷设备", power: 786, ratio: 6.1, status: "运行中" },
-  { rank: 4, deviceName: "汇聚交换机 CE12800E", building: "华北·机楼B", type: "交换机", power: 742, ratio: 5.8, status: "运行中" },
-  { rank: 5, deviceName: "存储阵列 OceanStor 5885", building: "华东·机楼A", type: "服务器", power: 688, ratio: 5.3, status: "运行中" },
-  { rank: 6, deviceName: "核心路由器 NE8000-M4", building: "华南·机楼C", type: "路由器", power: 654, ratio: 5.1, status: "告警" },
-  { rank: 7, deviceName: "精密空调 CRV-100", building: "华北·机楼B", type: "制冷设备", power: 612, ratio: 4.8, status: "运行中" },
-  { rank: 8, deviceName: "集群服务器 Atlas 800", building: "华北·机楼B", type: "服务器", power: 586, ratio: 4.6, status: "节能模式" },
-  { rank: 9, deviceName: "OTN传输设备 OptiX 9800", building: "华南·机楼C", type: "传输设备", power: 542, ratio: 4.2, status: "运行中" },
-  { rank: 10, deviceName: "UPS电源 UPS5000-E", building: "西南·机楼D", type: "供配电设备", power: 498, ratio: 3.9, status: "运行中" },
-  { rank: 11, deviceName: "汇聚交换机 CE8850-H", building: "华南·机楼C", type: "交换机", power: 462, ratio: 3.6, status: "运行中" },
-  { rank: 12, deviceName: "精密空调 CRV-80", building: "西南·机楼D", type: "制冷设备", power: 438, ratio: 3.4, status: "节能模式" },
-  { rank: 13, deviceName: "集群服务器 Atlas 800", building: "西南·机楼D", type: "服务器", power: 415, ratio: 3.2, status: "运行中" },
-  { rank: 14, deviceName: "核心路由器 NE40E-M8K", building: "华中·机楼E", type: "路由器", power: 386, ratio: 3.0, status: "运行中" },
-  { rank: 15, deviceName: "存储阵列 OceanStor 6810", building: "华北·机楼B", type: "服务器", power: 362, ratio: 2.8, status: "待机" },
-  { rank: 16, deviceName: "OTN传输设备 OptiX 1800", building: "华中·机楼E", type: "传输设备", power: 324, ratio: 2.5, status: "运行中" },
-  { rank: 17, deviceName: "汇聚交换机 CE6881", building: "东北·机楼F", type: "交换机", power: 298, ratio: 2.3, status: "运行中" },
-  { rank: 18, deviceName: "精密空调 CRV-60", building: "华中·机楼E", type: "制冷设备", power: 276, ratio: 2.1, status: "离线" },
-  { rank: 19, deviceName: "边缘服务器 Atlas 500", building: "东北·机楼F", type: "服务器", power: 246, ratio: 1.9, status: "节能模式" },
-  { rank: 20, deviceName: "UPS电源 UPS5000-A", building: "东北·机楼F", type: "供配电设备", power: 218, ratio: 1.7, status: "告警" },
-];
-  Object.assign(__export, { compositionData, buildingRankData, buildingOptions, deviceList });
-})();
-
-/* ===== src/mock/energy-analysis.js ===== */
-(function () {
-// Layer 2: 累计用能总览 — 右栏(energy-right)mock 数据
+// Layer 2: 累计用能总览 · 右侧面板 mock 数据(energy-right 视图专用)
 // 语义化字段;时长/能耗序列各 24 条(每小时一根柱)
 
 // ── 顶部导航:数据起始时间 ────────────────────────────────────
@@ -7283,8 +7252,7 @@ const DARK_PALETTE = {
   gray: "#6e7681",
 };
 
-// 0 线下绿柱的斑马纹纹理:离屏 canvas 绘制 15° 倾斜等宽条纹
-// 参考用户提供的 createZebraPattern:width=120,height=round(width·tan15°·4) 保证垂直方向整数周期、无缝平铺
+// 0 线下柱的斑马纹纹理:离屏 canvas 绘制 15° 倾斜等宽条纹
 // 返回 { image, repeat } 直接作为 itemStyle.color;无 canvas 环境兜底为纯色
 function createZebraPattern(base, stripe) {
   try {
@@ -7356,7 +7324,7 @@ function useEChart(elRef, buildOption, deps, renderer = "svg") {
   return chartRef;
 }
 
-// ── 总能耗趋势图:双 grid 上下分叉柱(蓝向上 / 绿斜纹向下) ──────
+// ── 总能耗趋势图:双 grid 上下分叉柱(蓝向上 / 斑马纹向下) ──────
 function TrendChart() {
   const { isDark } = useApp();
   const elRef = useRef(null);
@@ -7545,89 +7513,12 @@ function EnergyRight() {
   const [week, setWeek] = useState("2026年第30周");
   const [range, setRange] = useState("最近24h");
 
-  const pieOption = useMemo(
-    () => ({
-      data: compositionData,
-      title: { text: "今日总用电量", subtext: "12,860 kWh" },
-      legendPosition: "centerRight",
-    }),
-    []
-  );
-
-  const barOption = useMemo(
-    () => ({
-      data: buildingRankData,
-      xAxis: { data: "机楼" },
-      yAxisTitle: "用电量 (kWh)",
-      direction: "horizontal",
-    }),
-    []
-  );
-
-  const columns = useMemo(
-    () => [
-      {
-        title: "排名",
-        dataIndex: "rank",
-        key: "rank",
-        width: 64,
-        sorter: (a, b) => a.rank - b.rank,
-        render: (v) => <span className={v <= 3 ? "analysis-rank top" : "analysis-rank"}>{v}</span>,
-      },
-      {
-        title: "设备名称",
-        dataIndex: "deviceName",
-        key: "deviceName",
-        render: (v) => (
-          <a className="analysis-link" onClick={() => message.info(`正在打开「${v}」详情…`)}>
-            {v}
-          </a>
-        ),
-      },
-      {
-        title: "所属机楼",
-        dataIndex: "building",
-        key: "building",
-        filters: [...new Set(deviceList.map((d) => d.building))].map((b) => ({ text: b, value: b })),
-        onFilter: (value, record) => record.building === value,
-      },
-      {
-        title: "设备类型",
-        dataIndex: "type",
-        key: "type",
-        filters: [...new Set(deviceList.map((d) => d.type))].map((t) => ({ text: t, value: t })),
-        onFilter: (value, record) => record.type === value,
-      },
-      {
-        title: "今日用电量 (kWh)",
-        dataIndex: "power",
-        key: "power",
-        align: "right",
-        sorter: (a, b) => a.power - b.power,
-      },
-      {
-        title: "占比",
-        dataIndex: "ratio",
-        key: "ratio",
-        align: "right",
-        sorter: (a, b) => a.ratio - b.ratio,
-        render: (v) => `${v}%`,
-      },
-      {
-        title: "状态",
-        dataIndex: "status",
-        key: "status",
-        filters: [...new Set(deviceList.map((d) => d.status))].map((s) => ({ text: s, value: s })),
-        onFilter: (value, record) => record.status === value,
-        render: (v) => <Tag color={STATUS_COLOR[v]}>{v}</Tag>,
-      },
-    ],
-    []
-  );
-
-  const buildingMenu = {
-    items: buildingOptions.map((b) => ({ key: b, label: b })),
-    onClick: ({ key }) => setBuilding(key),
+  const granularityMenu = {
+    items: ["按日", "按周", "按月"].map((g) => ({ key: g, label: g })),
+    onClick: ({ key }) => {
+      setGranularity(key);
+      message.info(`已切换为${key}视图(演示数据)`);
+    },
   };
 
   const weekMenu = {
@@ -7647,81 +7538,140 @@ function EnergyRight() {
   };
 
   return (
-    <section className="panel energy-right">
-      <div className="right-head">
-        <div className="right-title">
-          <Icon name="chart-pie" size="1rem" className="right-title-icon" />
-          用能分析
-        </div>
-        <div className="right-actions">
-          <Dropdown menu={buildingMenu}>
-            <a className="right-trigger" onClick={(e) => e.preventDefault()}>
-              {building}
-              <Icon name="chevron-down" size="0.875rem" />
-            </a>
-          </Dropdown>
-          <span className="right-divider" />
-          <Icon
-            name="refresh-cw"
-            size="1rem"
-            className="right-action-icon"
-            title="刷新数据"
-            onClick={() => message.success("用能数据已刷新")}
-          />
-          <Dropdown menu={moreMenu}>
-            <Icon
-              name="ellipsis"
-              size="1rem"
-              className="right-action-icon"
-              title="更多操作"
-              onClick={(e) => e.preventDefault()}
-            />
-          </Dropdown>
-        </div>
-      </div>
-
-      <div className="analysis-body">
-        {/* 用能构成 */}
-        <div className="analysis-section">
-          <h4 className="analysis-title">
-            <Icon name="chart-pie" size="1rem" className="right-title-icon" />
-            用能构成
-          </h4>
-          <Chart name="PieChart" option={pieOption} style={{ height: "13rem" }} />
+    <section className="energy-right">
+      <div className="er-scroll">
+        {/* 顶部导航条 */}
+        <div className="er-nav">
+          <div className="er-nav-title">
+            <Icon name="zap" size="1.25rem" className="er-zap" />
+            累计用能总览
+          </div>
+          <span className="er-nav-time">起始时间：{startTime}</span>
         </div>
 
-        {/* 机楼用能排名 */}
-        <div className="analysis-section">
-          <h4 className="analysis-title">
-            <Icon name="building-2" size="1rem" className="right-title-icon" />
-            机楼用能排名
-          </h4>
-          <Chart name="BarChart" option={barOption} style={{ height: "11rem" }} />
+        {/* 英雄区:3D 机楼背景 + 累计指标 */}
+        <div className="er-hero">
+          <i className="er-hero-grid" />
+          <i className="er-hero-glow" />
+          <i className="er-hero-building" />
+          <Icon name="zap" size="1.75rem" className="er-hero-zap" />
+          <div className="er-hero-stats">
+            <div className="er-stat-col">
+              {[heroStats.total, heroStats.saved].map((s) => (
+                <div className="er-stat" key={s.key}>
+                  <span className="er-stat-label">{s.label}</span>
+                  <span className="er-stat-value">
+                    {s.value}
+                    <em className="er-stat-unit">{s.unit}</em>
+                  </span>
+                </div>
+              ))}
+            </div>
+            <div className="er-stat-col">
+              <div className="er-stat">
+                <span className="er-stat-label">
+                  {heroStats.gain.label}
+                  <Tooltip title="空闲态时段通过智能休眠调度获得的节能收益，占累计总能耗的比例">
+                    <Icon name="circle-question-mark" size="1rem" className="er-help" />
+                  </Tooltip>
+                </span>
+                <span className="er-stat-value">
+                  {heroStats.gain.value}
+                  <em className="er-stat-unit pct">{heroStats.gain.unit}</em>
+                </span>
+              </div>
+            </div>
+          </div>
         </div>
 
-        {/* 高耗能设备排名 */}
-        <div className="analysis-section">
-          <h4 className="analysis-title">
-            <Icon name="server" size="1rem" className="right-title-icon" />
-            高耗能设备排名
-          </h4>
-          <Table
-            className="device-table"
-            size="middle"
-            columns={columns}
-            dataSource={deviceList}
-            rowKey="rank"
-            sortDirections={["ascend", "descend", "ascend"]}
-            showSorterTooltip={false}
-            scroll={{ x: 860 }}
-            pagination={{
-              defaultPageSize: 5,
-              pageSizeOptions: [5, 10, 20],
-              showSizeChanger: true,
-              showQuickJumper: { goButton: "跳转" },
-              showTotal: (total) => `总记录数：${total}`,
-            }}
-          />
+        {/* 中部卡片:总能耗趋势图 */}
+        <div className="er-card">
+          <div className="er-card-head">
+            <h4 className="er-card-title">总能耗趋势图</h4>
+            <span className="er-legend">
+              <i className="er-legend-swatch" />
+              总能耗
+            </span>
+            <span className="er-legend">
+              <i className="er-legend-swatch hatch" />
+              节省能耗
+            </span>
+            <i className="er-head-divider" />
+            <Dropdown menu={granularityMenu}>
+              <a className="er-ctrl" onClick={(e) => e.preventDefault()}>
+                {granularity}
+                <Icon name="chevron-down" size="0.875rem" />
+              </a>
+            </Dropdown>
+            <Dropdown menu={weekMenu}>
+              <a className="er-ctrl" onClick={(e) => e.preventDefault()}>
+                <Icon name="calendar" size="0.875rem" />
+                {week}
+              </a>
+            </Dropdown>
+          </div>
+
+          <div className="er-sum-row">
+            {trendSummary.map((s, i) => (
+              <div className="er-sum-group" key={s.key}>
+                {i > 0 ? <i className="er-sum-divider" /> : null}
+                <span className="er-sum-item">
+                  <span className="er-sum-label">{s.label}</span>
+                  <span className="er-sum-value">{s.value}</span>
+                  <span className="er-sum-unit">{s.unit}</span>
+                </span>
+              </div>
+            ))}
+          </div>
+
+          <TrendChart />
+        </div>
+
+        {/* 底部卡片:节点闲忙分布统计 */}
+        <div className="er-card">
+          <div className="er-card-head">
+            <h4 className="er-card-title">
+              节点闲忙分布统计
+              <Tooltip title="统计计算节点在运行态与空闲态下的时长及能耗分布">
+                <Icon name="circle-question-mark" size="1rem" className="er-help" />
+              </Tooltip>
+            </h4>
+            <Dropdown menu={rangeMenu}>
+              <a className="er-ctrl" onClick={(e) => e.preventDefault()}>
+                {range}
+                <Icon name="chevron-down" size="0.875rem" />
+              </a>
+            </Dropdown>
+          </div>
+
+          <div className="er-node-panels">
+            <NodePanel
+              subtitle="时长统计"
+              legends={["运行态24h平均时长", "空闲态24h平均时长"]}
+              metrics={[
+                { key: "run", value: durationStats.running.value, ratio: durationStats.running.ratio, tone: "blue" },
+                { key: "idle", value: durationStats.idle.value, ratio: durationStats.idle.ratio, tone: "gray" },
+              ]}
+            >
+              <StackedChart yName="Min" max={60} interval={10} series={durationStats.series} />
+            </NodePanel>
+            <NodePanel
+              subtitle="能耗统计"
+              legends={["运行态24h平均能耗", "空闲态24h平均能耗"]}
+              metrics={[
+                { key: "run", value: energyStats.running.value, unit: energyStats.running.unit, ratio: energyStats.running.ratio, tone: "blue" },
+                { key: "idle", value: energyStats.idle.value, unit: energyStats.idle.unit, ratio: energyStats.idle.ratio, tone: "gray" },
+              ]}
+            >
+              <StackedChart
+                yName="kWh"
+                max={6000}
+                interval={1000}
+                series={energyStats.series}
+                formatTick={(v) => (v === 0 ? "0" : v.toLocaleString("en-US"))}
+              />
+            </NodePanel>
+          </div>
         </div>
       </div>
     </section>
@@ -7742,7 +7692,7 @@ function EnergyRight() {
 // App entry — ICT React page
 // Layering convention (one folder per component, kebab-case + index.jsx/index.css):
 //   Layer 1 global state  → src/context.jsx        (AppProvider: global state + dark mode toggle)
-//   Layer 2 mock data     → src/mock/              (energy.js: 左栏用能数据 / energy-analysis.js: 右栏累计用能总览)
+//   Layer 2 mock data     → src/mock/              (energy-left.js / energy-right.js: 左右视图各自持有,独立维护)
 //   Layer 3 reusable      → src/components/{name}/ (cross-view)
 //   Layer 4 views         → src/views/{name}/      (header-bar / page-title / energy-left / energy-right)
 //   Layer 5 layout        → app.jsx                (Provider + root container assembly)

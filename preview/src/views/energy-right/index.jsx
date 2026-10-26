@@ -3,10 +3,12 @@ import { Dropdown, Tooltip, message } from "antd";
 import { Icon } from "../../../assets/shared/icon.jsx";
 import { useApp } from "../../context.jsx";
 import {
-  compositionData,
-  buildingRankData,
-  buildingOptions,
-  deviceList,
+  startTime,
+  heroStats,
+  trendSummary,
+  trendWeekly,
+  durationStats,
+  energyStats,
 } from "../../mock/energy-right.js";
 import "./index.css";
 
@@ -35,8 +37,7 @@ const DARK_PALETTE = {
   gray: "#6e7681",
 };
 
-// 0 线下绿柱的斑马纹纹理:离屏 canvas 绘制 15° 倾斜等宽条纹
-// 参考用户提供的 createZebraPattern:width=120,height=round(width·tan15°·4) 保证垂直方向整数周期、无缝平铺
+// 0 线下柱的斑马纹纹理:离屏 canvas 绘制 15° 倾斜等宽条纹
 // 返回 { image, repeat } 直接作为 itemStyle.color;无 canvas 环境兜底为纯色
 function createZebraPattern(base, stripe) {
   try {
@@ -108,7 +109,7 @@ function useEChart(elRef, buildOption, deps, renderer = "svg") {
   return chartRef;
 }
 
-// ── 总能耗趋势图:双 grid 上下分叉柱(蓝向上 / 绿斜纹向下) ──────
+// ── 总能耗趋势图:双 grid 上下分叉柱(蓝向上 / 斑马纹向下) ──────
 function TrendChart() {
   const { isDark } = useApp();
   const elRef = useRef(null);
@@ -297,89 +298,12 @@ export default function EnergyRight() {
   const [week, setWeek] = useState("2026年第30周");
   const [range, setRange] = useState("最近24h");
 
-  const pieOption = useMemo(
-    () => ({
-      data: compositionData,
-      title: { text: "今日总用电量", subtext: "12,860 kWh" },
-      legendPosition: "centerRight",
-    }),
-    []
-  );
-
-  const barOption = useMemo(
-    () => ({
-      data: buildingRankData,
-      xAxis: { data: "机楼" },
-      yAxisTitle: "用电量 (kWh)",
-      direction: "horizontal",
-    }),
-    []
-  );
-
-  const columns = useMemo(
-    () => [
-      {
-        title: "排名",
-        dataIndex: "rank",
-        key: "rank",
-        width: 64,
-        sorter: (a, b) => a.rank - b.rank,
-        render: (v) => <span className={v <= 3 ? "analysis-rank top" : "analysis-rank"}>{v}</span>,
-      },
-      {
-        title: "设备名称",
-        dataIndex: "deviceName",
-        key: "deviceName",
-        render: (v) => (
-          <a className="analysis-link" onClick={() => message.info(`正在打开「${v}」详情…`)}>
-            {v}
-          </a>
-        ),
-      },
-      {
-        title: "所属机楼",
-        dataIndex: "building",
-        key: "building",
-        filters: [...new Set(deviceList.map((d) => d.building))].map((b) => ({ text: b, value: b })),
-        onFilter: (value, record) => record.building === value,
-      },
-      {
-        title: "设备类型",
-        dataIndex: "type",
-        key: "type",
-        filters: [...new Set(deviceList.map((d) => d.type))].map((t) => ({ text: t, value: t })),
-        onFilter: (value, record) => record.type === value,
-      },
-      {
-        title: "今日用电量 (kWh)",
-        dataIndex: "power",
-        key: "power",
-        align: "right",
-        sorter: (a, b) => a.power - b.power,
-      },
-      {
-        title: "占比",
-        dataIndex: "ratio",
-        key: "ratio",
-        align: "right",
-        sorter: (a, b) => a.ratio - b.ratio,
-        render: (v) => `${v}%`,
-      },
-      {
-        title: "状态",
-        dataIndex: "status",
-        key: "status",
-        filters: [...new Set(deviceList.map((d) => d.status))].map((s) => ({ text: s, value: s })),
-        onFilter: (value, record) => record.status === value,
-        render: (v) => <Tag color={STATUS_COLOR[v]}>{v}</Tag>,
-      },
-    ],
-    []
-  );
-
-  const buildingMenu = {
-    items: buildingOptions.map((b) => ({ key: b, label: b })),
-    onClick: ({ key }) => setBuilding(key),
+  const granularityMenu = {
+    items: ["按日", "按周", "按月"].map((g) => ({ key: g, label: g })),
+    onClick: ({ key }) => {
+      setGranularity(key);
+      message.info(`已切换为${key}视图(演示数据)`);
+    },
   };
 
   const weekMenu = {
@@ -399,81 +323,140 @@ export default function EnergyRight() {
   };
 
   return (
-    <section className="panel energy-right">
-      <div className="right-head">
-        <div className="right-title">
-          <Icon name="chart-pie" size="1rem" className="right-title-icon" />
-          用能分析
-        </div>
-        <div className="right-actions">
-          <Dropdown menu={buildingMenu}>
-            <a className="right-trigger" onClick={(e) => e.preventDefault()}>
-              {building}
-              <Icon name="chevron-down" size="0.875rem" />
-            </a>
-          </Dropdown>
-          <span className="right-divider" />
-          <Icon
-            name="refresh-cw"
-            size="1rem"
-            className="right-action-icon"
-            title="刷新数据"
-            onClick={() => message.success("用能数据已刷新")}
-          />
-          <Dropdown menu={moreMenu}>
-            <Icon
-              name="ellipsis"
-              size="1rem"
-              className="right-action-icon"
-              title="更多操作"
-              onClick={(e) => e.preventDefault()}
-            />
-          </Dropdown>
-        </div>
-      </div>
-
-      <div className="analysis-body">
-        {/* 用能构成 */}
-        <div className="analysis-section">
-          <h4 className="analysis-title">
-            <Icon name="chart-pie" size="1rem" className="right-title-icon" />
-            用能构成
-          </h4>
-          <Chart name="PieChart" option={pieOption} style={{ height: "13rem" }} />
+    <section className="energy-right">
+      <div className="er-scroll">
+        {/* 顶部导航条 */}
+        <div className="er-nav">
+          <div className="er-nav-title">
+            <Icon name="zap" size="1.25rem" className="er-zap" />
+            累计用能总览
+          </div>
+          <span className="er-nav-time">起始时间：{startTime}</span>
         </div>
 
-        {/* 机楼用能排名 */}
-        <div className="analysis-section">
-          <h4 className="analysis-title">
-            <Icon name="building-2" size="1rem" className="right-title-icon" />
-            机楼用能排名
-          </h4>
-          <Chart name="BarChart" option={barOption} style={{ height: "11rem" }} />
+        {/* 英雄区:3D 机楼背景 + 累计指标 */}
+        <div className="er-hero">
+          <i className="er-hero-grid" />
+          <i className="er-hero-glow" />
+          <i className="er-hero-building" />
+          <Icon name="zap" size="1.75rem" className="er-hero-zap" />
+          <div className="er-hero-stats">
+            <div className="er-stat-col">
+              {[heroStats.total, heroStats.saved].map((s) => (
+                <div className="er-stat" key={s.key}>
+                  <span className="er-stat-label">{s.label}</span>
+                  <span className="er-stat-value">
+                    {s.value}
+                    <em className="er-stat-unit">{s.unit}</em>
+                  </span>
+                </div>
+              ))}
+            </div>
+            <div className="er-stat-col">
+              <div className="er-stat">
+                <span className="er-stat-label">
+                  {heroStats.gain.label}
+                  <Tooltip title="空闲态时段通过智能休眠调度获得的节能收益，占累计总能耗的比例">
+                    <Icon name="circle-question-mark" size="1rem" className="er-help" />
+                  </Tooltip>
+                </span>
+                <span className="er-stat-value">
+                  {heroStats.gain.value}
+                  <em className="er-stat-unit pct">{heroStats.gain.unit}</em>
+                </span>
+              </div>
+            </div>
+          </div>
         </div>
 
-        {/* 高耗能设备排名 */}
-        <div className="analysis-section">
-          <h4 className="analysis-title">
-            <Icon name="server" size="1rem" className="right-title-icon" />
-            高耗能设备排名
-          </h4>
-          <Table
-            className="device-table"
-            size="middle"
-            columns={columns}
-            dataSource={deviceList}
-            rowKey="rank"
-            sortDirections={["ascend", "descend", "ascend"]}
-            showSorterTooltip={false}
-            scroll={{ x: 860 }}
-            pagination={{
-              defaultPageSize: 5,
-              pageSizeOptions: [5, 10, 20],
-              showSizeChanger: true,
-              showQuickJumper: { goButton: "跳转" },
-              showTotal: (total) => `总记录数：${total}`,
-            }}
-          />
+        {/* 中部卡片:总能耗趋势图 */}
+        <div className="er-card">
+          <div className="er-card-head">
+            <h4 className="er-card-title">总能耗趋势图</h4>
+            <span className="er-legend">
+              <i className="er-legend-swatch" />
+              总能耗
+            </span>
+            <span className="er-legend">
+              <i className="er-legend-swatch hatch" />
+              节省能耗
+            </span>
+            <i className="er-head-divider" />
+            <Dropdown menu={granularityMenu}>
+              <a className="er-ctrl" onClick={(e) => e.preventDefault()}>
+                {granularity}
+                <Icon name="chevron-down" size="0.875rem" />
+              </a>
+            </Dropdown>
+            <Dropdown menu={weekMenu}>
+              <a className="er-ctrl" onClick={(e) => e.preventDefault()}>
+                <Icon name="calendar" size="0.875rem" />
+                {week}
+              </a>
+            </Dropdown>
+          </div>
+
+          <div className="er-sum-row">
+            {trendSummary.map((s, i) => (
+              <div className="er-sum-group" key={s.key}>
+                {i > 0 ? <i className="er-sum-divider" /> : null}
+                <span className="er-sum-item">
+                  <span className="er-sum-label">{s.label}</span>
+                  <span className="er-sum-value">{s.value}</span>
+                  <span className="er-sum-unit">{s.unit}</span>
+                </span>
+              </div>
+            ))}
+          </div>
+
+          <TrendChart />
+        </div>
+
+        {/* 底部卡片:节点闲忙分布统计 */}
+        <div className="er-card">
+          <div className="er-card-head">
+            <h4 className="er-card-title">
+              节点闲忙分布统计
+              <Tooltip title="统计计算节点在运行态与空闲态下的时长及能耗分布">
+                <Icon name="circle-question-mark" size="1rem" className="er-help" />
+              </Tooltip>
+            </h4>
+            <Dropdown menu={rangeMenu}>
+              <a className="er-ctrl" onClick={(e) => e.preventDefault()}>
+                {range}
+                <Icon name="chevron-down" size="0.875rem" />
+              </a>
+            </Dropdown>
+          </div>
+
+          <div className="er-node-panels">
+            <NodePanel
+              subtitle="时长统计"
+              legends={["运行态24h平均时长", "空闲态24h平均时长"]}
+              metrics={[
+                { key: "run", value: durationStats.running.value, ratio: durationStats.running.ratio, tone: "blue" },
+                { key: "idle", value: durationStats.idle.value, ratio: durationStats.idle.ratio, tone: "gray" },
+              ]}
+            >
+              <StackedChart yName="Min" max={60} interval={10} series={durationStats.series} />
+            </NodePanel>
+            <NodePanel
+              subtitle="能耗统计"
+              legends={["运行态24h平均能耗", "空闲态24h平均能耗"]}
+              metrics={[
+                { key: "run", value: energyStats.running.value, unit: energyStats.running.unit, ratio: energyStats.running.ratio, tone: "blue" },
+                { key: "idle", value: energyStats.idle.value, unit: energyStats.idle.unit, ratio: energyStats.idle.ratio, tone: "gray" },
+              ]}
+            >
+              <StackedChart
+                yName="kWh"
+                max={6000}
+                interval={1000}
+                series={energyStats.series}
+                formatTick={(v) => (v === 0 ? "0" : v.toLocaleString("en-US"))}
+              />
+            </NodePanel>
+          </div>
         </div>
       </div>
     </section>
