@@ -814,16 +814,15 @@
   content: "";
   position: absolute;
   inset: 0;
-  background: rgb(255 255 255 / 0.3);
+  background: rgb(255 255 255 / 0.2);
 }
 
 .honey-cell.active {
-  /* 提升层级:光晕完整浮于相邻蜂窝之上(否则被不透明邻居遮挡,呼吸不可见) */
+  /* 提升层级:光晕完整浮于相邻蜂窝之上(否则被不透明邻居遮挡) */
   z-index: 2;
   filter:
-    brightness(1.05)
-    drop-shadow(0 0 0.25rem rgb(255 255 255 / 0.6))
-    drop-shadow(0 0 0.75rem rgb(255 255 255 / 0.35));
+    drop-shadow(0 0 0.25rem rgb(255 255 255 / 0.4))
+    drop-shadow(0 0 0.75rem rgb(255 255 255 / 0.22));
 }
 
 /* 白色辐射光晕:自中心向外发散渐隐,固定常亮(无呼吸动画) */
