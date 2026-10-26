@@ -1,0 +1,540 @@
+/* ── 节点能耗详情抽屉(node-detail-drawer) ────────────────────
+ * 深灰近黑监控面板;变量挂在抽屉根上,内容区(.nd-panel)与 antd 壳层共用。
+ * 基线 = 浅色近似值;.dark 覆写为设计稿精确值。
+ */
+.node-detail-drawer {
+  /* 浅色基线 */
+  --nd-text: #1f2328;
+  --nd-sub: #57606a;
+  --nd-blue: #0969da;
+  --nd-green: #1a7f37;
+  --nd-purple: #8250df;
+  --nd-gray: #8c959f;
+  --nd-grid: #e7ebef;
+  --nd-tag-blue-bg: rgba(9, 105, 218, 0.12);
+  --nd-tag-green-bg: rgba(26, 127, 55, 0.12);
+  --nd-tag-purple-bg: rgba(130, 80, 223, 0.12);
+  --nd-num-font: ui-monospace, "Cascadia Mono", "SF Mono", Consolas, "Courier New", monospace;
+}
+
+.dark .node-detail-drawer {
+  --nd-text: #e6edf3;
+  --nd-sub: #8b949e;
+  --nd-blue: #58a6ff;
+  --nd-green: #3fb950;
+  --nd-purple: #a371f7;
+  --nd-gray: #6e7681;
+  --nd-grid: #21262d;
+  --nd-tag-blue-bg: rgba(88, 166, 255, 0.16);
+  --nd-tag-green-bg: rgba(63, 185, 80, 0.16);
+  --nd-tag-purple-bg: rgba(163, 113, 247, 0.16);
+}
+
+.node-detail-drawer .ant-drawer-content {
+  background: rgb(25, 25, 25); /* 背景第一层(设计指定精确值) */
+}
+
+/* 去掉抽屉最上层阴影(antd 阴影为运行时注入的 css-in-js,需 !important 覆盖;
+ * 三重选择器兼容 className 落点(root/wrapper)与阴影挂载元素(wrapper/content)) */
+.node-detail-drawer .ant-drawer-content,
+.node-detail-drawer .ant-drawer-content-wrapper,
+.node-detail-drawer.ant-drawer-content-wrapper {
+  box-shadow: none !important;
+}
+
+/* wrapper 定位(总高 = 100% - 8.1875rem)由 index.jsx 的 styles.wrapper 内联实现 —
+ * className 挂在根 .ant-drawer 上,且 wrapper 的 CSS 规则会输给 antd 运行时注入的
+ * css-in-js 样式(同特异性、注入更晚),故 CSS 方案不可靠,已弃用 */
+
+/* 面板主体 */
+.nd-panel {
+  height: 100%;
+  overflow-y: auto;
+  background-color: rgb(25, 25, 25); /* 设计指定精确值 */
+  color: var(--nd-text);
+}
+
+/* ── 顶部节点信息栏:标题 → IP 两段(单行) → 关闭 ── */
+.nd-topbar {
+  flex: none;
+  height: 3.5rem;
+  display: flex;
+  align-items: center;
+  padding: 0 1.25rem;
+}
+
+.nd-node {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-inline);
+}
+
+/* 六边形叶子图标(与累计用能总览左侧图标一致:尖顶六边形 + 镜像白叶,蜂窝首行绿) */
+.nd-node-hex {
+  width: 1.375rem;
+  height: 1.375rem;
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #34b787;
+  clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%);
+}
+
+.nd-node-hex svg {
+  transform: scaleX(-1); /* 与蜂窝叶子一致的镜像朝向 */
+  color: #ffffff;
+  opacity: 0.85;
+}
+
+.nd-node-name {
+  font: var(--font-headline-s);
+  font-weight: var(--font-weight-semibold);
+  color: var(--nd-text);
+  font-family: var(--nd-num-font);
+}
+
+/* IP 信息:整体跟随节点标题(距其 80px),两段一行、段间距 28 */
+.nd-ips {
+  display: flex;
+  align-items: center;
+  gap: 1.75rem; /* 两段间距 28px(设计指定) */
+  margin-left: 5rem; /* 距左侧标题 80px(设计指定) */
+}
+
+.nd-ip-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem; /* 文字与 IP 间隔 12px(设计指定) */
+  white-space: nowrap;
+}
+
+.nd-ip-label {
+  font-size: 0.75rem; /* 12px(设计指定) */
+  line-height: 1.25rem; /* 20px(设计指定) */
+  color: rgb(201, 201, 201); /* 设计指定精确值 */
+}
+
+.nd-ip-value {
+  font-size: 0.75rem;
+  line-height: 1.25rem;
+  color: #ffffff; /* 设计指定白色 */
+  font-family: var(--nd-num-font);
+}
+
+.nd-close {
+  margin-left: auto; /* 保持最右 */
+  color: var(--nd-text);
+  cursor: pointer;
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.nd-close:hover {
+  transform: rotate(90deg);
+  color: var(--nd-sub);
+}
+
+/* ── 卡片网格:左上闲忙(374px@1920)/ 右上部件(弹性) / 底部策略(全宽) ── */
+.nd-grid {
+  display: grid;
+  grid-template-columns: 23.375rem 1fr; /* 第一卡 374px(1920 画布,设计指定) */
+  gap: 1rem;
+  padding: 0 1rem 1rem;
+}
+
+.nd-card {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 1.25rem 1.25rem 1rem;
+  background: rgb(46, 46, 46); /* 内部卡片背景(设计指定精确值) */
+  border-radius: var(--radius-xl);
+}
+
+.nd-strategy {
+  grid-column: 1 / -1;
+}
+
+.nd-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* 卡片主标题:20px/行高28/白色(设计指定) */
+.nd-card-title {
+  margin: 0;
+  font-size: 1.25rem; /* 20px */
+  line-height: 1.75rem; /* 28px */
+  font-weight: var(--font-weight-semibold);
+  color: #ffffff;
+}
+
+/* 标题右侧小文本:14px/行高22(设计指定,"4"按 14 推定) */
+.nd-card-meta {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-1);
+  font-size: 0.875rem; /* 14px */
+  line-height: 1.375rem; /* 22px */
+  color: rgb(223, 223, 223); /* 设计指定精确值 */
+}
+
+/* ── 闲忙分布:水平占比条 ── */
+.nd-idle-group {
+  display: flex;
+  flex-direction: column;
+}
+
+/* 占比图组标题:16px/行高24/白色,上间距 20、下间距 10(设计指定) */
+.nd-sub {
+  margin: 1.25rem 0 0.625rem;
+  font-size: 1rem; /* 16px */
+  line-height: 1.5rem; /* 24px */
+  font-weight: var(--font-weight-medium);
+  color: #ffffff;
+}
+
+/* 占比条:段高 18px、段间 2px 间隙、段圆角 4px,每段下方为占比百分值(左对齐,统一灰) */
+.nd-hbar {
+  display: flex;
+  gap: var(--spacing-0-5); /* 段间 2px */
+}
+
+.nd-hseg-col {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-1);
+}
+
+.nd-hseg {
+  display: block;
+  width: 100%;
+  height: 1.125rem; /* 18px(设计指定) */
+  border-radius: var(--radius-base); /* 4px */
+}
+
+.nd-hseg.blue {
+  background: var(--nd-blue);
+}
+
+.nd-hseg.gray {
+  background: var(--nd-gray);
+}
+
+.nd-hseg-pct {
+  font-size: var(--font-size-base);
+  font-family: var(--nd-num-font);
+  text-align: left;
+  padding-left: 0.1875rem; /* 3px 左间隙(设计指定) */
+  color: rgb(201, 201, 201); /* 设计指定精确值 */
+}
+
+/* 图例:圆点 + 说明文本一行,下方一行数值;每项占 ~33% */
+.nd-dots {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 0;
+  margin-top: 0.75rem; /* 与占比条间距(原卡片 gap) */
+}
+
+.nd-dot-item {
+  width: 33%; /* 一段占比 33% 左右(设计指定) */
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-1);
+}
+
+.nd-dot-label {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-1);
+  font-size: var(--font-size-md); /* 14px */
+  line-height: 1.375rem; /* 22px(设计指定) */
+  color: var(--nd-sub);
+  white-space: nowrap;
+}
+
+/* 数值行:与标签文本左缘对齐(圆点 8px + 间距 4px 缩进);16px 白色,单位 12px 底部对齐 */
+.nd-dot-value {
+  padding-left: 0.75rem;
+  display: flex;
+  align-items: flex-end; /* 数字与单位底部对齐(设计指定) */
+  font-family: var(--nd-num-font);
+  font-size: 1rem; /* 16px(设计指定) */
+  line-height: 1.5rem; /* 24px(设计指定) */
+  color: #ffffff; /* 设计指定白色 */
+  white-space: nowrap;
+}
+
+/* 无圆点项(如总能耗):数值不缩进 */
+.nd-dot-item.plain .nd-dot-value {
+  padding-left: 0;
+}
+
+.nd-dot-unit {
+  font-style: normal;
+  font-size: 0.75rem; /* 12px */
+  line-height: 1.25rem; /* 20px(设计指定) */
+  color: var(--nd-sub);
+  margin-left: 2px;
+}
+
+/* 时间值中,单位(h/m)后面的数字增加 4px 间隙(设计指定) */
+.num-after-unit {
+  margin-left: 0.25rem;
+}
+
+.nd-dot {
+  width: 8px;
+  height: 8px;
+  flex: none;
+  border-radius: var(--radius-full);
+}
+
+.nd-dot.blue {
+  background: var(--nd-blue);
+}
+
+.nd-dot.green {
+  background: var(--nd-green);
+}
+
+.nd-dot.purple {
+  background: var(--nd-purple);
+}
+
+.nd-dot.gray {
+  background: var(--nd-gray);
+}
+
+/* ── 部件能耗分布:三个半圆仪表盘 ── */
+/* 与明细表同列模板:64px 名称列留空(预留左侧间距),三个饼图列与表格数据列一一对齐 */
+.nd-gauges {
+  display: grid;
+  grid-template-columns: 64px 1fr 1fr 1fr;
+  gap: var(--spacing-inline);
+  margin-top: 0.75rem; /* 与卡片头间距(原卡片 gap) */
+}
+
+.nd-gauge {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-1);
+}
+
+/* 功率标题:16px/行高24/白色(设计指定) */
+.nd-gauge-label {
+  font-size: 1rem; /* 16px */
+  line-height: 1.5rem; /* 24px */
+  color: #ffffff;
+}
+
+.nd-gauge-chart {
+  width: 100%;
+}
+
+/* 数值叠层:锚定圆盘圆心(50%),整体上移 12px,数字与单位两行水平居中 */
+.nd-gauge-canvas {
+  position: relative;
+  min-width: 0;
+  width: 100%;
+  margin-top: 0.25rem; /* 与上方时间行合计 8px 间隙(gap 4 + margin 4) */
+}
+
+.nd-gauge-num {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 3.75rem; /* 60px:碗心(圆心 80 - 内径半程 30 = 50px)下移 10px(设计指定) */
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.nd-gauge-num-value {
+  font-family: var(--nd-num-font);
+  font-size: 2rem; /* 32px(设计指定) */
+  line-height: 2.5rem; /* 40px(设计指定) */
+  font-weight: var(--font-weight-medium); /* 500(设计指定) */
+  color: #ffffff;
+}
+
+.nd-gauge-num-unit {
+  font-size: 0.875rem; /* 14px(设计指定) */
+  line-height: 1.25rem;
+  color: var(--nd-sub);
+}
+
+.nd-gauge-time {
+  font-size: 11px;
+  color: var(--nd-sub);
+  font-family: var(--nd-num-font);
+}
+
+/* ── 部件明细表 ── */
+.nd-part-table {
+  display: flex;
+  flex-direction: column;
+  margin-top: 0.75rem; /* 与仪表盘间距(原卡片 gap) */
+}
+
+.nd-part-row {
+  display: grid;
+  grid-template-columns: 64px 1fr 1fr 1fr;
+  align-items: center;
+  gap: var(--spacing-inline);
+  padding: var(--spacing-stack) 0;
+}
+
+.nd-part-name {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem; /* 圆点与文字间隙 8px(设计指定) */
+  font-size: var(--font-size-base);
+  color: var(--nd-text);
+}
+
+.nd-part-cell {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center; /* 列内居中:功率数据刚好在对应饼图正下方 */
+  gap: var(--spacing-1);
+  white-space: nowrap;
+}
+
+.nd-part-value {
+  font-family: var(--nd-num-font);
+  font-size: 1rem; /* 16px(设计指定) */
+  font-weight: var(--font-weight-semibold);
+  color: var(--nd-text);
+}
+
+.nd-part-unit {
+  font-style: normal;
+  font-size: 11px;
+  color: var(--nd-sub);
+}
+
+.nd-pct-tag {
+  font-style: normal;
+  padding: 2px 6px;
+  border-radius: var(--radius-base);
+  font-size: 11px;
+  line-height: 1.4;
+  font-family: var(--nd-num-font);
+}
+
+.nd-pct-tag.blue {
+  background: var(--nd-tag-blue-bg);
+  color: var(--nd-blue);
+}
+
+.nd-pct-tag.green {
+  background: var(--nd-tag-green-bg);
+  color: var(--nd-green);
+}
+
+.nd-pct-tag.purple {
+  background: var(--nd-tag-purple-bg);
+  color: var(--nd-purple);
+}
+
+/* ── 节能策略:KPI + 图例 + 折线 ── */
+.nd-kpis {
+  display: flex;
+  gap: 2.5rem;
+  margin-top: 1.25rem; /* 功率相关内容距上方 20px(设计指定) */
+}
+
+.nd-kpi {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-1);
+}
+
+.nd-kpi-label {
+  font-size: var(--font-size-base);
+  color: var(--nd-sub);
+}
+
+.nd-kpi-value {
+  font-family: var(--nd-num-font);
+  font-size: 2rem; /* 32px(设计指定) */
+  line-height: 2.5rem; /* 40px(设计指定) */
+  font-weight: var(--font-weight-bold);
+  color: var(--nd-text);
+}
+
+.nd-kpi-unit {
+  font-style: normal;
+  font-size: 1rem; /* 16px(设计指定) */
+  line-height: 1.5rem; /* 24px(设计指定) */
+  font-weight: var(--font-weight-normal);
+  color: var(--nd-sub);
+  margin-left: var(--spacing-1);
+}
+
+.nd-kpi {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-1);
+}
+
+.nd-kpi-label {
+  font-size: var(--font-size-base);
+  color: var(--nd-sub);
+}
+
+.nd-kpi-value {
+  font-family: var(--nd-num-font);
+  font-size: var(--font-size-3xl);
+  font-weight: var(--font-weight-bold);
+  line-height: var(--line-height-xs);
+  color: var(--nd-text);
+}
+
+.nd-kpi-unit {
+  font-style: normal;
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-normal);
+  color: var(--nd-sub);
+  margin-left: var(--spacing-1);
+}
+
+.nd-chart-legend {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--spacing-gutter);
+  margin-top: 0.75rem; /* 与 KPI 间距(原卡片 gap) */
+}
+
+.nd-lg-item {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-1);
+  font-size: var(--font-size-base);
+  color: var(--nd-sub);
+  white-space: nowrap;
+}
+
+.nd-lg-line {
+  width: 1.125rem;
+  border-top: 2px solid var(--nd-blue);
+}
+
+.nd-lg-line.dashed {
+  border-top-style: dashed;
+  border-top-color: var(--nd-purple);
+}
+
+.nd-power-chart {
+  position: relative;
+  min-width: 0;
+  margin-top: 0.75rem; /* 与图例间距(原卡片 gap) */
+}

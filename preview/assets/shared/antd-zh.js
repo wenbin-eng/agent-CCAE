@@ -65,7 +65,48 @@ dayjs.locale(
   },
   true
 );
-// ---- 2. antd zh_CN locale(对齐 antd 5 官方 zh_CN,常用组件全量) ----
+// ---- 2.5 补齐 rc-picker 所需 dayjs 插件(UMD 核心包不含,手写最小实现) ----
+// localeData:日期/周面板的星期标题;week/weekYear:周选择模式;weekday:周内序号
+dayjs.extend((o, Dayjs) => {
+  const proto = Dayjs.prototype;
+  const localeOf = (ins) => (dayjs.Ls && dayjs.Ls[ins.$L]) || {};
+  const thursday = (ins) => ins.subtract((ins.day() + 6) % 7 - 3, "day"); // 本周四(ISO 周锚点)
+
+  proto.localeData = function () {
+    const l = localeOf(this);
+    const wrap = (arr) => (cb) => (cb ? arr.map((n, i) => cb(n, i)) : arr);
+    return {
+      weekdays: wrap(l.weekdays || []),
+      weekdaysShort: wrap(l.weekdaysShort || []),
+      weekdaysMin: wrap(l.weekdaysMin || []),
+      months: wrap(l.months || []),
+      monthsShort: wrap(l.monthsShort || []),
+      firstDayOfWeek: () => l.weekStart || 0,
+    };
+  };
+
+  proto.week = function (week) {
+    if (week !== undefined && week !== null) {
+      return this.add((week - this.week()) * 7, "day");
+    }
+    const t = thursday(this);
+    const dayOfYear = t.diff(t.startOf("year"), "day") + 1;
+    return Math.floor((dayOfYear - 1) / 7) + 1;
+  };
+
+  proto.weekYear = function () {
+    return thursday(this).year();
+  };
+
+  proto.weekday = function (input) {
+    const weekStart = localeOf(this).weekStart || 0;
+    const wd = (this.day() + 7 - weekStart) % 7;
+    if (input === undefined) return wd;
+    return this.add(input - wd, "day");
+  };
+});
+
+// ---- 3. antd zh_CN locale(对齐 antd 5 官方 zh_CN,常用组件全量) ----
 const typeTemplate = "${label}不是一个有效的${type}";
 const zhCN = {
   locale: "zh-cn",

@@ -61,7 +61,7 @@ function buildCells(clickX, clickY) {
   return cells;
 }
 
-export default function Honeycomb({ origin }) {
+export default function Honeycomb({ origin, onCellClick }) {
   // 点击位置映射到蜂窝容器坐标
   const clickX = CLICK_OFF_X + (origin ? origin.x : 0);
   const clickY = CLICK_OFF_Y + (origin ? origin.y : 0);
@@ -98,6 +98,7 @@ export default function Honeycomb({ origin }) {
           onClick={() =>
             setActiveCell((k) => (k === cell.key ? null : cell.key))
           }
+          // onClick={() => onCellClick && onCellClick(cell.key)}
         >
           {/* 选中发光:外扩的白色辐射光晕(呼吸律动,发散感) + 白色描边 + 表面白纱 */}
           {activeCell === cell.key && (

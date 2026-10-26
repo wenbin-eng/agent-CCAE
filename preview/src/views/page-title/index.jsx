@@ -38,6 +38,17 @@ export default function PageTitle() {
     message.success("节能策略已保存并下发至 6 座机楼");
   };
 
+  // 配置节能策略按钮:位于左侧标题组内
+  const strategyBtn = (
+    <Button
+      type="primary"
+      icon={<Icon name="sliders-horizontal" size="0.875rem" />}
+      onClick={() => setStrategyOpen(true)}
+    >
+      配置节能策略
+    </Button>
+  );
+
   return (
     <div className="page-title">
       {honeyOrigin ? (
@@ -61,7 +72,9 @@ export default function PageTitle() {
         </div>
       )}
 
+      {/* 按钮与更新时间一起在右侧,按钮在更新时间左边 */}
       <div className="title-actions">
+        {strategyBtn}
         <span className="update-time">
           更新时间：2025-10-14 17:51:00
           <Icon
@@ -72,12 +85,6 @@ export default function PageTitle() {
             onClick={() => message.success("用能数据已刷新")}
           />
         </span>
-        <Button
-          type="primary"
-          onClick={() => setStrategyOpen(true)}
-        >
-          配置节能策略
-        </Button>
       </div>
 
       <Modal

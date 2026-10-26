@@ -998,6 +998,58 @@ input.ant-input.ant-input-sm {
   background: rgb(from var(--brand-50) r g b / 0.4);
 }
 
+/* DatePicker 弹层日历面板:token 化,明暗双模式自适应 */
+.ant-picker-dropdown .ant-picker-panel-container {
+  background: var(--color-bg-3);
+}
+.ant-picker-dropdown .ant-picker-header {
+  border-bottom: 1px solid var(--color-bg-4);
+}
+.ant-picker-dropdown .ant-picker-header > button {
+  color: var(--color-text-primary);
+}
+.ant-picker-dropdown .ant-picker-header > button:hover {
+  color: var(--brand-40);
+}
+.ant-picker-dropdown .ant-picker-header-view button {
+  color: var(--color-text-primary);
+}
+.ant-picker-dropdown .ant-picker-header-view button:hover {
+  color: var(--brand-40);
+}
+.ant-picker-dropdown .ant-picker-content th {
+  color: var(--color-text-secondary);
+}
+.ant-picker-dropdown .ant-picker-cell {
+  color: var(--color-text-disabled); /* 非当月日期 */
+}
+.ant-picker-dropdown .ant-picker-cell-in-view {
+  color: var(--color-text-primary);
+}
+.ant-picker-dropdown .ant-picker-cell-in-view .ant-picker-cell-inner:hover {
+  background: var(--color-bg-4);
+}
+.ant-picker-dropdown .ant-picker-cell-selected .ant-picker-cell-inner {
+  background: var(--brand-50);
+  color: var(--gray-0);
+}
+.ant-picker-dropdown .ant-picker-cell-today .ant-picker-cell-inner::before {
+  border-color: var(--brand-40);
+}
+/* 周选择器:整周 hover 高亮(range-hover 系列 ::after 覆盖层) */
+.ant-picker-dropdown .ant-picker-cell-in-view.ant-picker-cell-range-hover::after,
+.ant-picker-dropdown .ant-picker-cell-in-view.ant-picker-cell-range-hover-start::after,
+.ant-picker-dropdown .ant-picker-cell-in-view.ant-picker-cell-range-hover-end::after {
+  background: rgb(from var(--brand-50) r g b / 0.25);
+  border-color: transparent;
+}
+.ant-picker-dropdown .ant-picker-footer {
+  border-top: 1px solid var(--color-bg-4);
+}
+.ant-picker-dropdown .ant-picker-today-btn {
+  color: var(--brand-40);
+}
+
 /* Radio 组件样式（token 映射，antd 5 结构：可视圆为 .ant-radio-inner，内点为 .ant-radio-inner::after，
    状态类以 .ant-radio 为准（defaultChecked 时 wrapper-checked 不会更新；radio 无 label 类名）） */
 .ant-radio-wrapper {

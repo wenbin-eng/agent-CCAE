@@ -5,29 +5,19 @@
  */
 .energy-right {
   /* 浅色基线 */
-  --er-bg-top: #f6f8fa;
-  --er-bg-bottom: #eef1f5;
-  --er-card: #ffffff;
   --er-text: #1f2328;
   --er-text-sub: #57606a;
   --er-blue: #0969da;
-  --er-green: #1a7f37;
   --er-gray: #8c959f;
   --er-border: #d1d9e0;
   --er-grid: #e7ebef;
-  --er-ctrl-bg: #f0f3f6;
+  --er-ctrl-bg: #34363a; /* 控件背景(设计指定精确值) */
   --er-tag-blue-bg: #d2e8fc;
   --er-tag-gray-bg: #e9edf2;
   --er-tag-gray-text: #57606a;
-  --er-build-a: #e8edf3;
-  --er-build-b: #d8dfe8;
-  --er-mesh: rgba(31, 35, 40, 0.1);
-  --er-glow: rgba(26, 127, 55, 0.26);
-  --er-grid-line: rgba(31, 35, 40, 0.12);
-  --er-zap-color: #424a53;
-  --er-zap-glow: rgba(9, 105, 218, 0.45);
   --er-num-shadow: none;
   --er-num-font: ui-monospace, "Cascadia Mono", "SF Mono", Consolas, "Courier New", monospace;
+  --er-lead-line: rgba(31, 35, 40, 0.2); /* 指标延伸线 */
 
   flex: 1 1 0;
   min-width: 0;
@@ -36,43 +26,52 @@
   border-radius: var(--radius-container);
   box-shadow: var(--shadow-card);
   overflow: hidden;
-  background: linear-gradient(180deg, var(--er-bg-top), var(--er-bg-bottom));
+  /* 外层仅保留纵向渐变:rgb(19,22,27) → rgb(21,24,30)(设计指定精确值) */
+  background: linear-gradient(180deg, rgb(19, 22, 27), rgb(21, 24, 30));
   color: var(--er-text);
 }
 
 /* 设计稿精确深色值 */
 .dark .energy-right {
-  --er-bg-top: #0d1117;
-  --er-bg-bottom: #161b22;
-  --er-card: #1c2128;
   --er-text: #e6edf3;
   --er-text-sub: #8b949e;
   --er-blue: #58a6ff;
-  --er-green: #3fb950;
   --er-gray: #6e7681;
   --er-border: #30363d;
   --er-grid: #21262d;
-  --er-ctrl-bg: #21262d;
+  --er-ctrl-bg: #34363a; /* 控件背景(设计指定精确值) */
   --er-tag-blue-bg: #1a3a5c;
   --er-tag-gray-bg: #2d333b;
   --er-tag-gray-text: #8b949e;
-  --er-build-a: #232930;
-  --er-build-b: #1b2027;
-  --er-mesh: rgba(230, 237, 243, 0.07);
-  --er-glow: rgba(63, 185, 80, 0.38);
-  --er-grid-line: rgba(110, 118, 129, 0.16);
-  --er-zap-color: #ffffff;
-  --er-zap-glow: rgba(88, 166, 255, 0.7);
   --er-num-shadow: 0 2px 10px rgba(0, 0, 0, 0.45);
+  --er-lead-line: rgba(230, 237, 243, 0.25); /* 指标延伸线 */
 }
 
-/* 内容滚动区 */
+/* 内容滚动区(device.png 背景图挂此层,默认 attachment 不随内容滚动;
+ * 滚动条与左栏列表形态一致:6px 宽、#595959 圆角滑块、透明轨道) */
 .er-scroll {
   flex: 1 1 0;
   min-height: 0;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
+  background-image: url("./assets/image/device.png");
+  background-size: 100% auto;
+  background-repeat: no-repeat;
+  background-position: center top;
+}
+
+.er-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+
+.er-scroll::-webkit-scrollbar-thumb {
+  background: var(--gray-60); /* #595959 */
+  border-radius: var(--radius-full);
+}
+
+.er-scroll::-webkit-scrollbar-track {
+  background: transparent;
 }
 
 /* ── 顶部导航条 ── */
@@ -94,8 +93,22 @@
   color: var(--er-text);
 }
 
-.er-zap {
-  color: var(--er-green);
+/* 六边形叶子图标(参考左侧蜂窝单元:尖顶六边形 + 镜像白叶,蜂窝首行绿) */
+.er-nav-hex {
+  width: 1.375rem;
+  height: 1.375rem;
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #34b787;
+  clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%);
+}
+
+.er-nav-hex svg {
+  transform: scaleX(-1); /* 与蜂窝叶子一致的镜像朝向 */
+  color: #ffffff;
+  opacity: 0.85;
 }
 
 .er-nav-time {
@@ -104,7 +117,7 @@
   font-family: var(--er-num-font);
 }
 
-/* ── 英雄区:3D 机楼 + 累计指标 ── */
+/* ── 英雄区:透传面板背景图(device.png),仅承载累计指标叠层 ── */
 .er-hero {
   flex: none;
   position: relative;
@@ -112,55 +125,6 @@
   margin: 0 1rem 1rem;
   overflow: hidden;
   border-radius: var(--radius-xl);
-}
-
-/* 模糊网格背景 */
-.er-hero-grid {
-  position: absolute;
-  inset: 0;
-  background-image:
-    linear-gradient(var(--er-grid-line) 1px, transparent 1px),
-    linear-gradient(90deg, var(--er-grid-line) 1px, transparent 1px);
-  background-size: 30px 30px;
-  filter: blur(1px);
-  opacity: 0.55;
-  -webkit-mask-image: radial-gradient(ellipse 85% 95% at 55% 45%, #000 25%, transparent 78%);
-  mask-image: radial-gradient(ellipse 85% 95% at 55% 45%, #000 25%, transparent 78%);
-}
-
-/* 底部绿色渐变发光 */
-.er-hero-glow {
-  position: absolute;
-  left: 4%;
-  right: 4%;
-  bottom: -18%;
-  height: 72%;
-  background: radial-gradient(ellipse at 50% 100%, var(--er-glow), transparent 68%);
-  filter: blur(10px);
-}
-
-/* 机楼:菱形网格长方体 + 右侧阶梯状切口 */
-.er-hero-building {
-  position: absolute;
-  left: 13%;
-  right: 13%;
-  top: 8%;
-  bottom: 4%;
-  background-image:
-    repeating-linear-gradient(45deg, var(--er-mesh) 0 1px, transparent 1px 15px),
-    repeating-linear-gradient(-45deg, var(--er-mesh) 0 1px, transparent 1px 15px),
-    linear-gradient(180deg, var(--er-build-a), var(--er-build-b));
-  clip-path: polygon(0 0, 76% 0, 76% 28%, 87% 28%, 87% 60%, 100% 60%, 100% 100%, 0 100%);
-  opacity: 0.92;
-}
-
-/* 切口处白色闪电装饰 */
-.er-hero-zap {
-  position: absolute;
-  left: 82%;
-  top: 68%;
-  color: var(--er-zap-color);
-  filter: drop-shadow(0 0 8px var(--er-zap-glow));
 }
 
 /* 指标叠层:无背景框,文字直压图上 */
@@ -187,11 +151,35 @@
 }
 
 .er-stat-label {
+  position: relative; /* 连线锚定标签文本 */
   display: inline-flex;
   align-items: center;
   gap: var(--spacing-1);
+  width: fit-content; /* 收缩为文本宽(避免被数值行拉伸,保证连线从文字末端出发) */
   font-size: var(--font-size-md);
   color: var(--er-text-sub);
+}
+
+/* 左列指标:连线自标签文本最右缘出发向中间(右)延伸,止于内容 360px 刻度位置 */
+.er-stat-col:first-child .er-stat-label::after {
+  content: "";
+  position: absolute;
+  left: 100%;
+  top: 50%;
+  width: 15.5rem; /* 标签右缘(≈105px) + 248 ≈ 360px */
+  height: 1px;
+  background: var(--er-lead-line);
+}
+
+/* 右列指标:连线自标签文本最左缘出发向中间(左)延伸,止于内容 W-360 刻度位置 */
+.er-stat-col:last-child .er-stat-label::before {
+  content: "";
+  position: absolute;
+  right: 100%;
+  top: 50%;
+  width: 11.25rem; /* 标签左缘(≈945px) - 180 ≈ W-360 */
+  height: 1px;
+  background: var(--er-lead-line);
 }
 
 .er-stat-value {
@@ -221,12 +209,12 @@
   cursor: help;
 }
 
-/* ── 卡片容器(圆角 12 + 微弱阴影,无边框) ── */
+/* ── 卡片容器(圆角 12 + 微弱阴影;背景 rgb(52,54,58);内间距 16/20 设计指定) ── */
 .er-card {
   flex: none;
   margin: 0 1rem 1rem;
-  padding: 1.5rem 1.25rem;
-  background: var(--er-card);
+  padding: 1rem 1.25rem; /* 上下 16px,左右 20px */
+  background: rgb(52, 54, 58);
   border-radius: var(--radius-xl);
   box-shadow: var(--shadow-card);
 }
@@ -248,10 +236,17 @@
   color: var(--er-text);
 }
 
+/* 图例组:两图例间距 20px(设计指定) */
+.er-legends {
+  display: inline-flex;
+  align-items: center;
+  gap: 1.25rem;
+}
+
 .er-legend {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-1);
+  gap: 0.5rem; /* 方块与文本间距 8px(设计指定) */
   font-size: 13px;
   color: var(--er-text-sub);
   white-space: nowrap;
@@ -267,8 +262,8 @@
 
 .er-legend-swatch.hatch {
   background-color: #3a3a3b; /* 与图表斑马纹柱底色一致(设计指定精确值) */
-  /* 渐变轴 105°(右下,距水平 15°) → 条纹垂直于轴呈"／"15° 反向细条纹,与图表 canvas 斑马纹一致 */
-  background-image: repeating-linear-gradient(105deg, #64d4a8 0 1px, transparent 1px 4px);
+  /* 渐变轴 105° → 条纹"／"15°,2px 条纹 + 4px 间隔,与下方柱面 canvas 斑马纹比例一致 */
+  background-image: repeating-linear-gradient(105deg, #64d4a8 0 2px, transparent 2px 6px);
 }
 
 .er-head-divider {
@@ -297,6 +292,59 @@
 .er-ctrl:hover {
   color: var(--er-blue);
   border-color: var(--er-blue);
+}
+
+/* 控件组:按周 + 周选择器连成一个整体(类似下拉搜索框,接缝处共享边框) */
+.er-ctrl-group {
+  display: inline-flex;
+  align-items: stretch;
+}
+
+.er-ctrl-group .er-ctrl {
+  border-radius: 0;
+  border-color: #787879; /* 连体组控件边框(设计指定精确值) */
+  height: 2rem; /* 与时间选择器等高对齐 */
+  box-sizing: border-box;
+}
+
+.er-ctrl-group .er-ctrl:first-child {
+  border-right: none;
+  border-radius: var(--radius-md) 0 0 var(--radius-md);
+}
+
+/* 周选择器(DatePicker):与 er-ctrl 同款视觉,右侧圆角,左侧边框即接缝;宽 260(设计指定)
+ * 双类选择器叠过 ant.css 的 .dark .ant-picker.ant-picker 边框规则,保证与左侧下拉框一致 */
+.er-ctrl-group .ant-picker.ant-picker {
+  width: 16.25rem; /* 260px */
+  height: 2rem;
+  background: var(--er-ctrl-bg);
+  border-color: #787879; /* 与左侧下拉框一致(设计指定精确值) */
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+  padding: 0 0.625rem;
+}
+
+.er-ctrl-group .ant-picker.ant-picker:not(.ant-picker-disabled):hover {
+  border-color: var(--er-blue);
+}
+
+.er-ctrl-group .ant-picker-input input {
+  font-size: 13px;
+  color: var(--er-text);
+  cursor: pointer;
+}
+
+.er-ctrl-group .ant-picker-input input::placeholder {
+  color: var(--er-text-sub);
+}
+
+.er-ctrl-group .ant-picker-suffix {
+  color: var(--er-text-sub);
+}
+
+/* 无边框无底色变体(如「最近24h」触发器,设计指定去除边框与背景) */
+.er-ctrl-flat {
+  border: none;
+  background: none;
 }
 
 /* ── 本周汇总行 ── */
@@ -373,20 +421,54 @@
   color: var(--er-text);
 }
 
-/* 圆点图例 */
+/* 圆点图例:参考弹窗第一卡图例方式 — 圆点+说明文本一行,下方数值行(数值+单位+占比) */
 .er-dot-legend {
   display: flex;
-  align-items: center;
-  gap: var(--spacing-gutter);
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 0;
 }
 
 .er-dot-item {
+  width: 50%; /* 图例各占 50%(设计指定) */
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-1);
+}
+
+.er-dot-label {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-1);
-  font-size: 13px;
-  color: var(--er-text-sub);
+  gap: 0.5rem; /* 圆点与文本间隙 8px(设计指定) */
+  font-size: 0.875rem; /* 14px */
+  line-height: 1.375rem; /* 22px */
+  color: rgb(201, 201, 201); /* 设计指定精确值 */
   white-space: nowrap;
+}
+
+/* 数值行:与标签文本左缘对齐(圆点 8 + 间隙 8 = 16px);数字 20px/28 白色,单位底部对齐 */
+.er-dot-value {
+  padding-left: 1rem;
+  display: flex;
+  align-items: flex-end;
+  font-family: var(--er-num-font);
+  font-size: 1.25rem; /* 20px(设计指定) */
+  line-height: 1.75rem; /* 28px(设计指定) */
+  color: #ffffff;
+  white-space: nowrap;
+}
+
+.er-dot-value .er-tag {
+  margin-left: 0.5rem; /* tag 与左侧间距 8px(设计指定) */
+}
+
+/* 单位(h/m/kWh):16px/24 灰(设计指定) */
+.er-dot-unit {
+  font-style: normal;
+  font-size: 1rem; /* 16px */
+  line-height: 1.5rem; /* 24px */
+  color: rgb(201, 201, 201);
+  margin-left: 2px;
 }
 
 .er-dot {
@@ -404,36 +486,11 @@
   background: var(--er-gray);
 }
 
-/* 指标行:数值 + 占比标签 */
-.er-metrics {
-  display: flex;
-  gap: 2rem;
-}
-
-.er-metric {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-2);
-}
-
-.er-metric-value {
-  font-family: var(--er-num-font);
-  font-size: var(--font-size-3xl);
-  font-weight: var(--font-weight-bold);
-  line-height: var(--line-height-xs);
-  color: var(--er-text);
-}
-
-.er-metric-unit {
-  font-size: var(--font-size-md);
-  color: var(--er-text-sub);
-}
-
 .er-tag {
   padding: 4px 8px;
   border-radius: var(--radius-base);
-  font-size: var(--font-size-md);
-  line-height: 1;
+  font-size: 0.875rem; /* 14px(设计指定) */
+  line-height: 1.375rem; /* 22px(设计指定) */
   white-space: nowrap;
 }
 
@@ -447,8 +504,8 @@
   color: var(--er-tag-gray-text);
 }
 
-/* 24 小时堆叠柱图容器(ECharts) */
+/* 24 小时堆叠柱图容器(ECharts),高度 130px(设计指定) */
 .er-schart {
-  height: 208px;
+  height: 8.125rem;
   min-width: 0;
 }

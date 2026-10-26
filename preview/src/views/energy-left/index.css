@@ -899,3 +899,9 @@
   font-weight: var(--font-weight-medium);
   color: var(--on-surface);
 }
+
+/* ???????:?????????? */
+.honey-wrap .honey-cell {
+  cursor: pointer;
+}
+

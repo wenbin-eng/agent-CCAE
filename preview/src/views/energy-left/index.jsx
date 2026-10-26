@@ -4,6 +4,7 @@ import { Icon } from "../../../assets/shared/icon.jsx";
 import { useApp } from "../../context.jsx";
 import { energySummary, statItems, clusterList, buildingOptions } from "../../mock/energy-left.js";
 import Honeycomb from "./honeycomb.jsx";
+import NodeDetailDrawer from "../node-detail-drawer/index.jsx";
 import "./index.css";
 
 // 左侧:今日用能总览 — 无背景整体信息块
@@ -21,6 +22,8 @@ export default function EnergyLeft() {
   const [view, setView] = useState("拓扑");
   const [building, setBuilding] = useState("全部机楼");
   const [sortDesc, setSortDesc] = useState(true);
+  // 点击蜂窝六边形 → 打开右侧节点能耗详情抽屉(节点名由行列号生成,如 node-r12-n08)
+  const [nodeDetail, setNodeDetail] = useState(null);
 
   // 拓扑点击展开:idle 气泡 → scatter(点击球渐隐/四周球离心飞散) → honeycomb 蜂窝矩阵
   // fading:气泡层是否仍在退场(蜂窝出现后保留至飞散结束,交叉过渡)
@@ -288,7 +291,13 @@ export default function EnergyLeft() {
           {/* 蜂窝层:点击球快消失时即开始呈现,叠加在气泡层之上交叉过渡 */}
           {phase === "honeycomb" && honeyOrigin && (
             <>
-              <Honeycomb origin={honeyOrigin} />
+              <Honeycomb
+                origin={honeyOrigin}
+                onCellClick={(key) => {
+                  const [r, c] = key.split("-").map(Number);
+                  setNodeDetail(`node-r${r + 1}-n${String(c + 1).padStart(2, "0")}`);
+                }}
+              />
               {/* 蜂窝下方:左(近24h总能耗 + 4段色标) / 右(查看更多) */}
               <div className="honey-foot">
                 <div className="foot-bar">
@@ -395,6 +404,9 @@ export default function EnergyLeft() {
           })}
         </div>
       )}
+
+      {/* 节点能耗详情抽屉:点击蜂窝六边形弹出 */}
+      <NodeDetailDrawer open={!!nodeDetail} nodeName={nodeDetail} onClose={() => setNodeDetail(null)} />
     </section>
   );
 }

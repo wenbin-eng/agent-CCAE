@@ -1,7 +1,9 @@
 import { useEffect, useRef, useState } from "react";
-import { Dropdown, Tooltip, message } from "antd";
+import { DatePicker, Dropdown, Tooltip, message } from "antd";
+import dayjs from "dayjs";
 import { Icon } from "../../../assets/shared/icon.jsx";
 import { useApp } from "../../context.jsx";
+import TimeValue from "../../components/time-value/index.jsx";
 import {
   startTime,
   heroStats,
@@ -20,7 +22,7 @@ const TREND_MAX_DOWN = 100; // 下半轴:节省能耗 0~100(刻度 25/50/75)
 // zebraBase/zebraStripe: 0 线下斑马纹柱底色与条纹色(设计指定精确值,明暗同值)
 const LIGHT_PALETTE = {
   sub: "#57606a",
-  grid: "#e7ebef",
+  grid: "#45484b", // y 轴网格线(设计指定精确值)
   border: "#d1d9e0",
   blue: "#0969da",
   zebraBase: "#3a3a3b",
@@ -29,7 +31,7 @@ const LIGHT_PALETTE = {
 };
 const DARK_PALETTE = {
   sub: "#8b949e",
-  grid: "#21262d",
+  grid: "#45484b", // y 轴网格线(设计指定精确值)
   border: "#30363d",
   blue: "#58a6ff",
   zebraBase: "#3a3a3b",
@@ -154,7 +156,7 @@ function TrendChart() {
             nameGap: 12,
             nameTextStyle: { color: c.sub, fontSize: 12, align: "left", padding: [0, 0, 0, -46] }, // 靠左对齐到图表左缘
             axisLabel: { color: c.sub, fontSize: 12 },
-            splitLine: { lineStyle: { type: "dashed", color: c.grid } },
+            splitLine: { lineStyle: { type: "solid", color: c.grid, width: 1 } },
             axisLine: { show: false },
             axisTick: { show: false },
           },
@@ -170,7 +172,7 @@ function TrendChart() {
             nameGap: 12,
             nameTextStyle: { color: c.sub, fontSize: 12, align: "left", padding: [0, 0, 0, -46] }, // 靠左对齐到图表左缘
             axisLabel: { color: c.sub, fontSize: 12, formatter: (v) => (v === 0 ? "" : v) },
-            splitLine: { lineStyle: { type: "dashed", color: c.grid } },
+            splitLine: { lineStyle: { type: "solid", color: c.grid, width: 1 } },
             axisLine: { show: false },
             axisTick: { show: false },
           },
@@ -209,9 +211,13 @@ function TrendChart() {
 }
 
 // ── 节点闲忙:24 小时堆叠柱(灰底空闲 + 蓝顶运行) ─────────────
+// 段间透明间隙按像素定义(1px),按各图量程换算为等效数据单位,保证两张图视觉一致
 function StackedChart({ yName, max, interval, series, formatTick }) {
   const { isDark } = useApp();
   const elRef = useRef(null);
+  const GAP_PX = 2; // 段间间隙(设计指定)
+  const PLOT_H = 86; // 绘图区高度:容器 130 - top 20 - bottom 24
+  const gapUnits = (max * GAP_PX) / PLOT_H;
 
   useEChart(
     elRef,
@@ -229,14 +235,14 @@ function StackedChart({ yName, max, interval, series, formatTick }) {
         yAxis: {
           type: "value",
           min: 0,
-          max,
+          max: max + gapUnits, // 量程补足间隙(刻度标签不变,顶端无格线区域)
           interval,
           name: yName,
           nameLocation: "end",
           nameGap: 10,
           nameTextStyle: { color: c.sub, fontSize: 12, align: "left", padding: [0, 0, 0, -28] },
           axisLabel: { color: c.sub, fontSize: 11, formatter: formatTick },
-          splitLine: { lineStyle: { type: "dashed", color: c.grid } },
+          splitLine: { lineStyle: { type: "solid", color: c.grid, width: 1 } },
           axisLine: { show: false },
           axisTick: { show: false },
         },
@@ -250,12 +256,22 @@ function StackedChart({ yName, max, interval, series, formatTick }) {
             itemStyle: { color: c.gray },
           },
           {
+            // 两段之间的透明间隙(1px):堆叠中位序列
+            name: "间隔",
+            type: "bar",
+            stack: "total",
+            barWidth: 12,
+            data: series.map(() => gapUnits),
+            itemStyle: { color: "transparent" },
+            silent: true,
+          },
+          {
             name: "运行态",
             type: "bar",
             stack: "total",
             barWidth: 12,
             data: series.map((d) => d.running),
-            itemStyle: { color: c.blue, borderRadius: [4, 4, 0, 0] },
+            itemStyle: { color: c.blue, borderRadius: [5, 5, 0, 0] },
           },
         ],
       };
@@ -266,27 +282,29 @@ function StackedChart({ yName, max, interval, series, formatTick }) {
   return <div ref={elRef} className="er-schart" />;
 }
 
-// ── 节点闲忙子面板(图例 + 指标 + 图表) ──────────────────────
+// ── 节点闲忙子面板:图例(圆点+文本,下方数值+占比) + 图表 ──────
+// 图例参考弹窗第一卡(node-detail-drawer)的方式:圆点+说明文本一行,下方数值行
 function NodePanel({ subtitle, legends, metrics, children }) {
   return (
     <div className="er-node-panel">
       <h5 className="er-sub-title">{subtitle}</h5>
       <div className="er-dot-legend">
-        {legends.map((l) => (
-          <span key={l} className="er-dot-item">
-            <i className={l.startsWith("运行") ? "er-dot blue" : "er-dot gray"} />
-            {l}
-          </span>
-        ))}
-      </div>
-      <div className="er-metrics">
-        {metrics.map((m) => (
-          <div key={m.key} className="er-metric">
-            <span className="er-metric-value">{m.value}</span>
-            {m.unit ? <span className="er-metric-unit">{m.unit}</span> : null}
-            <span className={m.tone === "blue" ? "er-tag blue" : "er-tag gray"}>{m.ratio}</span>
-          </div>
-        ))}
+        {legends.map((l, i) => {
+          const m = metrics[i];
+          return (
+            <span key={l} className="er-dot-item">
+              <span className="er-dot-label">
+                <i className={l.startsWith("运行") ? "er-dot blue" : "er-dot gray"} />
+                {l}
+              </span>
+              <span className="er-dot-value">
+                <TimeValue text={m.value} unitClass="er-dot-unit" />
+                {m.unit ? <i className="er-dot-unit">{m.unit}</i> : null}
+                <span className={m.tone === "blue" ? "er-tag blue" : "er-tag gray"}>{m.ratio}</span>
+              </span>
+            </span>
+          );
+        })}
       </div>
       {children}
     </div>
@@ -295,7 +313,8 @@ function NodePanel({ subtitle, legends, metrics, children }) {
 
 export default function EnergyRight() {
   const [granularity, setGranularity] = useState("按周");
-  const [week, setWeek] = useState("2026年第30周");
+  // 周选择器(真 DatePicker):初值 2026-07-20,即 2026 年第 30 周
+  const [weekValue, setWeekValue] = useState(() => dayjs("2026-07-20"));
   const [range, setRange] = useState("最近24h");
 
   const granularityMenu = {
@@ -303,14 +322,6 @@ export default function EnergyRight() {
     onClick: ({ key }) => {
       setGranularity(key);
       message.info(`已切换为${key}视图(演示数据)`);
-    },
-  };
-
-  const weekMenu = {
-    items: [28, 29, 30, 31].map((w) => ({ key: `2026年第${w}周`, label: `2026年第${w}周` })),
-    onClick: ({ key }) => {
-      setWeek(key);
-      message.success(`已加载 ${key} 用能数据`);
     },
   };
 
@@ -328,18 +339,17 @@ export default function EnergyRight() {
         {/* 顶部导航条 */}
         <div className="er-nav">
           <div className="er-nav-title">
-            <Icon name="zap" size="1.25rem" className="er-zap" />
+            {/* 六边形叶子图标(参考左侧蜂窝单元:尖顶六边形 + 镜像白叶) */}
+            <span className="er-nav-hex" aria-hidden="true">
+              <Icon name="leaf" size="0.6875rem" />
+            </span>
             累计用能总览
           </div>
           <span className="er-nav-time">起始时间：{startTime}</span>
         </div>
 
-        {/* 英雄区:3D 机楼背景 + 累计指标 */}
+        {/* 英雄区:背景为面板级 device.png,此处仅承载累计指标叠层 */}
         <div className="er-hero">
-          <i className="er-hero-grid" />
-          <i className="er-hero-glow" />
-          <i className="er-hero-building" />
-          <Icon name="zap" size="1.75rem" className="er-hero-zap" />
           <div className="er-hero-stats">
             <div className="er-stat-col">
               {[heroStats.total, heroStats.saved].map((s) => (
@@ -373,27 +383,37 @@ export default function EnergyRight() {
         <div className="er-card">
           <div className="er-card-head">
             <h4 className="er-card-title">总能耗趋势图</h4>
-            <span className="er-legend">
-              <i className="er-legend-swatch" />
-              总能耗
-            </span>
-            <span className="er-legend">
-              <i className="er-legend-swatch hatch" />
-              节省能耗
-            </span>
+            <div className="er-legends">
+              <span className="er-legend">
+                <i className="er-legend-swatch" />
+                总能耗
+              </span>
+              <span className="er-legend">
+                <i className="er-legend-swatch hatch" />
+                节省能耗
+              </span>
+            </div>
             <i className="er-head-divider" />
-            <Dropdown menu={granularityMenu}>
-              <a className="er-ctrl" onClick={(e) => e.preventDefault()}>
-                {granularity}
-                <Icon name="chevron-down" size="0.875rem" />
-              </a>
-            </Dropdown>
-            <Dropdown menu={weekMenu}>
-              <a className="er-ctrl" onClick={(e) => e.preventDefault()}>
-                <Icon name="calendar" size="0.875rem" />
-                {week}
-              </a>
-            </Dropdown>
+            <div className="er-ctrl-group">
+              <Dropdown menu={granularityMenu}>
+                <a className="er-ctrl" onClick={(e) => e.preventDefault()}>
+                  {granularity}
+                  <Icon name="chevron-down" size="0.875rem" />
+                </a>
+              </Dropdown>
+              <DatePicker
+                picker="week"
+                value={weekValue}
+                allowClear={false}
+                format={(v) => `${v.weekYear()}年第${v.week()}周`}
+                suffixIcon={<Icon name="calendar" size="0.875rem" />}
+                onChange={(date) => {
+                  if (!date) return;
+                  setWeekValue(date);
+                  message.success(`已加载 ${date.weekYear()}年第${date.week()}周 用能数据`);
+                }}
+              />
+            </div>
           </div>
 
           <div className="er-sum-row">
@@ -422,7 +442,7 @@ export default function EnergyRight() {
               </Tooltip>
             </h4>
             <Dropdown menu={rangeMenu}>
-              <a className="er-ctrl" onClick={(e) => e.preventDefault()}>
+              <a className="er-ctrl er-ctrl-flat" onClick={(e) => e.preventDefault()}>
                 {range}
                 <Icon name="chevron-down" size="0.875rem" />
               </a>
