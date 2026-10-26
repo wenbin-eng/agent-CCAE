@@ -1,30 +1,62 @@
+/* ── 累计用能总览(energy-right) ─────────────────────────────
+ * 设计稿为深色能源监控面板,精确色值走组件级 CSS 变量:
+ * 基线 = 浅色近似值;.dark .energy-right 覆写为设计稿精确值。
+ * 图表由 ECharts 渲染(index.jsx),容器高度为定值以满足尺寸可计算。
+ */
 .energy-right {
+  /* 浅色基线 */
+  --er-bg-top: #f6f8fa;
+  --er-bg-bottom: #eef1f5;
+  --er-card: #ffffff;
+  --er-text: #1f2328;
+  --er-text-sub: #57606a;
+  --er-blue: #0969da;
+  --er-green: #1a7f37;
+  --er-gray: #8c959f;
+  --er-border: #d1d9e0;
+  --er-grid: #e7ebef;
+  --er-ctrl-bg: #f0f3f6;
+  --er-tag-blue-bg: #d2e8fc;
+  --er-tag-gray-bg: #e9edf2;
+  --er-tag-gray-text: #57606a;
+  --er-build-a: #e8edf3;
+  --er-build-b: #d8dfe8;
+  --er-mesh: rgba(31, 35, 40, 0.1);
+  --er-glow: rgba(26, 127, 55, 0.26);
+  --er-grid-line: rgba(31, 35, 40, 0.12);
+  --er-zap-color: #424a53;
+  --er-zap-glow: rgba(9, 105, 218, 0.45);
+  --er-num-shadow: none;
+  --er-num-font: ui-monospace, "Cascadia Mono", "SF Mono", Consolas, "Courier New", monospace;
+
   flex: 1 1 0;
   min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-gutter);
-  padding: var(--spacing-inset);
+  border-radius: var(--radius-container);
+  box-shadow: var(--shadow-card);
   overflow: hidden;
+  background: linear-gradient(180deg, var(--er-bg-top), var(--er-bg-bottom));
+  color: var(--er-text);
 }
 
 /* ── 卡片头(标题 + 筛选/操作区) ── */
 .right-head {
   flex: none;
+  height: 3rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--spacing-gutter);
-  min-height: 1.75rem;
+  padding: 0 1.25rem;
 }
 
 .right-title {
   display: flex;
   align-items: center;
   gap: var(--spacing-inline);
-  font: var(--font-headline-m);
-  font-weight: var(--font-weight-semibold);
-  color: var(--on-surface);
+  font: var(--font-headline-l);
+  font-weight: var(--font-weight-bold);
+  color: var(--er-text);
 }
 
 .right-title-icon {
@@ -35,17 +67,116 @@
 .right-actions {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  justify-content: space-between;
+  padding: 1.75rem 2rem;
 }
 
 .right-trigger {
   display: inline-flex;
   align-items: center;
   gap: var(--spacing-1);
-  font: var(--font-body-s);
-  color: var(--on-surface-variant);
+  font-size: var(--font-size-md);
+  color: var(--er-text-sub);
+}
+
+.er-stat-value {
+  font: var(--font-display-s);
+  font-family: var(--er-num-font);
+  font-weight: var(--font-weight-bold);
+  line-height: var(--line-height-xs);
+  color: var(--er-text);
+  text-shadow: var(--er-num-shadow);
+}
+
+.er-stat-unit {
+  font-style: normal;
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-normal);
+  color: var(--er-text-sub);
+  margin-left: var(--spacing-1);
+}
+
+.er-stat-unit.pct {
+  font-size: var(--font-size-2xl);
+  color: var(--er-text);
+}
+
+.er-help {
+  color: var(--er-text-sub);
+  cursor: help;
+}
+
+/* ── 卡片容器(圆角 12 + 微弱阴影,无边框) ── */
+.er-card {
+  flex: none;
+  margin: 0 1rem 1rem;
+  padding: 1.5rem 1.25rem;
+  background: var(--er-card);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-card);
+}
+
+/* ── 卡片头:标题 / 图例 / 分隔 / 控件 ── */
+.er-card-head {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-stack);
+}
+
+.er-card-title {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-1);
+  margin: 0 auto 0 0;
+  font: var(--font-headline-s);
+  font-weight: var(--font-weight-semibold);
+  color: var(--er-text);
+}
+
+.er-legend {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-1);
+  font-size: 13px;
+  color: var(--er-text-sub);
+  white-space: nowrap;
+}
+
+.er-legend-swatch {
+  width: 12px;
+  height: 12px;
+  flex: none;
+  border-radius: var(--radius-xs);
+  background: var(--er-blue);
+}
+
+.er-legend-swatch.hatch {
+  background-color: #3a3a3b; /* 与图表斑马纹柱底色一致(设计指定精确值) */
+  /* 渐变轴 105°(右下,距水平 15°) → 条纹垂直于轴呈"／"15° 反向细条纹,与图表 canvas 斑马纹一致 */
+  background-image: repeating-linear-gradient(105deg, #64d4a8 0 1px, transparent 1px 4px);
+}
+
+.er-head-divider {
+  width: 1px;
+  height: 0.875rem;
+  flex: none;
+  background: var(--er-border);
+}
+
+/* 筛选控件按钮 */
+.er-ctrl {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-1);
+  padding: 4px 10px;
+  font-size: 13px;
+  color: var(--er-text);
+  background: var(--er-ctrl-bg);
+  border: 1px solid var(--er-border);
+  border-radius: var(--radius-md);
   white-space: nowrap;
   cursor: pointer;
+  transition: color 0.2s ease, border-color 0.2s ease;
 }
 
 .right-trigger:hover {
@@ -71,16 +202,117 @@
   flex: 1 1 0;
   min-height: 0;
   display: flex;
-  flex-direction: column;
   gap: var(--spacing-gutter);
-  overflow-y: auto;
-  padding-right: var(--spacing-0-5);
+  margin-top: var(--spacing-gutter);
 }
 
-.analysis-section {
+.er-sum-group {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-gutter);
+}
+
+.er-sum-item {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--spacing-1);
+}
+
+.er-sum-label {
+  font-size: 13px;
+  color: var(--er-text-sub);
+}
+
+.er-sum-value {
+  font-family: var(--er-num-font);
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-semibold);
+  color: var(--er-text);
+}
+
+.er-sum-unit {
+  font-size: 13px;
+  color: var(--er-text-sub);
+}
+
+.er-sum-divider {
+  width: 1px;
+  height: 1rem;
   flex: none;
+  background: var(--er-border);
+}
+
+/* ── 图表容器(ECharts) ─────────────────────────────────────
+ * 趋势图 248px = 顶 12 + 上 grid 106 + 下 grid 106 + x 轴区 24(grid 像素见 index.jsx)
+ */
+.er-trend-chart {
+  height: 248px;
+  min-width: 0;
+  margin-top: var(--spacing-gutter);
+}
+
+/* ── 节点闲忙分布:双面板 ── */
+.er-node-panels {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+  margin-top: var(--spacing-gutter);
+}
+
+.er-node-panel {
+  min-width: 0;
   display: flex;
   flex-direction: column;
+  gap: var(--spacing-stack);
+}
+
+.er-sub-title {
+  margin: 0;
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-medium);
+  color: var(--er-text);
+}
+
+/* 圆点图例 */
+.er-dot-legend {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-gutter);
+}
+
+.er-dot-item {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-1);
+  font-size: 13px;
+  color: var(--er-text-sub);
+  white-space: nowrap;
+}
+
+.er-dot {
+  width: 8px;
+  height: 8px;
+  flex: none;
+  border-radius: var(--radius-full);
+}
+
+.er-dot.blue {
+  background: var(--er-blue);
+}
+
+.er-dot.gray {
+  background: var(--er-gray);
+}
+
+/* 指标行:数值 + 占比标签 */
+.er-metrics {
+  display: flex;
+  gap: 2rem;
+}
+
+.er-metric {
+  display: inline-flex;
+  align-items: center;
   gap: var(--spacing-2);
 }
 
