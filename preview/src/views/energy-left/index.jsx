@@ -225,13 +225,13 @@ export default function EnergyLeft() {
                     {/* 反光光晕(SVG 椭圆柔光斑:贴圆周的镜面高光,径向自然消散,无任何硬边,对向双斑旋转游走) */}
                     <svg className={`roam-svg${c.on ? "" : " off"}`} viewBox="0 0 100 100" aria-hidden="true">
                       <defs>
-                        {/* 单体平滑梯度:贴边最亮,多档小步向内递减,无跳变;整体提亮 */}
+                        {/* 快速过渡:贴圆周焦点处很明亮,向内梯度压缩、急剧衰减 */}
                         <radialGradient id={`rg-${c.id}`} fx="0.5" fy="0.06">
                           <stop offset="0" className="roam-stop" stopOpacity="1" />
-                          <stop offset="0.2" className="roam-stop" stopOpacity="0.85" />
-                          <stop offset="0.4" className="roam-stop" stopOpacity="0.6" />
-                          <stop offset="0.6" className="roam-stop" stopOpacity="0.4" />
-                          <stop offset="0.8" className="roam-stop" stopOpacity="0.18" />
+                          <stop offset="0.15" className="roam-stop" stopOpacity="0.9" />
+                          <stop offset="0.3" className="roam-stop" stopOpacity="0.55" />
+                          <stop offset="0.5" className="roam-stop" stopOpacity="0.25" />
+                          <stop offset="0.7" className="roam-stop" stopOpacity="0.08" />
                           <stop offset="1" className="roam-stop" stopOpacity="0" />
                         </radialGradient>
                         <filter id={`bl-${c.id}`} x="-30%" y="-30%" width="160%" height="160%">
@@ -243,13 +243,24 @@ export default function EnergyLeft() {
                         </clipPath>
                       </defs>
                       <g clipPath={`url(#cp-${c.id})`}>
-                        {/* 单一光斑:去亮核层,轻柔焦消层感 */}
+                        {/* 单一光斑:去亮核层,轻柔焦消层感;向内延伸 20% */}
                         <g filter={`url(#bl-${c.id})`}>
-                          <ellipse cx="50" cy="3.2" rx="29" ry="4.5" fill={`url(#rg-${c.id})`} />
+                          <ellipse cx="50" cy="3.9" rx="29" ry="5.4" fill={`url(#rg-${c.id})`} />
                         </g>
                         <g transform="rotate(180 50 50)" filter={`url(#bl-${c.id})`}>
-                          <ellipse cx="50" cy="3.2" rx="29" ry="4.5" fill={`url(#rg-${c.id})`} />
+                          <ellipse cx="50" cy="3.9" rx="29" ry="5.4" fill={`url(#rg-${c.id})`} />
                         </g>
+                        {/* 关闭球:亮灰底上白斑对比不足,叠加一层翻倍增亮 */}
+                        {!c.on && (
+                          <g>
+                            <g filter={`url(#bl-${c.id})`}>
+                              <ellipse cx="50" cy="3.9" rx="29" ry="5.4" fill={`url(#rg-${c.id})`} />
+                            </g>
+                            <g transform="rotate(180 50 50)" filter={`url(#bl-${c.id})`}>
+                              <ellipse cx="50" cy="3.9" rx="29" ry="5.4" fill={`url(#rg-${c.id})`} />
+                            </g>
+                          </g>
+                        )}
                       </g>
                     </svg>
                   </div>

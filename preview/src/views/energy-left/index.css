@@ -235,9 +235,10 @@
   stroke: #ffffff;
 }
 
-/* 关闭球:光弧加亮保持对比 */
+/* 关闭球:静态底色为亮灰半透光,白斑对比不足 ——
+   brightness 对纯白无效,改用白色辉光外晕增强可见度(配合 JSX 叠层) */
 .bubble.off .roam-svg {
-  filter: brightness(1.3);
+  filter: drop-shadow(0 0 0.25rem rgb(255 255 255 / 0.7));
 }
 
 /* hover 底衬:整个圆周淡淡的柔光 —— 自身径向渐变向圆周渐亮,无硬边 */
