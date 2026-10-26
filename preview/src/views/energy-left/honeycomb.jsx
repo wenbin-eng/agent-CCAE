@@ -4,10 +4,7 @@ import { Icon } from "../../../assets/shared/icon.jsx";
 // 蜂窝矩阵:点击集群气泡飞散后,从点击位置向外逐步呈现的节点矩阵
 // 单元 48×48(设计画布 px),尖角朝上的六边形,单元间隙 10;
 // 共 14 行,四种背景色自上而下按 4/4/4/2 行分段:
-// #34b787 → #268763 → #1b6148 → #113b2e;
-// 呈现顺序:单元按距"点击位置"的距离波纹入场(缩放+透明度动画),
-// 并伴随两道白色光环从点击位置向外扫描扩散;
-// 约 30% 的单元随机带节能叶子水印(统一镜像换向);末格显示浅蓝 300+
+// #34b787 → #268763 → #1b6148 → #113b2e;末格(300+)单独 #1c1c1c
 const COLS = 10;
 const ROWS = 14;
 const COL_STEP = 58;  // 48 + 10 间隙
@@ -16,6 +13,7 @@ const ROW_OFFSET = 29; // 奇数行右移半列
 const START_X = 30;
 const START_Y = 24;   // 整体下移 20(原 4)
 const ROW_COLORS = ["#34b787", "#268763", "#1b6148", "#113b2e"];
+const LAST_CELL_COLOR = "#1c1c1c";
 
 // 点击位置(气泡舞台中心系坐标)→ 蜂窝容器坐标系偏移:
 // 气泡舞台与蜂窝容器同宽(656),水平中心对齐;x 偏移 328;
@@ -54,7 +52,7 @@ function buildCells(clickX, clickY) {
         y,
         delay: Math.round(dist * DELAY_PER_PX),
         fdelay: Math.round(dist * FLASH_PER_PX),
-        color: ROW_COLORS[colorIndex(r, c)],
+        color: isLast ? LAST_CELL_COLOR : ROW_COLORS[colorIndex(r, c)],
         isLast,
         leaf: !isLast && (c * 7 + r * 13) % 10 < 3,
         leafColor: "#ffffff",

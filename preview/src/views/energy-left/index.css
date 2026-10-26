@@ -47,10 +47,10 @@
   color: var(--color-brand);
 }
 
-/* ── 信息栏:今日总能耗数值(无背景;与「今日用能总览」文字左对齐,即闪电图标右侧) ── */
+/* ── 信息栏:今日总能耗数值(无背景;与「今日用能总览」文字视觉对齐) ── */
 .summary-bar {
   flex: none;
-  padding-left: 1.75rem; /* 1.25rem 图标宽 + 8px 标题间距 */
+  padding-left: 1.5rem;
 }
 
 .summary-value {
@@ -573,15 +573,17 @@
   box-shadow: inset 0 0 0.5rem rgb(63 198 174 / 0.4);
 }
 
-/* 关闭:光韵自圆心延伸至圆周;整体提亮,边缘色取设计稿 #cdcdcd(≈ gray-20) */
+/* 关闭:光韵范围收窄至 80%(中心 20% 恢复透明),梯度压缩至 20%~圆周 */
 .bubble.off {
   background: radial-gradient(
     circle,
-    rgb(from var(--gray-90) r g b / 0.09) 0%,
-    rgb(from var(--gray-90) r g b / 0.17) 25%,
-    rgb(from var(--gray-90) r g b / 0.3) 45%,
-    rgb(from var(--gray-90) r g b / 0.6) 65%,
-    rgb(from var(--gray-90) r g b / 0.9) 82%,
+    transparent 0 20%,
+    rgb(from var(--gray-90) r g b / 0.09) 28%,
+    rgb(from var(--gray-90) r g b / 0.17) 37%,
+    rgb(from var(--gray-90) r g b / 0.3) 48%,
+    rgb(from var(--gray-90) r g b / 0.6) 59%,
+    rgb(from var(--gray-90) r g b / 0.9) 66%,
+    var(--gray-90) 70.7%,
     var(--gray-90) 94%,
     var(--gray-90) 100%
   );
@@ -600,11 +602,13 @@
 .dark .energy-left .bubble.off {
   background: radial-gradient(
     circle,
-    rgb(from var(--gray-20) r g b / 0.11) 0%,
-    rgb(from var(--gray-20) r g b / 0.22) 25%,
-    rgb(from var(--gray-20) r g b / 0.38) 45%,
-    rgb(from var(--gray-20) r g b / 0.68) 65%,
-    rgb(from var(--gray-20) r g b / 0.95) 82%,
+    transparent 0 20%,
+    rgb(from var(--gray-20) r g b / 0.11) 28%,
+    rgb(from var(--gray-20) r g b / 0.22) 37%,
+    rgb(from var(--gray-20) r g b / 0.38) 48%,
+    rgb(from var(--gray-20) r g b / 0.68) 59%,
+    rgb(from var(--gray-20) r g b / 0.95) 66%,
+    var(--gray-20) 70.7%,
     var(--gray-20) 94%,
     var(--gray-20) 100%
   );
@@ -812,12 +816,11 @@
   }
 }
 
-/* 随机叶子水印:居中垫底,被六边形裁剪;统一左右镜像换向(与圆球叶子一致) */
+/* 随机叶子水印:居中垫底,被六边形裁剪;统一左右镜像换向;更亮更白 */
 .honey-leaf {
   position: absolute;
   inset: 25%;
-  z-index: 1;
-  opacity: 0.45;
+  opacity: 0.72;
   transform: scaleX(-1);
   pointer-events: none;
 }
@@ -825,7 +828,18 @@
 .honey-leaf svg {
   width: 100%;
   height: 100%;
+}
+
+/* 叶身(第一路径)实心填充;中脉线(第二路径)描深色纹理 */
+.honey-leaf svg path:first-child {
   fill: currentColor;
+  stroke: none;
+}
+
+.honey-leaf svg path:last-child {
+  fill: none;
+  stroke: rgb(from var(--gray-90) r g b / 0.6);
+  stroke-width: 2;
 }
 
 /* 末格文本(300+) */
