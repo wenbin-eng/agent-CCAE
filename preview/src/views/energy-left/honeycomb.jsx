@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { Icon } from "../../../assets/shared/icon.jsx";
-
 // 蜂窝矩阵:点击集群气泡飞散后,从点击位置向外逐步呈现的节点矩阵
 // 单元 48×48(设计画布 px),尖角朝上的六边形,单元间隙 10;
 // 共 14 行,四种背景色自上而下按 4/4/4/2 行分段:
@@ -72,6 +71,8 @@ export default function Honeycomb({ origin }) {
     const t = window.setTimeout(() => setUnmasked(true), UNMASK_DELAY);
     return () => window.clearTimeout(t);
   }, []);
+  // 选中单元:点击显示白色描边(再次点击取消)
+  const [activeCell, setActiveCell] = useState(null);
   const ballR = origin ? origin.size / 32 : 0; // 球半径(rem)
   const cells = buildCells(clickX, clickY);
 
@@ -86,13 +87,31 @@ export default function Honeycomb({ origin }) {
       {cells.map((cell) => (
         <div
           key={cell.key}
-          className="honey-cell"
+          className={`honey-cell${activeCell === cell.key ? " active" : ""}`}
           style={{
             left: toRem(cell.x),
             top: toRem(cell.y),
             animationDelay: `${cell.delay}ms`,
           }}
+          onClick={() =>
+            setActiveCell((k) => (k === cell.key ? null : cell.key))
+          }
         >
+          {/* 选中发光:外扩的白色辐射光晕(呼吸律动,发散感) + 白色描边 + 表面白纱 */}
+          {activeCell === cell.key && (
+            <span className="honey-halo" aria-hidden="true" />
+          )}
+          {/* 点击选中:白色六边形描边,距蜂窝约 2px */}
+          {activeCell === cell.key && (
+            <svg className="honey-outline" viewBox="0 0 100 100" aria-hidden="true">
+              <polygon
+                points="50,0 100,25 100,75 50,100 0,75 0,25"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+              />
+            </svg>
+          )}
           {/* 六边形本体(底色),波扫过时颜色闪变(延迟 fdelay 滞后于入场) */}
           <span
             className="honey-hex"

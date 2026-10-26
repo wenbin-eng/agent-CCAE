@@ -792,8 +792,62 @@
   white-space: nowrap;
 }
 
-.honey-cell:hover {
-  filter: brightness(1.6);
+/* hover 提亮只作用于六边形本体(叶子水印不受影响);选中态同样保留提亮 */
+.honey-cell:hover .honey-hex,
+.honey-cell.active .honey-hex {
+  filter: brightness(1.25);
+}
+
+/* 点击选中:白色六边形描边(SVG 描边跟随裁剪形状),外扩 5px,线宽更细 */
+.honey-outline {
+  position: absolute;
+  inset: -0.3125rem;
+  color: #ffffff;
+  pointer-events: none;
+}
+
+/* 选中单元发白光:
+   ① 表面白纱用 .honey-hex::after —— 内联 style 的 background 简写会覆盖类上的 background-image,伪元素不受影响;
+   ② 辉光挂在未裁剪的父级 .honey-cell 上 —— clip-path 元素自身的 drop-shadow 会被裁掉(滤镜先于裁剪执行) */
+.honey-cell.active .honey-hex::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgb(255 255 255 / 0.3);
+}
+
+.honey-cell.active {
+  /* 提升层级:光晕完整浮于相邻蜂窝之上(否则被不透明邻居遮挡,呼吸不可见) */
+  z-index: 2;
+  filter:
+    brightness(1.05)
+    drop-shadow(0 0 0.25rem rgb(255 255 255 / 0.6))
+    drop-shadow(0 0 0.75rem rgb(255 255 255 / 0.35));
+}
+
+/* 白色辐射光晕:自中心向外发散渐隐,固定常亮(无呼吸动画) */
+.honey-halo {
+  position: absolute;
+  inset: -1.25rem;
+  border-radius: var(--radius-full);
+  background: radial-gradient(
+    circle,
+    rgb(255 255 255 / 0.5),
+    rgb(255 255 255 / 0.2) 42%,
+    rgb(255 255 255 / 0.06) 65%,
+    transparent 75%
+  );
+  pointer-events: none;
+}
+
+@keyframes honey-veil-breath {
+  0%,
+  100% {
+    opacity: 0.16;
+  }
+  50% {
+    opacity: 0.42;
+  }
 }
 
 @keyframes honey-in {
