@@ -1,15 +1,16 @@
 import { useEffect, useState } from "react";
 import { Icon } from "../../../assets/shared/icon.jsx";
 // 蜂窝矩阵:点击集群气泡飞散后,从点击位置向外逐步呈现的节点矩阵
-// 单元 48×48(设计画布 px),尖角朝上的六边形,单元间隙 10;
+// 单元 48×48(设计画布 px),尖角朝上的正六边形(宽高比 0.866,修正原压扁感),
+// 圆角 ~3px(SVG clipPath 裁剪),单元间隙 ~10;
 // 共 14 行,四种背景色自上而下按 4/4/4/2 行分段:
 // #34b787 → #268763 → #1b6148 → #113b2e;末格(300+)单独 #1c1c1c
-const COLS = 10;
+const COLS = 11;
 const ROWS = 14;
-const COL_STEP = 58;  // 48 + 10 间隙
-const ROW_STEP = 46;  // 48 × 3/4 + 10 间隙(尖顶蜂窝错行咬合)
-const ROW_OFFSET = 29; // 奇数行右移半列
-const START_X = 30;
+const COL_STEP = 50;  // 正六边形宽 41.6 + 8.4 间隙(收紧后)
+const ROW_STEP = 44;  // 48 × 3/4 + 8 间隙(尖顶蜂窝错行咬合,收紧后)
+const ROW_OFFSET = 25; // 奇数行右移半列
+const START_X = 34;   // 网格整体右移 10(原 24)
 const START_Y = 24;   // 整体下移 20(原 4)
 const ROW_COLORS = ["#34b787", "#268763", "#1b6148", "#113b2e"];
 const LAST_CELL_COLOR = "#1c1c1c";
@@ -86,6 +87,14 @@ export default function Honeycomb({ origin }) {
         transition: "clip-path 0.45s ease-out",
       }}
     >
+      {/* 圆角正六边形裁剪定义(objectBoundingBox 单位,随元素尺寸缩放) */}
+      <svg width="0" height="0" style={{ position: "absolute" }} aria-hidden="true">
+        <defs>
+          <clipPath id="hexClip" clipPathUnits="objectBoundingBox">
+            <path d="M 0.5541 0.03125 L 0.8789 0.21875 Q 0.933 0.25 0.933 0.3125 L 0.933 0.6875 Q 0.933 0.75 0.8789 0.78125 L 0.5541 0.96875 Q 0.5 1 0.4459 0.96875 L 0.1211 0.78125 Q 0.067 0.75 0.067 0.6875 L 0.067 0.3125 Q 0.067 0.25 0.1211 0.21875 L 0.4459 0.03125 Q 0.5 0 0.5541 0.03125 Z" />
+          </clipPath>
+        </defs>
+      </svg>
       {cells.map((cell) => (
         <div
           key={cell.key}
@@ -99,15 +108,15 @@ export default function Honeycomb({ origin }) {
             setActiveCell((k) => (k === cell.key ? null : cell.key))
           }
         >
-          {/* 选中发光:外扩的白色辐射光晕(呼吸律动,发散感) + 白色描边 + 表面白纱 */}
+          {/* 选中发光:白色辐射光晕 + 白色描边 + 表面白纱 */}
           {activeCell === cell.key && (
             <span className="honey-halo" aria-hidden="true" />
           )}
-          {/* 点击选中:白色六边形描边,距蜂窝约 2px */}
+          {/* 点击选中:白色六边形描边(与本体同款圆角路径),距蜂窝约 2px */}
           {activeCell === cell.key && (
             <svg className="honey-outline" viewBox="0 0 100 100" aria-hidden="true">
-              <polygon
-                points="50,0 100,25 100,75 50,100 0,75 0,25"
+              <path
+                d="M 55.41 3.125 L 87.89 21.875 Q 93.3 25 93.3 31.25 L 93.3 68.75 Q 93.3 75 87.89 78.125 L 55.41 96.875 Q 50 100 44.59 96.875 L 12.11 78.125 Q 6.7 75 6.7 68.75 L 6.7 31.25 Q 6.7 25 12.11 21.875 L 44.59 3.125 Q 50 0 55.41 3.125 Z"
                 fill="none"
                 stroke="currentColor"
                 strokeWidth="2.5"
@@ -122,7 +131,8 @@ export default function Honeycomb({ origin }) {
           />
           {cell.leaf && (
             <span className="honey-leaf" style={{ color: cell.leafColor }} aria-hidden="true">
-              <Icon name="leaf" />
+              {/* color 传入单元格底色:SVG 根描边即中脉线颜色,与背景统一 */}
+              <Icon name="leaf" color={cell.color} />
             </span>
           )}
           {cell.isLast && (
