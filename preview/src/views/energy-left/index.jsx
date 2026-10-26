@@ -116,7 +116,7 @@ export default function EnergyLeft() {
                 <span className="stat-label">
                   {honeyThird ? (
                     <>
-                      节能态<span className="stat-pipe">|</span>节点总数
+                      节能态节点<span className="stat-pipe">|</span>节点总数
                     </>
                   ) : (
                     s.label
