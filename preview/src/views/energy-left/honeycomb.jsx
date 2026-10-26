@@ -73,7 +73,9 @@ export default function Honeycomb({ origin }) {
   }, []);
   // 选中单元:点击显示白色描边(再次点击取消)
   const [activeCell, setActiveCell] = useState(null);
-  const ballR = origin ? origin.size / 32 : 0; // 球半径(rem)
+  // 球半径(rem),设 4.5rem 下限:小球点击也先露出数格蜂窝,
+  // 避免针尖蒙版 + 爆炸式扩张的突兀感(大球点击的展开节奏即基准)
+  const ballR = origin ? Math.max(origin.size / 32, 4.5) : 0;
   const cells = buildCells(clickX, clickY);
 
   return (

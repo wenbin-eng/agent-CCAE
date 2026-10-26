@@ -182,7 +182,6 @@ export default function EnergyLeft() {
                       top: `calc(50% + ${toRem(c.y)})`,
                       ...animStyle,
                     }}
-                    title={`${c.name} · ${c.energy.toLocaleString("zh-CN")} kWh · ${c.building} · ${c.on ? "开启" : "关闭"}`}
                     onClick={() => handleBubbleClick(c)}
                   >
                     {/* 节能叶子水印(仅开启状态,垫在文字下方) */}
