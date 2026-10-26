@@ -4525,7 +4525,7 @@ input.ant-input.ant-input-sm {
   transition: transform 0.65s ease-out, opacity 0.65s ease-out;
 }
 
-/* hover:不放大;SVG 反光光弧 —— 真实穹顶形(中间厚两端薄、内部渐暗、柔边),随旋转游走 */
+/* hover:不放大;SVG 反光光斑 —— 真实穹顶形(中间厚两端薄、内部渐暗、柔边),随旋转游走 */
 .roam-svg {
   position: absolute;
   inset: 0;
@@ -4534,6 +4534,8 @@ input.ant-input.ant-input-sm {
   pointer-events: none;
   opacity: 0;
   transition: opacity 0.3s ease;
+  /* 旋转常驻:离开时只淡出、角度不回弹,避免"闪现 4 个"的跳变 */
+  animation: bubble-rim-run 6s linear infinite;
 }
 
 /* 光弧颜色:浅色深灰,深色亮白 */
@@ -4595,7 +4597,6 @@ input.ant-input.ant-input-sm {
 
 .bubble:hover .roam-svg {
   opacity: 1;
-  animation: bubble-rim-run 3s linear infinite;
 }
 
 .bubble:hover::after {
