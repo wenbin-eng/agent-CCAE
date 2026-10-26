@@ -204,99 +204,38 @@
   transition: transform 0.65s ease-out, opacity 0.65s ease-out;
 }
 
-/* hover:不放大;单条反光光弧(唯一光效) —— 梭形亮弧贴圆周,柔焦模糊,
-   亮度提升;径向深度收窄(58%~66%),随旋转像光源扫过球面 */
-.bubble::before {
-  content: "";
+/* hover:不放大;SVG 反光光弧 —— 真实穹顶形(中间厚两端薄、内部渐暗、柔边),随旋转游走 */
+.roam-svg {
   position: absolute;
   inset: 0;
-  border-radius: var(--radius-full);
-  opacity: 0;
+  width: 100%;
+  height: 100%;
   pointer-events: none;
+  opacity: 0;
   transition: opacity 0.3s ease;
-  background: conic-gradient(
-    from -24deg,
-    transparent 0deg,
-    rgb(from var(--gray-90) r g b / 0.45) 8deg,
-    rgb(from var(--gray-90) r g b / 0.9) 16deg,
-    var(--gray-90) 24deg,
-    rgb(from var(--gray-90) r g b / 0.9) 32deg,
-    rgb(from var(--gray-90) r g b / 0.45) 40deg,
-    transparent 48deg,
-    transparent 180deg,
-    rgb(from var(--gray-90) r g b / 0.45) 188deg,
-    rgb(from var(--gray-90) r g b / 0.9) 196deg,
-    var(--gray-90) 204deg,
-    rgb(from var(--gray-90) r g b / 0.9) 212deg,
-    rgb(from var(--gray-90) r g b / 0.45) 220deg,
-    transparent 228deg
-  );
-  /* 径向:66% 起向圆周(70.7%)平滑渐亮,深度为上一版 2/3 */
-  -webkit-mask: radial-gradient(circle, transparent 0 66%, var(--gray-0) 70.7%);
-  mask: radial-gradient(circle, transparent 0 66%, var(--gray-0) 70.7%);
-  /* 大柔焦:边缘全部融化,呈透镜光斑 */
-  filter: blur(0.5rem);
 }
 
-.dark .energy-left .bubble::before {
-  background: conic-gradient(
-    from -24deg,
-    transparent 0deg,
-    rgb(from var(--gray-0) r g b / 0.45) 8deg,
-    rgb(from var(--gray-0) r g b / 0.9) 16deg,
-    var(--gray-0) 24deg,
-    rgb(from var(--gray-0) r g b / 0.9) 32deg,
-    rgb(from var(--gray-0) r g b / 0.45) 40deg,
-    transparent 48deg,
-    transparent 180deg,
-    rgb(from var(--gray-0) r g b / 0.45) 188deg,
-    rgb(from var(--gray-0) r g b / 0.9) 196deg,
-    var(--gray-0) 204deg,
-    rgb(from var(--gray-0) r g b / 0.9) 212deg,
-    rgb(from var(--gray-0) r g b / 0.45) 220deg,
-    transparent 228deg
-  );
+/* 光弧颜色:浅色深灰,深色亮白 */
+.roam-stop {
+  stop-color: #4a4a4a;
 }
 
-/* 关闭球:静态亮度已提升,hover 光弧同步加亮以保持对比 */
-.bubble.off::before {
-  background: conic-gradient(
-    from -24deg,
-    transparent 0deg,
-    rgb(from var(--gray-90) r g b / 0.6) 8deg,
-    rgb(from var(--gray-90) r g b / 0.95) 16deg,
-    var(--gray-90) 24deg,
-    rgb(from var(--gray-90) r g b / 0.95) 32deg,
-    rgb(from var(--gray-90) r g b / 0.6) 40deg,
-    transparent 48deg,
-    transparent 180deg,
-    rgb(from var(--gray-90) r g b / 0.6) 188deg,
-    rgb(from var(--gray-90) r g b / 0.95) 196deg,
-    var(--gray-90) 204deg,
-    rgb(from var(--gray-90) r g b / 0.95) 212deg,
-    rgb(from var(--gray-90) r g b / 0.6) 220deg,
-    transparent 228deg
-  );
+.dark .roam-stop {
+  stop-color: #ffffff;
 }
 
-.dark .energy-left .bubble.off::before {
-  background: conic-gradient(
-    from -24deg,
-    transparent 0deg,
-    rgb(from var(--gray-0) r g b / 0.6) 8deg,
-    rgb(from var(--gray-0) r g b / 0.95) 16deg,
-    var(--gray-0) 24deg,
-    rgb(from var(--gray-0) r g b / 0.95) 32deg,
-    rgb(from var(--gray-0) r g b / 0.6) 40deg,
-    transparent 48deg,
-    transparent 180deg,
-    rgb(from var(--gray-0) r g b / 0.6) 188deg,
-    rgb(from var(--gray-0) r g b / 0.95) 196deg,
-    var(--gray-0) 204deg,
-    rgb(from var(--gray-0) r g b / 0.95) 212deg,
-    rgb(from var(--gray-0) r g b / 0.6) 220deg,
-    transparent 228deg
-  );
+/* 同心弧光纹描边色(跟随明暗模式) */
+.roam-stroke {
+  stroke: #4a4a4a;
+}
+
+.dark .roam-stroke {
+  stroke: #ffffff;
+}
+
+/* 关闭球:光弧加亮保持对比 */
+.bubble.off .roam-svg {
+  filter: brightness(1.3);
 }
 
 /* hover 底衬:整个圆周淡淡的柔光 —— 自身径向渐变向圆周渐亮,无硬边 */
@@ -333,7 +272,7 @@
   z-index: 1;
 }
 
-.bubble:hover::before {
+.bubble:hover .roam-svg {
   opacity: 1;
   animation: bubble-rim-run 3s linear infinite;
 }

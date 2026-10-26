@@ -221,6 +221,37 @@ export default function EnergyLeft() {
                         </div>
                       </div>
                     )}
+
+                    {/* 反光光晕(SVG 椭圆柔光斑:贴圆周的镜面高光,径向自然消散,无任何硬边,对向双斑旋转游走) */}
+                    <svg className={`roam-svg${c.on ? "" : " off"}`} viewBox="0 0 100 100" aria-hidden="true">
+                      <defs>
+                        {/* 单体平滑梯度:贴边最亮,多档小步向内递减,无跳变;整体提亮 */}
+                        <radialGradient id={`rg-${c.id}`} fx="0.5" fy="0.06">
+                          <stop offset="0" className="roam-stop" stopOpacity="1" />
+                          <stop offset="0.2" className="roam-stop" stopOpacity="0.85" />
+                          <stop offset="0.4" className="roam-stop" stopOpacity="0.6" />
+                          <stop offset="0.6" className="roam-stop" stopOpacity="0.4" />
+                          <stop offset="0.8" className="roam-stop" stopOpacity="0.18" />
+                          <stop offset="1" className="roam-stop" stopOpacity="0" />
+                        </radialGradient>
+                        <filter id={`bl-${c.id}`} x="-30%" y="-30%" width="160%" height="160%">
+                          <feGaussianBlur stdDeviation="0.4" />
+                        </filter>
+                        {/* 裁剪到圆内 */}
+                        <clipPath id={`cp-${c.id}`}>
+                          <circle cx="50" cy="50" r="49.5" />
+                        </clipPath>
+                      </defs>
+                      <g clipPath={`url(#cp-${c.id})`}>
+                        {/* 单一光斑:去亮核层,轻柔焦消层感 */}
+                        <g filter={`url(#bl-${c.id})`}>
+                          <ellipse cx="50" cy="3.2" rx="29" ry="4.5" fill={`url(#rg-${c.id})`} />
+                        </g>
+                        <g transform="rotate(180 50 50)" filter={`url(#bl-${c.id})`}>
+                          <ellipse cx="50" cy="3.2" rx="29" ry="4.5" fill={`url(#rg-${c.id})`} />
+                        </g>
+                      </g>
+                    </svg>
                   </div>
                 );
               })}
