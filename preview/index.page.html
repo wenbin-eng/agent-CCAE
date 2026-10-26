@@ -4463,7 +4463,12 @@ input.ant-input.ant-input-sm {
   display: flex;
   align-items: baseline;
   gap: var(--spacing-1);
-  padding-left: 2.125rem;
+  padding-left: 1.875rem;
+}
+
+/* 第 1 项图标视觉留白不同,单独再左移微调 */
+.stat-item:nth-child(1) .stat-value-row {
+  padding-left: 1.625rem;
 }
 
 .stat-unit {
@@ -4570,6 +4575,47 @@ input.ant-input.ant-input-sm {
     var(--gray-0) 204deg,
     rgb(from var(--gray-0) r g b / 0.9) 212deg,
     rgb(from var(--gray-0) r g b / 0.45) 220deg,
+    transparent 228deg
+  );
+}
+
+/* 关闭球:静态亮度已提升,hover 光弧同步加亮以保持对比 */
+.bubble.off::before {
+  background: conic-gradient(
+    from -24deg,
+    transparent 0deg,
+    rgb(from var(--gray-90) r g b / 0.6) 8deg,
+    rgb(from var(--gray-90) r g b / 0.95) 16deg,
+    var(--gray-90) 24deg,
+    rgb(from var(--gray-90) r g b / 0.95) 32deg,
+    rgb(from var(--gray-90) r g b / 0.6) 40deg,
+    transparent 48deg,
+    transparent 180deg,
+    rgb(from var(--gray-90) r g b / 0.6) 188deg,
+    rgb(from var(--gray-90) r g b / 0.95) 196deg,
+    var(--gray-90) 204deg,
+    rgb(from var(--gray-90) r g b / 0.95) 212deg,
+    rgb(from var(--gray-90) r g b / 0.6) 220deg,
+    transparent 228deg
+  );
+}
+
+.dark .energy-left .bubble.off::before {
+  background: conic-gradient(
+    from -24deg,
+    transparent 0deg,
+    rgb(from var(--gray-0) r g b / 0.6) 8deg,
+    rgb(from var(--gray-0) r g b / 0.95) 16deg,
+    var(--gray-0) 24deg,
+    rgb(from var(--gray-0) r g b / 0.95) 32deg,
+    rgb(from var(--gray-0) r g b / 0.6) 40deg,
+    transparent 48deg,
+    transparent 180deg,
+    rgb(from var(--gray-0) r g b / 0.6) 188deg,
+    rgb(from var(--gray-0) r g b / 0.95) 196deg,
+    var(--gray-0) 204deg,
+    rgb(from var(--gray-0) r g b / 0.95) 212deg,
+    rgb(from var(--gray-0) r g b / 0.6) 220deg,
     transparent 228deg
   );
 }
