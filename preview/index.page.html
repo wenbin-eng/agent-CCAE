@@ -4376,7 +4376,6 @@ input.ant-input.ant-input-sm {
 
 .summary-value {
   font: var(--font-display-s);
-  font-weight: var(--font-weight-semibold);
   color: var(--on-surface);
   line-height: var(--line-height-xs);
 }
@@ -4410,7 +4409,7 @@ input.ant-input.ant-input-sm {
   padding-right: 1.25rem; /* 末项整体左移 20px */
 }
 
-/* 项间竖线分割;首项居左 / 第二项居中 / 末项居右,数字行随上方文字对齐 */
+/* 项间竖线分割;三项统一居左 */
 .stat-item + .stat-item {
   border-left: 1px solid var(--divider);
 }
@@ -4422,8 +4421,21 @@ input.ant-input.ant-input-sm {
   margin: 0 0.25em;
 }
 
+/* 蜂窝状态第 3 项的 "|" 分隔符 */
+.stat-pipe {
+  color: var(--on-surface-variant);
+  font-weight: var(--font-weight-normal);
+  margin: 0 0.25em;
+}
+
 .stat-item:nth-child(2) {
   align-items: center;
+}
+
+/* 第1、2项的数字行左缩进(视觉对齐上方文本) */
+.stat-item:nth-child(1) .stat-value-row,
+.stat-item:nth-child(2) .stat-value-row {
+  padding-left: 2.125rem;
 }
 
 .stat-item:nth-child(3) {
@@ -4446,18 +4458,25 @@ input.ant-input.ant-input-sm {
   color: var(--on-surface-variant);
 }
 
+/* 三项数值行统一左缩进,与上方文本(图标右侧)对齐 —— 常态与蜂窝态第3项同规则 */
 .stat-value-row {
   display: flex;
   align-items: baseline;
   gap: var(--spacing-1);
+  padding-left: 2.125rem;
+}
+
+.stat-unit {
+  font: var(--font-caption-m);
+  color: var(--on-surface-variant);
 }
 
 /* 数字固定 28px */
 .stat-value {
-  font-size: var(--font-size-4xl);
+  font-size: var(--font-size-3xl); /* 数字 24px */
   line-height: var(--line-height-xs);
-  font-weight: var(--font-weight-semibold);
   color: var(--on-surface);
+  white-space: nowrap;
 }
 
 .stat-unit {
@@ -4501,8 +4520,8 @@ input.ant-input.ant-input-sm {
   transition: transform 0.65s ease-out, opacity 0.65s ease-out;
 }
 
-/* hover:不放大;两道彗星式流光(对角 180°):亮头 sharp、尾迹细长渐弱,
-   头尾不对称打破规整感;径向越贴轮廓越亮,深度为原版 20%,只在圆内 */
+/* hover:不放大;单条反光光弧(唯一光效) —— 梭形亮弧贴圆周,柔焦模糊,
+   亮度提升;径向深度收窄(58%~66%),随旋转像光源扫过球面 */
 .bubble::before {
   content: "";
   position: absolute;
@@ -4512,81 +4531,76 @@ input.ant-input.ant-input-sm {
   pointer-events: none;
   transition: opacity 0.3s ease;
   background: conic-gradient(
-    from -16deg,
+    from -24deg,
     transparent 0deg,
-    rgb(from var(--gray-90) r g b / 0.5) 6deg,
-    var(--gray-90) 16deg,
-    rgb(from var(--gray-90) r g b / 0.85) 26deg,
-    rgb(from var(--gray-90) r g b / 0.65) 36deg,
-    rgb(from var(--gray-90) r g b / 0.45) 48deg,
-    rgb(from var(--gray-90) r g b / 0.25) 60deg,
-    rgb(from var(--gray-90) r g b / 0.1) 70deg,
-    transparent 78deg,
+    rgb(from var(--gray-90) r g b / 0.45) 8deg,
+    rgb(from var(--gray-90) r g b / 0.9) 16deg,
+    var(--gray-90) 24deg,
+    rgb(from var(--gray-90) r g b / 0.9) 32deg,
+    rgb(from var(--gray-90) r g b / 0.45) 40deg,
+    transparent 48deg,
     transparent 180deg,
-    rgb(from var(--gray-90) r g b / 0.5) 186deg,
-    var(--gray-90) 196deg,
-    rgb(from var(--gray-90) r g b / 0.85) 206deg,
-    rgb(from var(--gray-90) r g b / 0.65) 216deg,
-    rgb(from var(--gray-90) r g b / 0.45) 228deg,
-    rgb(from var(--gray-90) r g b / 0.25) 240deg,
-    rgb(from var(--gray-90) r g b / 0.1) 250deg,
-    transparent 258deg
+    rgb(from var(--gray-90) r g b / 0.45) 188deg,
+    rgb(from var(--gray-90) r g b / 0.9) 196deg,
+    var(--gray-90) 204deg,
+    rgb(from var(--gray-90) r g b / 0.9) 212deg,
+    rgb(from var(--gray-90) r g b / 0.45) 220deg,
+    transparent 228deg
   );
-  /* 径向蒙版:66% 起向圆周(71% 刻度)线性增亮,深度为原版 20% —— 极薄贴边 */
-  -webkit-mask: radial-gradient(circle, transparent 0 66%, var(--gray-0) 71%);
-  mask: radial-gradient(circle, transparent 0 66%, var(--gray-0) 71%);
-  filter: drop-shadow(0 0 0.375rem rgb(from var(--gray-0) r g b / 0.9));
+  /* 径向:66% 起向圆周(70.7%)平滑渐亮,深度为上一版 2/3 */
+  -webkit-mask: radial-gradient(circle, transparent 0 66%, var(--gray-0) 70.7%);
+  mask: radial-gradient(circle, transparent 0 66%, var(--gray-0) 70.7%);
+  /* 大柔焦:边缘全部融化,呈透镜光斑 */
+  filter: blur(0.5rem);
 }
 
-/* 大球(296)绝对像素更厚,深度再收浅一档 */
-.bubble.xl::before {
-  -webkit-mask: radial-gradient(circle, transparent 0 68%, var(--gray-0) 71%);
-  mask: radial-gradient(circle, transparent 0 68%, var(--gray-0) 71%);
-}
-
-/* 深色模式:流光统一亮白 */
 .dark .energy-left .bubble::before {
   background: conic-gradient(
-    from -16deg,
+    from -24deg,
     transparent 0deg,
-    rgb(from var(--gray-0) r g b / 0.5) 6deg,
-    var(--gray-0) 16deg,
-    rgb(from var(--gray-0) r g b / 0.85) 26deg,
-    rgb(from var(--gray-0) r g b / 0.65) 36deg,
-    rgb(from var(--gray-0) r g b / 0.45) 48deg,
-    rgb(from var(--gray-0) r g b / 0.25) 60deg,
-    rgb(from var(--gray-0) r g b / 0.1) 70deg,
-    transparent 78deg,
+    rgb(from var(--gray-0) r g b / 0.45) 8deg,
+    rgb(from var(--gray-0) r g b / 0.9) 16deg,
+    var(--gray-0) 24deg,
+    rgb(from var(--gray-0) r g b / 0.9) 32deg,
+    rgb(from var(--gray-0) r g b / 0.45) 40deg,
+    transparent 48deg,
     transparent 180deg,
-    rgb(from var(--gray-0) r g b / 0.5) 186deg,
-    var(--gray-0) 196deg,
-    rgb(from var(--gray-0) r g b / 0.85) 206deg,
-    rgb(from var(--gray-0) r g b / 0.65) 216deg,
-    rgb(from var(--gray-0) r g b / 0.45) 228deg,
-    rgb(from var(--gray-0) r g b / 0.25) 240deg,
-    rgb(from var(--gray-0) r g b / 0.1) 250deg,
-    transparent 258deg
+    rgb(from var(--gray-0) r g b / 0.45) 188deg,
+    rgb(from var(--gray-0) r g b / 0.9) 196deg,
+    var(--gray-0) 204deg,
+    rgb(from var(--gray-0) r g b / 0.9) 212deg,
+    rgb(from var(--gray-0) r g b / 0.45) 220deg,
+    transparent 228deg
   );
 }
 
-/* 深色模式:游走光统一亮白 */
-.dark .energy-left .bubble::before {
-  background: conic-gradient(
-    from -30deg,
-    transparent 0deg,
-    rgb(from var(--gray-0) r g b / 0.1) 12deg,
-    rgb(from var(--gray-0) r g b / 0.7) 20deg,
-    var(--gray-0) 30deg,
-    rgb(from var(--gray-0) r g b / 0.7) 40deg,
-    rgb(from var(--gray-0) r g b / 0.1) 48deg,
-    transparent 60deg,
-    transparent 180deg,
-    rgb(from var(--gray-0) r g b / 0.1) 192deg,
-    rgb(from var(--gray-0) r g b / 0.7) 200deg,
-    var(--gray-0) 210deg,
-    rgb(from var(--gray-0) r g b / 0.7) 220deg,
-    rgb(from var(--gray-0) r g b / 0.1) 228deg,
-    transparent 240deg
+/* hover 底衬:整个圆周淡淡的柔光 —— 自身径向渐变向圆周渐亮,无硬边 */
+.bubble::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: var(--radius-full);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+  background: radial-gradient(
+    circle,
+    transparent 0 58%,
+    rgb(from var(--gray-90) r g b / 0.05) 63%,
+    rgb(from var(--gray-90) r g b / 0.13) 66.5%,
+    rgb(from var(--gray-90) r g b / 0.2) 69%,
+    rgb(from var(--gray-90) r g b / 0.25) 71%
+  );
+}
+
+.dark .energy-left .bubble::after {
+  background: radial-gradient(
+    circle,
+    transparent 0 58%,
+    rgb(from var(--gray-0) r g b / 0.05) 63%,
+    rgb(from var(--gray-0) r g b / 0.13) 66.5%,
+    rgb(from var(--gray-0) r g b / 0.2) 69%,
+    rgb(from var(--gray-0) r g b / 0.25) 71%
   );
 }
 
@@ -4597,6 +4611,10 @@ input.ant-input.ant-input-sm {
 .bubble:hover::before {
   opacity: 1;
   animation: bubble-rim-run 3s linear infinite;
+}
+
+.bubble:hover::after {
+  opacity: 1;
 }
 
 @keyframes bubble-rim-run {
@@ -4732,7 +4750,6 @@ input.ant-input.ant-input-sm {
 
 .bubble-value {
   font: var(--font-caption-m);
-  font-weight: var(--font-weight-semibold);
   color: var(--color-text-inverse);
   line-height: 1.3;
   white-space: nowrap;
@@ -4812,15 +4829,15 @@ input.ant-input.ant-input-sm {
     radial-gradient(
       circle,
       transparent 0 47%,
-      rgb(63 198 174 / 0.04) 52%,
-      rgb(63 198 174 / 0.08) 57%,
-      rgb(63 198 174 / 0.15) 61%,
-      rgb(63 198 174 / 0.21) 64%,
-      rgb(63 198 174 / 0.28) 66.5%,
-      rgb(63 198 174 / 0.35) 68%,
-      rgb(63 198 174 / 0.4) 69.5%,
-      rgb(63 198 174 / 0.45) 71%,
-      rgb(63 198 174 / 0.45) 100%
+      rgb(63 198 174 / 0.06) 52%,
+      rgb(63 198 174 / 0.11) 57%,
+      rgb(63 198 174 / 0.21) 61%,
+      rgb(63 198 174 / 0.3) 64%,
+      rgb(63 198 174 / 0.4) 66.5%,
+      rgb(63 198 174 / 0.5) 68%,
+      rgb(63 198 174 / 0.56) 69.5%,
+      rgb(63 198 174 / 0.63) 71%,
+      rgb(63 198 174 / 0.63) 100%
     ),
     radial-gradient(
       circle at 32% 28%,
@@ -4828,22 +4845,22 @@ input.ant-input.ant-input-sm {
       rgb(17 39 30 / 0.88) 55%,
       rgb(14 33 25 / 0.82) 100%
     );
-  box-shadow: inset 0 0 0.5rem rgb(63 198 174 / 0.28);
+  box-shadow: inset 0 0 0.5rem rgb(63 198 174 / 0.4);
 }
 
 /* 关闭:光韵自圆心延伸至圆周;整体提亮,边缘色取设计稿 #cdcdcd(≈ gray-20) */
 .bubble.off {
   background: radial-gradient(
     circle,
-    rgb(from var(--gray-90) r g b / 0.06) 0%,
-    rgb(from var(--gray-90) r g b / 0.12) 25%,
-    rgb(from var(--gray-90) r g b / 0.22) 45%,
-    rgb(from var(--gray-90) r g b / 0.45) 65%,
-    rgb(from var(--gray-90) r g b / 0.75) 82%,
+    rgb(from var(--gray-90) r g b / 0.09) 0%,
+    rgb(from var(--gray-90) r g b / 0.17) 25%,
+    rgb(from var(--gray-90) r g b / 0.3) 45%,
+    rgb(from var(--gray-90) r g b / 0.6) 65%,
+    rgb(from var(--gray-90) r g b / 0.9) 82%,
     var(--gray-90) 94%,
     var(--gray-90) 100%
   );
-  box-shadow: inset 0 0 0.375rem rgb(from var(--gray-90) r g b / 0.55);
+  box-shadow: inset 0 0 0.375rem rgb(from var(--gray-90) r g b / 0.65);
 }
 
 /* 浅色下关闭球无背景,文字改深色保证可读 */
@@ -4858,15 +4875,15 @@ input.ant-input.ant-input-sm {
 .dark .energy-left .bubble.off {
   background: radial-gradient(
     circle,
-    rgb(from var(--gray-20) r g b / 0.08) 0%,
-    rgb(from var(--gray-20) r g b / 0.16) 25%,
-    rgb(from var(--gray-20) r g b / 0.28) 45%,
-    rgb(from var(--gray-20) r g b / 0.5) 65%,
-    rgb(from var(--gray-20) r g b / 0.8) 82%,
+    rgb(from var(--gray-20) r g b / 0.11) 0%,
+    rgb(from var(--gray-20) r g b / 0.22) 25%,
+    rgb(from var(--gray-20) r g b / 0.38) 45%,
+    rgb(from var(--gray-20) r g b / 0.68) 65%,
+    rgb(from var(--gray-20) r g b / 0.95) 82%,
     var(--gray-20) 94%,
     var(--gray-20) 100%
   );
-  box-shadow: inset 0 0 0.375rem rgb(from var(--gray-20) r g b / 0.6);
+  box-shadow: inset 0 0 0.375rem rgb(from var(--gray-20) r g b / 0.7);
 }
 
 .dark .energy-left .bubble.off .bubble-name,
@@ -4891,6 +4908,7 @@ input.ant-input.ant-input-sm {
 .bubble-leaf svg {
   width: 100%;
   height: 100%;
+  fill: currentColor;
 }
 
 /* ── 集群卡片(列表视图):垂直分布,占满宽度,16px 圆角,#191919 底 ── */
@@ -5082,6 +5100,7 @@ input.ant-input.ant-input-sm {
 .honey-leaf svg {
   width: 100%;
   height: 100%;
+  fill: currentColor;
 }
 
 /* 末格文本(300+) */
@@ -6283,9 +6302,10 @@ const UNMASK_DELAY = 200;
 
 const toRem = (px) => `${px / 16}rem`;
 
-// 行号 → 背景色(4/4/4/2 分段)
-function rowColor(r) {
-  return ROW_COLORS[Math.min(3, Math.floor(r / 4))];
+// 行号 → 背景色(4/4/4/2 分段);行中点(c≥半列)提前切换 →
+// 色带边界错开:第二色从第 4 行中间开始变换,后续边界同理
+function colorIndex(r, c) {
+  return Math.min(3, Math.floor((r + (c >= COLS / 2 ? 1 : 0)) / 4));
 }
 
 // 生成蜂窝单元:位置 + 距点击位置的呈现延迟 + 行背景色 + 随机叶子 + 末格标记
@@ -6304,7 +6324,7 @@ function buildCells(clickX, clickY) {
         y,
         delay: Math.round(dist * DELAY_PER_PX),
         fdelay: Math.round(dist * FLASH_PER_PX),
-        color: rowColor(r),
+        color: ROW_COLORS[colorIndex(r, c)],
         isLast,
         leaf: !isLast && (c * 7 + r * 13) % 10 < 3,
         leafColor: "#ffffff",

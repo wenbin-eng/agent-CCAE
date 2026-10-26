@@ -32,9 +32,10 @@ const UNMASK_DELAY = 200;
 
 const toRem = (px) => `${px / 16}rem`;
 
-// 行号 → 背景色(4/4/4/2 分段)
-function rowColor(r) {
-  return ROW_COLORS[Math.min(3, Math.floor(r / 4))];
+// 行号 → 背景色(4/4/4/2 分段);行中点(c≥半列)提前切换 →
+// 色带边界错开:第二色从第 4 行中间开始变换,后续边界同理
+function colorIndex(r, c) {
+  return Math.min(3, Math.floor((r + (c >= COLS / 2 ? 1 : 0)) / 4));
 }
 
 // 生成蜂窝单元:位置 + 距点击位置的呈现延迟 + 行背景色 + 随机叶子 + 末格标记
@@ -53,7 +54,7 @@ function buildCells(clickX, clickY) {
         y,
         delay: Math.round(dist * DELAY_PER_PX),
         fdelay: Math.round(dist * FLASH_PER_PX),
-        color: rowColor(r),
+        color: ROW_COLORS[colorIndex(r, c)],
         isLast,
         leaf: !isLast && (c * 7 + r * 13) % 10 < 3,
         leafColor: "#ffffff",
