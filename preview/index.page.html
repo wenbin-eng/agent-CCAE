@@ -5155,13 +5155,16 @@ input.ant-input.ant-input-sm {
   white-space: nowrap;
 }
 
-/* hover 提亮只作用于六边形本体(叶子水印不受影响);选中态同样保留提亮 */
-.honey-cell:hover .honey-hex,
-.honey-cell.active .honey-hex {
+/* hover 提亮六边形本体;选中态降低提亮幅度(底色已为亮绿,过高会发白) */
+.honey-cell:hover .honey-hex {
   filter: brightness(1.25);
 }
 
-/* 点击选中:白色六边形描边(SVG 描边跟随裁剪形状),外扩 5px,线宽更细 */
+.honey-cell.active .honey-hex {
+  filter: brightness(1.1);
+}
+
+/* 点击选中:六边形描边(与本体同款圆角路径),外扩 5px,线宽更细,白色 */
 .honey-outline {
   position: absolute;
   inset: -0.3125rem;
@@ -5169,34 +5172,24 @@ input.ant-input.ant-input-sm {
   pointer-events: none;
 }
 
-/* 选中单元发白光:
-   ① 表面白纱用 .honey-hex::after —— 内联 style 的 background 简写会覆盖类上的 background-image,伪元素不受影响;
-   ② 辉光挂在未裁剪的父级 .honey-cell 上 —— clip-path 元素自身的 drop-shadow 会被裁掉(滤镜先于裁剪执行) */
-.honey-cell.active .honey-hex::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: rgb(255 255 255 / 0.2);
-}
-
 .honey-cell.active {
-  /* 提升层级:光晕完整浮于相邻蜂窝之上(否则被不透明邻居遮挡) */
+  /* 提升层级:光晕完整浮于相邻蜂窝之上;绿色辉光增强可见度 */
   z-index: 2;
   filter:
-    drop-shadow(0 0 0.25rem rgb(255 255 255 / 0.4))
-    drop-shadow(0 0 0.75rem rgb(255 255 255 / 0.22));
+    drop-shadow(0 0 0.3rem rgb(168 219 129 / 0.5))
+    drop-shadow(0 0 0.875rem rgb(168 219 129 / 0.3));
 }
 
-/* 白色辐射光晕:自中心向外发散渐隐,固定常亮;渐变放缓、峰值降低,过渡更柔和 */
+/* 绿色辐射光晕:与选中底色 #A8DB81 同色系,增强对比使光韵更明显 */
 .honey-halo {
   position: absolute;
   inset: -1.875rem;
   border-radius: var(--radius-full);
   background: radial-gradient(
     circle,
-    rgb(255 255 255 / 0.38),
-    rgb(255 255 255 / 0.16) 40%,
-    rgb(255 255 255 / 0.05) 62%,
+    rgb(101 200 100 / 0.55),
+    rgb(101 200 100 / 0.22) 40%,
+    rgb(101 200 100 / 0.07) 62%,
     transparent 78%
   );
   pointer-events: none;
@@ -7654,7 +7647,10 @@ function Honeycomb({ origin, onCellClick }) {
           {/* 六边形本体(底色),波扫过时颜色闪变(延迟 fdelay 滞后于入场) */}
           <span
             className="honey-hex"
-            style={{ background: cell.color, animationDelay: `${cell.fdelay}ms` }}
+            style={{
+              background: activeCell === cell.key ? "#A8DB81" : cell.color,
+              animationDelay: `${cell.fdelay}ms`,
+            }}
             aria-hidden="true"
           />
           {cell.leaf && (
@@ -8385,10 +8381,16 @@ function EnergyLeft() {
                     }}
                     onClick={() => handleBubbleClick(c)}
                   >
-                    {/* 节能叶子水印(仅开启状态,垫在文字下方) */}
+                    {/* 节能叶子水印(仅开启状态,垫在文字下方);设计稿自定义叶子路径 */}
                     {c.on && (
                       <span className="bubble-leaf" aria-hidden="true">
-                        <Icon name="leaf" />
+                        <svg viewBox="0 0 22 19.008141" aria-hidden="true">
+                          <path
+                            d="M0 3.9565C0 3.02269 0.131119 1.64438 0.32775 0.599303C0.458869 -0.111973 1.07041 -0.15631 1.50735 0.288191C2.99295 1.8221 4.82824 2.02242 6.46671 2.02242C7.97424 2.02242 9.83127 1.60004 11.4916 1.60004C16.3416 1.60004 19.8153 4.02343 19.8153 9.07004C19.8153 9.53714 19.7936 10.026 19.7497 10.3376C19.6625 10.6709 19.2692 10.8707 18.9195 10.5153C14.5065 6.46893 10.159 9.07004 6.53222 5.84624C6.13896 5.53512 5.78956 5.82411 5.92068 6.15782C7.66824 10.8043 14.4409 8.33655 18.9195 12.5163C19.9902 13.4944 22 16.0069 22 17.4295C22 18.3411 21.3664 19.0081 20.6238 19.0081C20.296 19.0081 19.9247 18.8299 19.7936 18.3411C19.2473 16.5626 18.7667 15.2729 17.893 14.0944C16.9095 15.3621 14.8123 16.8515 11.448 16.8515C4.52223 16.8515 0 11.6937 0 3.9565Z"
+                            fill="currentColor"
+                            fillRule="evenodd"
+                          />
+                        </svg>
                       </span>
                     )}
                     {/* 标题:全部显示;小球超宽时中间省略 */}

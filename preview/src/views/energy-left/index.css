@@ -782,13 +782,16 @@
   white-space: nowrap;
 }
 
-/* hover 提亮只作用于六边形本体(叶子水印不受影响);选中态同样保留提亮 */
-.honey-cell:hover .honey-hex,
-.honey-cell.active .honey-hex {
+/* hover 提亮六边形本体;选中态降低提亮幅度(底色已为亮绿,过高会发白) */
+.honey-cell:hover .honey-hex {
   filter: brightness(1.25);
 }
 
-/* 点击选中:白色六边形描边(SVG 描边跟随裁剪形状),外扩 5px,线宽更细 */
+.honey-cell.active .honey-hex {
+  filter: brightness(1.1);
+}
+
+/* 点击选中:六边形描边(与本体同款圆角路径),外扩 5px,线宽更细,白色 */
 .honey-outline {
   position: absolute;
   inset: -0.3125rem;
@@ -796,34 +799,24 @@
   pointer-events: none;
 }
 
-/* 选中单元发白光:
-   ① 表面白纱用 .honey-hex::after —— 内联 style 的 background 简写会覆盖类上的 background-image,伪元素不受影响;
-   ② 辉光挂在未裁剪的父级 .honey-cell 上 —— clip-path 元素自身的 drop-shadow 会被裁掉(滤镜先于裁剪执行) */
-.honey-cell.active .honey-hex::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: rgb(255 255 255 / 0.2);
-}
-
 .honey-cell.active {
-  /* 提升层级:光晕完整浮于相邻蜂窝之上(否则被不透明邻居遮挡) */
+  /* 提升层级:光晕完整浮于相邻蜂窝之上;绿色辉光增强可见度 */
   z-index: 2;
   filter:
-    drop-shadow(0 0 0.25rem rgb(255 255 255 / 0.4))
-    drop-shadow(0 0 0.75rem rgb(255 255 255 / 0.22));
+    drop-shadow(0 0 0.3rem rgb(168 219 129 / 0.5))
+    drop-shadow(0 0 0.875rem rgb(168 219 129 / 0.3));
 }
 
-/* 白色辐射光晕:自中心向外发散渐隐,固定常亮;渐变放缓、峰值降低,过渡更柔和 */
+/* 绿色辐射光晕:与选中底色 #A8DB81 同色系,增强对比使光韵更明显 */
 .honey-halo {
   position: absolute;
   inset: -1.875rem;
   border-radius: var(--radius-full);
   background: radial-gradient(
     circle,
-    rgb(255 255 255 / 0.38),
-    rgb(255 255 255 / 0.16) 40%,
-    rgb(255 255 255 / 0.05) 62%,
+    rgb(101 200 100 / 0.55),
+    rgb(101 200 100 / 0.22) 40%,
+    rgb(101 200 100 / 0.07) 62%,
     transparent 78%
   );
   pointer-events: none;

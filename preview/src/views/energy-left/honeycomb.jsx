@@ -211,7 +211,10 @@ export default function Honeycomb({ origin, onCellClick }) {
           {/* 六边形本体(底色),波扫过时颜色闪变(延迟 fdelay 滞后于入场) */}
           <span
             className="honey-hex"
-            style={{ background: cell.color, animationDelay: `${cell.fdelay}ms` }}
+            style={{
+              background: activeCell === cell.key ? "#A8DB81" : cell.color,
+              animationDelay: `${cell.fdelay}ms`,
+            }}
             aria-hidden="true"
           />
           {cell.leaf && (
