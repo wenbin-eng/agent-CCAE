@@ -758,7 +758,7 @@
   }
 }
 
-/* 随机叶子水印:居中垫底,被六边形裁剪;统一左右镜像换向;更亮更白 */
+/* 随机叶子水印:设计稿自定义叶子路径,居中,统一左右镜像换向;更亮更白 */
 .honey-leaf {
   position: absolute;
   inset: 25%;
@@ -770,17 +770,6 @@
 .honey-leaf svg {
   width: 100%;
   height: 100%;
-}
-
-/* 叶身(第一路径)实心填充;中脉线(第二路径)描边继承 SVG 根的 color(即单元格底色),与背景统一 */
-.honey-leaf svg path:first-child {
-  fill: currentColor;
-  stroke: none;
-}
-
-.honey-leaf svg path:last-child {
-  fill: none;
-  stroke-width: 2;
 }
 
 /* 末格文本(300+) */
@@ -838,6 +827,100 @@
     transparent 78%
   );
   pointer-events: none;
+}
+
+/* ── hover 信息框 ── */
+.honey-tip {
+  position: absolute;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: 14rem;
+  padding: 0.75rem;
+  background: #393939;
+  border: 1px solid rgb(255 255 255 / 0.12);
+  border-radius: 0.5rem;
+  box-shadow: 0 0.5rem 1.5rem rgb(0 0 0 / 0.5);
+  pointer-events: none;
+}
+
+.tip-title {
+  font: var(--font-body-m);
+  font-weight: var(--font-weight-semibold);
+  color: #ffffff;
+  white-space: nowrap;
+}
+
+.tip-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  align-self: flex-start;
+  padding: 0.125rem 0.5rem;
+  border-radius: var(--radius-full);
+  background: rgb(255 255 255 / 0.1);
+  font: var(--font-caption-m);
+  color: rgb(255 255 255 / 0.75);
+  white-space: nowrap;
+}
+
+.tip-leaf {
+  color: var(--icon-success);
+}
+
+.tip-dot {
+  width: 0.375rem;
+  height: 0.375rem;
+  flex: none;
+  border-radius: var(--radius-full);
+  background: #808080;
+}
+
+.tip-ip-row {
+  display: flex;
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
+
+.tip-ip {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  flex: 1;
+}
+
+.tip-ip-label {
+  font: var(--font-caption-s);
+  color: rgb(255 255 255 / 0.5);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.tip-ip-value {
+  font: var(--font-body-s);
+  color: #ffffff;
+  white-space: nowrap;
+}
+
+.tip-metrics {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.tip-metric {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font: var(--font-caption-m);
+  color: rgb(255 255 255 / 0.7);
+}
+
+.tip-metric span:last-child {
+  color: #ffffff;
+  font-weight: var(--font-weight-medium);
 }
 
 @keyframes honey-veil-breath {

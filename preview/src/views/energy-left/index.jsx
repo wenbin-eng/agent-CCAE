@@ -335,7 +335,6 @@ export default function EnergyLeft() {
               <div
                 className="cluster-card"
                 key={c.id}
-                onClick={() => message.info(`正在查看「${c.name}」用能详情…`)}
               >
                 {/* 标题栏:开关图标 + 名称(与下方指标左对齐) | 状态胶囊 */}
                 <div className="card-head">
