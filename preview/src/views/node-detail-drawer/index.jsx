@@ -159,7 +159,7 @@ export default function NodeDetailDrawer({ open, nodeName, onClose }) {
       placement="right"
       width={panelWidth || "min(1154px, 94vw)"} /* 与 energy-right 同宽;未实测到时兜底 */
       closable={false}
-      maskClosable
+      mask={false} /* 不渲染 ant-drawer-mask 遮罩节点 */
       styles={{
         body: { padding: 0 },
         // wrapper 槽位由 rc-drawer 直接内联到 .ant-drawer-content-wrapper(读源码验证:
