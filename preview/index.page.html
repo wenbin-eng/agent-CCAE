@@ -4119,13 +4119,13 @@ input.ant-input.ant-input-sm {
   overflow: hidden;
 }
 
-/* 主内容区 */
+/* 主内容区:上下 24px,左右 32px(设计指定) */
 .page-main {
   flex: 1 1 0;
   min-height: 0;
   display: flex;
   flex-direction: column;
-  padding: var(--spacing-page);
+  padding: 1.5rem var(--spacing-page);
 }
 
 /* 标题栏下方:左右布局,左侧固定 678px,间隔 24 */
@@ -4247,7 +4247,7 @@ input.ant-input.ant-input-sm {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding-bottom: var(--spacing-gutter);
+  padding-bottom: 0.75rem; /* 12px(设计指定) */
 }
 
 .title-group {
@@ -5372,7 +5372,6 @@ input.ant-input.ant-input-sm {
   --nd-tag-blue-bg: rgba(9, 105, 218, 0.12);
   --nd-tag-green-bg: rgba(26, 127, 55, 0.12);
   --nd-tag-purple-bg: rgba(130, 80, 223, 0.12);
-  --nd-num-font: ui-monospace, "Cascadia Mono", "SF Mono", Consolas, "Courier New", monospace;
 }
 
 .dark .node-detail-drawer {
@@ -5400,9 +5399,27 @@ input.ant-input.ant-input-sm {
   box-shadow: none !important;
 }
 
-/* wrapper 定位(总高 = 100% - 8.1875rem)由 index.jsx 的 styles.wrapper 内联实现 —
+/* wrapper 定位(顶部 7.5rem / 底部 1.5rem / 右侧 2rem)由 index.jsx 的 styles.wrapper 内联实现 —
  * className 挂在根 .ant-drawer 上,且 wrapper 的 CSS 规则会输给 antd 运行时注入的
  * css-in-js 样式(同特异性、注入更晚),故 CSS 方案不可靠,已弃用 */
+
+/* 最上层绿色光晕:覆盖左→右 15% 区域,自左缘线性渐隐(左→右线性渐变,15% 透明度);
+ * 挂在非滚动的 body 上 → 不随内容滚动;pointer-events 不拦截交互 */
+.node-detail-drawer .ant-drawer-body {
+  position: relative;
+}
+
+.node-detail-drawer .ant-drawer-body::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 15%;
+  z-index: 3;
+  pointer-events: none;
+  background: linear-gradient(90deg, rgba(63, 185, 80, 0.15), rgba(63, 185, 80, 0) 100%);
+}
 
 /* 面板主体 */
 .nd-panel {
@@ -5449,7 +5466,6 @@ input.ant-input.ant-input-sm {
   font: var(--font-headline-s);
   font-weight: var(--font-weight-semibold);
   color: var(--nd-text);
-  font-family: var(--nd-num-font);
 }
 
 /* IP 信息:整体跟随节点标题(距其 80px),两段一行、段间距 28 */
@@ -5477,7 +5493,6 @@ input.ant-input.ant-input-sm {
   font-size: 0.75rem;
   line-height: 1.25rem;
   color: #ffffff; /* 设计指定白色 */
-  font-family: var(--nd-num-font);
 }
 
 .nd-close {
@@ -5583,7 +5598,6 @@ input.ant-input.ant-input-sm {
 
 .nd-hseg-pct {
   font-size: var(--font-size-base);
-  font-family: var(--nd-num-font);
   text-align: left;
   padding-left: 0.1875rem; /* 3px 左间隙(设计指定) */
   color: rgb(201, 201, 201); /* 设计指定精确值 */
@@ -5620,7 +5634,6 @@ input.ant-input.ant-input-sm {
   padding-left: 0.75rem;
   display: flex;
   align-items: flex-end; /* 数字与单位底部对齐(设计指定) */
-  font-family: var(--nd-num-font);
   font-size: 1rem; /* 16px(设计指定) */
   line-height: 1.5rem; /* 24px(设计指定) */
   color: #ffffff; /* 设计指定白色 */
@@ -5716,7 +5729,6 @@ input.ant-input.ant-input-sm {
 }
 
 .nd-gauge-num-value {
-  font-family: var(--nd-num-font);
   font-size: 2rem; /* 32px(设计指定) */
   line-height: 2.5rem; /* 40px(设计指定) */
   font-weight: var(--font-weight-medium); /* 500(设计指定) */
@@ -5732,7 +5744,6 @@ input.ant-input.ant-input-sm {
 .nd-gauge-time {
   font-size: 11px;
   color: var(--nd-sub);
-  font-family: var(--nd-num-font);
 }
 
 /* ── 部件明细表 ── */
@@ -5767,7 +5778,6 @@ input.ant-input.ant-input-sm {
 }
 
 .nd-part-value {
-  font-family: var(--nd-num-font);
   font-size: 1rem; /* 16px(设计指定) */
   font-weight: var(--font-weight-semibold);
   color: var(--nd-text);
@@ -5785,7 +5795,6 @@ input.ant-input.ant-input-sm {
   border-radius: var(--radius-base);
   font-size: 11px;
   line-height: 1.4;
-  font-family: var(--nd-num-font);
 }
 
 .nd-pct-tag.blue {
@@ -5822,7 +5831,6 @@ input.ant-input.ant-input-sm {
 }
 
 .nd-kpi-value {
-  font-family: var(--nd-num-font);
   font-size: 2rem; /* 32px(设计指定) */
   line-height: 2.5rem; /* 40px(设计指定) */
   font-weight: var(--font-weight-bold);
@@ -5850,7 +5858,6 @@ input.ant-input.ant-input-sm {
 }
 
 .nd-kpi-value {
-  font-family: var(--nd-num-font);
   font-size: var(--font-size-3xl);
   font-weight: var(--font-weight-bold);
   line-height: var(--line-height-xs);
@@ -5916,7 +5923,6 @@ input.ant-input.ant-input-sm {
   --er-tag-gray-bg: #e9edf2;
   --er-tag-gray-text: #57606a;
   --er-num-shadow: none;
-  --er-num-font: ui-monospace, "Cascadia Mono", "SF Mono", Consolas, "Courier New", monospace;
   --er-lead-line: rgba(31, 35, 40, 0.2); /* 指标延伸线 */
 
   flex: 1 1 0;
@@ -5947,7 +5953,7 @@ input.ant-input.ant-input-sm {
   --er-lead-line: rgba(230, 237, 243, 0.25); /* 指标延伸线 */
 }
 
-/* 内容滚动区(device.png 背景图挂此层,默认 attachment 不随内容滚动;
+/* 内容滚动区(device.png 背景图挂此层,attachment: local 随内容一起滚动;
  * 滚动条与左栏列表形态一致:6px 宽、#595959 圆角滑块、透明轨道) */
 .er-scroll {
   flex: 1 1 0;
@@ -5959,6 +5965,7 @@ input.ant-input.ant-input-sm {
   background-size: 100% auto;
   background-repeat: no-repeat;
   background-position: center top;
+  background-attachment: local; /* 图片随内容滚动 */
 }
 
 .er-scroll::-webkit-scrollbar {
@@ -5974,10 +5981,11 @@ input.ant-input.ant-input-sm {
   background: transparent;
 }
 
-/* ── 顶部导航条 ── */
+/* ── 顶部导航条(上间距 20px) ── */
 .er-nav {
   flex: none;
   height: 3rem;
+  margin-top: 1.25rem; /* 20px(设计指定) */
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -5993,36 +6001,36 @@ input.ant-input.ant-input-sm {
   color: var(--er-text);
 }
 
-/* 六边形叶子图标(参考左侧蜂窝单元:尖顶六边形 + 镜像白叶,蜂窝首行绿) */
-.er-nav-hex {
-  width: 1.375rem;
-  height: 1.375rem;
+/* 左侧图标:两个绿色实心闪电,右侧在上,横向叠加 60% */
+.er-nav-zaps {
   flex: none;
   display: inline-flex;
   align-items: center;
-  justify-content: center;
-  background: #34b787;
-  clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%);
 }
 
-.er-nav-hex svg {
-  transform: scaleX(-1); /* 与蜂窝叶子一致的镜像朝向 */
-  color: #ffffff;
-  opacity: 0.85;
+.er-nav-zaps svg {
+  color: #63d5a8;
+  fill: currentColor; /* 实心闪电(填充覆盖 Lucide 默认描边轮廓) */
+}
+
+.er-nav-zaps svg + svg {
+  margin-left: -0.75rem; /* 叠加 60%(1.25rem × 0.6),右侧闪电在上 */
+  stroke: #131921; /* 左侧叠加处的"透明"边框(设计指定精确值) */
+  stroke-width: 1.5;
+  stroke-linejoin: round;
 }
 
 .er-nav-time {
   font-size: 13px;
   color: var(--er-text-sub);
-  font-family: var(--er-num-font);
 }
 
 /* ── 英雄区:透传面板背景图(device.png),仅承载累计指标叠层 ── */
 .er-hero {
   flex: none;
   position: relative;
-  height: 15rem;
-  margin: 0 1rem 1rem;
+  height: 13.875rem; /* 222px = 240 - 18(设计指定) */
+  margin: 0 1rem 0.75rem; /* 下间距 12px(设计指定) */
   overflow: hidden;
   border-radius: var(--radius-xl);
 }
@@ -6084,7 +6092,6 @@ input.ant-input.ant-input-sm {
 
 .er-stat-value {
   font: var(--font-display-s);
-  font-family: var(--er-num-font);
   font-weight: var(--font-weight-bold);
   line-height: var(--line-height-xs);
   color: var(--er-text);
@@ -6117,6 +6124,34 @@ input.ant-input.ant-input-sm {
   background: rgb(52, 54, 58);
   border-radius: var(--radius-xl);
   box-shadow: var(--shadow-card);
+}
+
+/* 趋势卡:固定高 294px,内部间距收紧以容纳 192px 图表 */
+.er-card-trend {
+  height: 18.375rem; /* 294px(设计指定) */
+  overflow: hidden;
+}
+
+.er-card-trend .er-sum-row {
+  margin-top: 0.75rem; /* 12px */
+}
+
+.er-card-trend .er-trend-chart {
+  margin-top: 0.375rem; /* 6px */
+}
+
+/* 底部卡:固定高 294px,内部间距收紧以容纳 130px 图表 */
+.er-card-node {
+  height: 18.375rem; /* 294px(设计指定) */
+  overflow: hidden;
+}
+
+.er-card-node .er-node-panels {
+  margin-top: 0.5rem; /* 8px */
+}
+
+.er-card-node .er-node-panel {
+  gap: 0.625rem; /* 10px */
 }
 
 /* ── 卡片头:标题 / 图例 / 分隔 / 控件 ── */
@@ -6272,7 +6307,6 @@ input.ant-input.ant-input-sm {
 }
 
 .er-sum-value {
-  font-family: var(--er-num-font);
   font-size: var(--font-size-xl);
   font-weight: var(--font-weight-semibold);
   color: var(--er-text);
@@ -6291,10 +6325,10 @@ input.ant-input.ant-input-sm {
 }
 
 /* ── 图表容器(ECharts) ─────────────────────────────────────
- * 趋势图 248px = 顶 12 + 上 grid 106 + 下 grid 106 + x 轴区 24(grid 像素见 index.jsx)
+ * 趋势图 192px = 顶 12 + 上 grid 78 + 下 grid 78 + x 轴区 24(grid 像素见 index.jsx)
  */
 .er-trend-chart {
-  height: 248px;
+  height: 12rem; /* 192px(设计指定) */
   min-width: 0;
   margin-top: var(--spacing-gutter);
 }
@@ -6351,7 +6385,6 @@ input.ant-input.ant-input-sm {
   padding-left: 1rem;
   display: flex;
   align-items: flex-end;
-  font-family: var(--er-num-font);
   font-size: 1.25rem; /* 20px(设计指定) */
   line-height: 1.75rem; /* 28px(设计指定) */
   color: #ffffff;
@@ -7835,11 +7868,12 @@ const shapeAnchors = [
   [16, 6.28], [17, 7.9], [18, 6.72], [19, 6.45], [20, 5.48], [21, 4.96], [22, 4.63],
 ];
 
-// 确定性扰动:多频正弦叠加,让曲线更曲折
+// 确定性扰动:多频正弦叠加(含高频分量),让曲线更曲折
 const wobble = (t) =>
-  0.22 * Math.sin(t * 12.9898) +
-  0.16 * Math.sin(t * 78.233 + 1.7) +
-  0.1 * Math.sin(t * 37.719 + 4.2);
+  0.26 * Math.sin(t * 12.9898) +
+  0.2 * Math.sin(t * 78.233 + 1.7) +
+  0.14 * Math.sin(t * 37.719 + 4.2) +
+  0.1 * Math.sin(t * 143.7 + 2.3);
 
 // 实际功率(蓝色实线 + 面积):锚点插值 + 扰动;
 // 峰值 ≈ 最高功率 7.86(17h/13:00 附近),末值固定 = 当前功率 4.63
@@ -7872,12 +7906,12 @@ const forecastPower = actualPower.map((v, i) =>
 // 图表色板 — 与 index.css 的 --nd-* 变量同源:浅色基线 / .dark 覆写值
 const LIGHT = {
   text: "#1f2328", sub: "#57606a", blue: "#0969da", green: "#1a7f37",
-  purple: "#8250df", gray: "#8c959f", grid: "#e7ebef", border: "#d1d9e0",
+  purple: "#8250df", gray: "#8c959f", grid: "#42444a", border: "#d1d9e0",
   areaBlue: "rgba(9, 105, 218, 0.16)", zone: "rgba(110, 118, 129, 0.12)",
 };
 const DARK = {
   text: "#e6edf3", sub: "#8b949e", blue: "#58a6ff", green: "#3fb950",
-  purple: "#a371f7", gray: "#6e7681", grid: "#21262d", border: "#30363d",
+  purple: "#a371f7", gray: "#6e7681", grid: "#42444a", border: "#30363d",
   areaBlue: "rgba(88, 166, 255, 0.18)", zone: "rgba(110, 118, 129, 0.14)",
 };
 
@@ -7931,7 +7965,7 @@ function powerLineOption(c) {
       nameGap: 8,
       nameTextStyle: { color: c.sub, fontSize: 11, align: "left", padding: [0, 0, 0, -32] },
       axisLabel: { color: c.sub, fontSize: 11 },
-      splitLine: { lineStyle: { type: "dashed", color: c.grid } },
+      splitLine: { lineStyle: { type: "solid", color: c.grid, width: 1 } },
       axisLine: { show: false },
       axisTick: { show: false },
     },
@@ -7941,7 +7975,7 @@ function powerLineOption(c) {
         type: "line",
         data: actualPower,
         symbol: "none",
-        smooth: 0.3,
+        smooth: 0.2,
         lineStyle: { color: c.blue, width: 2 },
         areaStyle: { color: c.areaBlue },
       },
@@ -8016,10 +8050,10 @@ function NodeDetailDrawer({ open, nodeName, onClose }) {
         body: { padding: 0 },
         // wrapper 槽位由 rc-drawer 直接内联到 .ant-drawer-content-wrapper(读源码验证:
         // style 合并链 {...width, ...motion, ...styles.wrapper}),免疫 css-in-js 层叠
-        // 总高 = 100% - 10.1875rem(顶部偏移 8.1875rem + 底部 2rem);距右侧 2rem
+        // 距顶部 7.5rem,距底部 1.5rem(设计指定);距右侧 2rem
         wrapper: {
-          top: "8.1875rem",
-          bottom: "2rem",
+          top: "7.5rem",
+          bottom: "1.5rem",
           right: "2rem",
           height: "auto",
           borderRadius: "16px", /* 弹窗整体圆角(设计指定精确值) */
@@ -8183,7 +8217,7 @@ function NodeDetailDrawer({ open, nodeName, onClose }) {
               </span>
             </div>
             <div className="nd-power-chart">
-              <EchartBox className="nd-chart" style={{ height: "15rem" }} buildOption={() => powerLineOption(c)} />
+              <EchartBox className="nd-chart" style={{ height: "17rem" }} buildOption={() => powerLineOption(c)} />
             </div>
           </section>
         </div>
@@ -8726,7 +8760,6 @@ const TREND_MAX_DOWN = 100; // 下半轴:节省能耗 0~100(刻度 25/50/75)
 const LIGHT_PALETTE = {
   sub: "#57606a",
   grid: "#45484b", // y 轴网格线(设计指定精确值)
-  border: "#d1d9e0",
   blue: "#0969da",
   zebraBase: "#3a3a3b",
   zebraStripe: "#64d4a8",
@@ -8735,12 +8768,14 @@ const LIGHT_PALETTE = {
 const DARK_PALETTE = {
   sub: "#8b949e",
   grid: "#45484b", // y 轴网格线(设计指定精确值)
-  border: "#30363d",
   blue: "#58a6ff",
   zebraBase: "#3a3a3b",
   zebraStripe: "#64d4a8",
   gray: "#6e7681",
 };
+
+// 0 基准线专用色:卡片背景为 rgb(52,54,58),需取对比可见的亮度
+const ZERO_LINE = "#54575d";
 
 // 0 线下柱的斑马纹纹理:离屏 canvas 绘制 15° 倾斜等宽条纹
 // 返回 { image, repeat } 直接作为 itemStyle.color;无 canvas 环境兜底为纯色
@@ -8826,8 +8861,8 @@ function TrendChart() {
       const dates = trendWeekly.map((d) => d.日期);
       return {
         grid: [
-          { left: 46, right: 16, top: 12, height: 106 }, // 上半:总能耗(左侧仅留刻度空间)
-          { left: 46, right: 16, top: 118, bottom: 24 }, // 下半:节省能耗(与上半无缝相接)
+          { left: 46, right: 16, top: 12, height: 78 }, // 上半:总能耗(左侧仅留刻度空间)
+          { left: 46, right: 16, top: 90, bottom: 24 }, // 下半:节省能耗(与上半无缝相接)
         ],
         xAxis: [
           {
@@ -8836,7 +8871,7 @@ function TrendChart() {
             data: dates,
             axisLabel: { show: false },
             axisTick: { show: false },
-            axisLine: { show: true, lineStyle: { color: c.border } }, // 0 基准线
+            axisLine: { show: true, lineStyle: { color: ZERO_LINE } }, // 0 基准线
           },
           {
             type: "category",
@@ -8945,7 +8980,10 @@ function StackedChart({ yName, max, interval, series, formatTick }) {
           nameGap: 10,
           nameTextStyle: { color: c.sub, fontSize: 12, align: "left", padding: [0, 0, 0, -28] },
           axisLabel: { color: c.sub, fontSize: 11, formatter: formatTick },
-          splitLine: { lineStyle: { type: "solid", color: c.grid, width: 1 } },
+          splitLine: {
+            showMaxLine: false, // 抑制 max 处的额外轴线(量程因透明间隙抬高,避免顶部双线)
+            lineStyle: { type: "solid", color: c.grid, width: 1 },
+          },
           axisLine: { show: false },
           axisTick: { show: false },
         },
@@ -9042,9 +9080,10 @@ function EnergyRight() {
         {/* 顶部导航条 */}
         <div className="er-nav">
           <div className="er-nav-title">
-            {/* 六边形叶子图标(参考左侧蜂窝单元:尖顶六边形 + 镜像白叶) */}
-            <span className="er-nav-hex" aria-hidden="true">
-              <Icon name="leaf" size="0.6875rem" />
+            {/* 两个绿色闪电横向重叠 2/3 */}
+            <span className="er-nav-zaps" aria-hidden="true">
+              <Icon name="zap" size="1.25rem" />
+              <Icon name="zap" size="1.25rem" />
             </span>
             累计用能总览
           </div>
@@ -9082,8 +9121,8 @@ function EnergyRight() {
           </div>
         </div>
 
-        {/* 中部卡片:总能耗趋势图 */}
-        <div className="er-card">
+        {/* 中部卡片:总能耗趋势图(固定高 294px) */}
+        <div className="er-card er-card-trend">
           <div className="er-card-head">
             <h4 className="er-card-title">总能耗趋势图</h4>
             <div className="er-legends">
@@ -9135,8 +9174,8 @@ function EnergyRight() {
           <TrendChart />
         </div>
 
-        {/* 底部卡片:节点闲忙分布统计 */}
-        <div className="er-card">
+        {/* 底部卡片:节点闲忙分布统计(固定高 294px) */}
+        <div className="er-card er-card-node">
           <div className="er-card-head">
             <h4 className="er-card-title">
               节点闲忙分布统计
