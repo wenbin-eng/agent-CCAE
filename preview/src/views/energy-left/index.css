@@ -742,11 +742,12 @@
   cursor: default;
 }
 
-/* 六边形本体:子元素负责裁剪与底色;波扫过时底色闪变为浅色再还原(无位移无发光) */
+/* 六边形本体:正比例(宽高比 0.866,修正压扁)+ 圆角,经 SVG clipPath 裁剪;
+   波扫过时底色闪变;选中白纱 ::after 同被裁剪 */
 .honey-hex {
   position: absolute;
   inset: 0;
-  clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%);
+  clip-path: url(#hexClip);
   animation: honey-tint 0.26s ease-out;
 }
 
@@ -771,7 +772,7 @@
   height: 100%;
 }
 
-/* 叶身(第一路径)实心填充;中脉线(第二路径)描深色纹理 */
+/* 叶身(第一路径)实心填充;中脉线(第二路径)描边继承 SVG 根的 color(即单元格底色),与背景统一 */
 .honey-leaf svg path:first-child {
   fill: currentColor;
   stroke: none;
@@ -779,7 +780,6 @@
 
 .honey-leaf svg path:last-child {
   fill: none;
-  stroke: rgb(from var(--gray-90) r g b / 0.6);
   stroke-width: 2;
 }
 
@@ -825,17 +825,17 @@
     drop-shadow(0 0 0.75rem rgb(255 255 255 / 0.22));
 }
 
-/* 白色辐射光晕:自中心向外发散渐隐,固定常亮(无呼吸动画) */
+/* 白色辐射光晕:自中心向外发散渐隐,固定常亮;渐变放缓、峰值降低,过渡更柔和 */
 .honey-halo {
   position: absolute;
-  inset: -1.25rem;
+  inset: -1.875rem;
   border-radius: var(--radius-full);
   background: radial-gradient(
     circle,
-    rgb(255 255 255 / 0.5),
-    rgb(255 255 255 / 0.2) 42%,
-    rgb(255 255 255 / 0.06) 65%,
-    transparent 75%
+    rgb(255 255 255 / 0.38),
+    rgb(255 255 255 / 0.16) 40%,
+    rgb(255 255 255 / 0.05) 62%,
+    transparent 78%
   );
   pointer-events: none;
 }
