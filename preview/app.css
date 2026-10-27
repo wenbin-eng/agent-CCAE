@@ -9,13 +9,13 @@
   overflow: hidden;
 }
 
-/* 主内容区 */
+/* 主内容区:上下 24px,左右 32px(设计指定) */
 .page-main {
   flex: 1 1 0;
   min-height: 0;
   display: flex;
   flex-direction: column;
-  padding: var(--spacing-page);
+  padding: 1.5rem var(--spacing-page);
 }
 
 /* 标题栏下方:左右布局,左侧固定 678px,间隔 24 */

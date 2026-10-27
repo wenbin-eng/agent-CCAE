@@ -20,12 +20,12 @@ import "./index.css";
 // 图表色板 — 与 index.css 的 --nd-* 变量同源:浅色基线 / .dark 覆写值
 const LIGHT = {
   text: "#1f2328", sub: "#57606a", blue: "#0969da", green: "#1a7f37",
-  purple: "#8250df", gray: "#8c959f", grid: "#e7ebef", border: "#d1d9e0",
+  purple: "#8250df", gray: "#8c959f", grid: "#42444a", border: "#d1d9e0",
   areaBlue: "rgba(9, 105, 218, 0.16)", zone: "rgba(110, 118, 129, 0.12)",
 };
 const DARK = {
   text: "#e6edf3", sub: "#8b949e", blue: "#58a6ff", green: "#3fb950",
-  purple: "#a371f7", gray: "#6e7681", grid: "#21262d", border: "#30363d",
+  purple: "#a371f7", gray: "#6e7681", grid: "#42444a", border: "#30363d",
   areaBlue: "rgba(88, 166, 255, 0.18)", zone: "rgba(110, 118, 129, 0.14)",
 };
 
@@ -79,7 +79,7 @@ function powerLineOption(c) {
       nameGap: 8,
       nameTextStyle: { color: c.sub, fontSize: 11, align: "left", padding: [0, 0, 0, -32] },
       axisLabel: { color: c.sub, fontSize: 11 },
-      splitLine: { lineStyle: { type: "dashed", color: c.grid } },
+      splitLine: { lineStyle: { type: "solid", color: c.grid, width: 1 } },
       axisLine: { show: false },
       axisTick: { show: false },
     },
@@ -89,7 +89,7 @@ function powerLineOption(c) {
         type: "line",
         data: actualPower,
         symbol: "none",
-        smooth: 0.3,
+        smooth: 0.2,
         lineStyle: { color: c.blue, width: 2 },
         areaStyle: { color: c.areaBlue },
       },
@@ -164,10 +164,10 @@ export default function NodeDetailDrawer({ open, nodeName, onClose }) {
         body: { padding: 0 },
         // wrapper 槽位由 rc-drawer 直接内联到 .ant-drawer-content-wrapper(读源码验证:
         // style 合并链 {...width, ...motion, ...styles.wrapper}),免疫 css-in-js 层叠
-        // 总高 = 100% - 10.1875rem(顶部偏移 8.1875rem + 底部 2rem);距右侧 2rem
+        // 距顶部 7.5rem,距底部 1.5rem(设计指定);距右侧 2rem
         wrapper: {
-          top: "8.1875rem",
-          bottom: "2rem",
+          top: "7.5rem",
+          bottom: "1.5rem",
           right: "2rem",
           height: "auto",
           borderRadius: "16px", /* 弹窗整体圆角(设计指定精确值) */
@@ -331,7 +331,7 @@ export default function NodeDetailDrawer({ open, nodeName, onClose }) {
               </span>
             </div>
             <div className="nd-power-chart">
-              <EchartBox className="nd-chart" style={{ height: "15rem" }} buildOption={() => powerLineOption(c)} />
+              <EchartBox className="nd-chart" style={{ height: "17rem" }} buildOption={() => powerLineOption(c)} />
             </div>
           </section>
         </div>

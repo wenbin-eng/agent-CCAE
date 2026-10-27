@@ -14,7 +14,6 @@
   --nd-tag-blue-bg: rgba(9, 105, 218, 0.12);
   --nd-tag-green-bg: rgba(26, 127, 55, 0.12);
   --nd-tag-purple-bg: rgba(130, 80, 223, 0.12);
-  --nd-num-font: ui-monospace, "Cascadia Mono", "SF Mono", Consolas, "Courier New", monospace;
 }
 
 .dark .node-detail-drawer {
@@ -42,9 +41,27 @@
   box-shadow: none !important;
 }
 
-/* wrapper 定位(总高 = 100% - 8.1875rem)由 index.jsx 的 styles.wrapper 内联实现 —
+/* wrapper 定位(顶部 7.5rem / 底部 1.5rem / 右侧 2rem)由 index.jsx 的 styles.wrapper 内联实现 —
  * className 挂在根 .ant-drawer 上,且 wrapper 的 CSS 规则会输给 antd 运行时注入的
  * css-in-js 样式(同特异性、注入更晚),故 CSS 方案不可靠,已弃用 */
+
+/* 最上层绿色光晕:覆盖左→右 15% 区域,自左缘线性渐隐(左→右线性渐变,15% 透明度);
+ * 挂在非滚动的 body 上 → 不随内容滚动;pointer-events 不拦截交互 */
+.node-detail-drawer .ant-drawer-body {
+  position: relative;
+}
+
+.node-detail-drawer .ant-drawer-body::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 15%;
+  z-index: 3;
+  pointer-events: none;
+  background: linear-gradient(90deg, rgba(63, 185, 80, 0.15), rgba(63, 185, 80, 0) 100%);
+}
 
 /* 面板主体 */
 .nd-panel {
@@ -91,7 +108,6 @@
   font: var(--font-headline-s);
   font-weight: var(--font-weight-semibold);
   color: var(--nd-text);
-  font-family: var(--nd-num-font);
 }
 
 /* IP 信息:整体跟随节点标题(距其 80px),两段一行、段间距 28 */
@@ -119,7 +135,6 @@
   font-size: 0.75rem;
   line-height: 1.25rem;
   color: #ffffff; /* 设计指定白色 */
-  font-family: var(--nd-num-font);
 }
 
 .nd-close {
@@ -225,7 +240,6 @@
 
 .nd-hseg-pct {
   font-size: var(--font-size-base);
-  font-family: var(--nd-num-font);
   text-align: left;
   padding-left: 0.1875rem; /* 3px 左间隙(设计指定) */
   color: rgb(201, 201, 201); /* 设计指定精确值 */
@@ -262,7 +276,6 @@
   padding-left: 0.75rem;
   display: flex;
   align-items: flex-end; /* 数字与单位底部对齐(设计指定) */
-  font-family: var(--nd-num-font);
   font-size: 1rem; /* 16px(设计指定) */
   line-height: 1.5rem; /* 24px(设计指定) */
   color: #ffffff; /* 设计指定白色 */
@@ -358,7 +371,6 @@
 }
 
 .nd-gauge-num-value {
-  font-family: var(--nd-num-font);
   font-size: 2rem; /* 32px(设计指定) */
   line-height: 2.5rem; /* 40px(设计指定) */
   font-weight: var(--font-weight-medium); /* 500(设计指定) */
@@ -374,7 +386,6 @@
 .nd-gauge-time {
   font-size: 11px;
   color: var(--nd-sub);
-  font-family: var(--nd-num-font);
 }
 
 /* ── 部件明细表 ── */
@@ -409,7 +420,6 @@
 }
 
 .nd-part-value {
-  font-family: var(--nd-num-font);
   font-size: 1rem; /* 16px(设计指定) */
   font-weight: var(--font-weight-semibold);
   color: var(--nd-text);
@@ -427,7 +437,6 @@
   border-radius: var(--radius-base);
   font-size: 11px;
   line-height: 1.4;
-  font-family: var(--nd-num-font);
 }
 
 .nd-pct-tag.blue {
@@ -464,7 +473,6 @@
 }
 
 .nd-kpi-value {
-  font-family: var(--nd-num-font);
   font-size: 2rem; /* 32px(设计指定) */
   line-height: 2.5rem; /* 40px(设计指定) */
   font-weight: var(--font-weight-bold);
@@ -492,7 +500,6 @@
 }
 
 .nd-kpi-value {
-  font-family: var(--nd-num-font);
   font-size: var(--font-size-3xl);
   font-weight: var(--font-weight-bold);
   line-height: var(--line-height-xs);

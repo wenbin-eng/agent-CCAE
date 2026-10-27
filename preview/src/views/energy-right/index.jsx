@@ -23,7 +23,6 @@ const TREND_MAX_DOWN = 100; // 下半轴:节省能耗 0~100(刻度 25/50/75)
 const LIGHT_PALETTE = {
   sub: "#57606a",
   grid: "#45484b", // y 轴网格线(设计指定精确值)
-  border: "#d1d9e0",
   blue: "#0969da",
   zebraBase: "#3a3a3b",
   zebraStripe: "#64d4a8",
@@ -32,12 +31,14 @@ const LIGHT_PALETTE = {
 const DARK_PALETTE = {
   sub: "#8b949e",
   grid: "#45484b", // y 轴网格线(设计指定精确值)
-  border: "#30363d",
   blue: "#58a6ff",
   zebraBase: "#3a3a3b",
   zebraStripe: "#64d4a8",
   gray: "#6e7681",
 };
+
+// 0 基准线专用色:卡片背景为 rgb(52,54,58),需取对比可见的亮度
+const ZERO_LINE = "#54575d";
 
 // 0 线下柱的斑马纹纹理:离屏 canvas 绘制 15° 倾斜等宽条纹
 // 返回 { image, repeat } 直接作为 itemStyle.color;无 canvas 环境兜底为纯色
@@ -123,8 +124,8 @@ function TrendChart() {
       const dates = trendWeekly.map((d) => d.日期);
       return {
         grid: [
-          { left: 46, right: 16, top: 12, height: 106 }, // 上半:总能耗(左侧仅留刻度空间)
-          { left: 46, right: 16, top: 118, bottom: 24 }, // 下半:节省能耗(与上半无缝相接)
+          { left: 46, right: 16, top: 12, height: 78 }, // 上半:总能耗(左侧仅留刻度空间)
+          { left: 46, right: 16, top: 90, bottom: 24 }, // 下半:节省能耗(与上半无缝相接)
         ],
         xAxis: [
           {
@@ -133,7 +134,7 @@ function TrendChart() {
             data: dates,
             axisLabel: { show: false },
             axisTick: { show: false },
-            axisLine: { show: true, lineStyle: { color: c.border } }, // 0 基准线
+            axisLine: { show: true, lineStyle: { color: ZERO_LINE } }, // 0 基准线
           },
           {
             type: "category",
@@ -242,7 +243,10 @@ function StackedChart({ yName, max, interval, series, formatTick }) {
           nameGap: 10,
           nameTextStyle: { color: c.sub, fontSize: 12, align: "left", padding: [0, 0, 0, -28] },
           axisLabel: { color: c.sub, fontSize: 11, formatter: formatTick },
-          splitLine: { lineStyle: { type: "solid", color: c.grid, width: 1 } },
+          splitLine: {
+            showMaxLine: false, // 抑制 max 处的额外轴线(量程因透明间隙抬高,避免顶部双线)
+            lineStyle: { type: "solid", color: c.grid, width: 1 },
+          },
           axisLine: { show: false },
           axisTick: { show: false },
         },
@@ -339,9 +343,10 @@ export default function EnergyRight() {
         {/* 顶部导航条 */}
         <div className="er-nav">
           <div className="er-nav-title">
-            {/* 六边形叶子图标(参考左侧蜂窝单元:尖顶六边形 + 镜像白叶) */}
-            <span className="er-nav-hex" aria-hidden="true">
-              <Icon name="leaf" size="0.6875rem" />
+            {/* 两个绿色闪电横向重叠 2/3 */}
+            <span className="er-nav-zaps" aria-hidden="true">
+              <Icon name="zap" size="1.25rem" />
+              <Icon name="zap" size="1.25rem" />
             </span>
             累计用能总览
           </div>
@@ -379,8 +384,8 @@ export default function EnergyRight() {
           </div>
         </div>
 
-        {/* 中部卡片:总能耗趋势图 */}
-        <div className="er-card">
+        {/* 中部卡片:总能耗趋势图(固定高 294px) */}
+        <div className="er-card er-card-trend">
           <div className="er-card-head">
             <h4 className="er-card-title">总能耗趋势图</h4>
             <div className="er-legends">
@@ -432,8 +437,8 @@ export default function EnergyRight() {
           <TrendChart />
         </div>
 
-        {/* 底部卡片:节点闲忙分布统计 */}
-        <div className="er-card">
+        {/* 底部卡片:节点闲忙分布统计(固定高 294px) */}
+        <div className="er-card er-card-node">
           <div className="er-card-head">
             <h4 className="er-card-title">
               节点闲忙分布统计
