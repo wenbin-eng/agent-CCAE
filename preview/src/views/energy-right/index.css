@@ -7,14 +7,15 @@
   /* 浅色基线 */
   --er-text: #1f2328;
   --er-text-sub: #57606a;
-  --er-blue: #0969da;
+  --er-blue: #6b9bfa; /* 设计指定精确值,明暗同值(与柱色一致) */
   --er-gray: #8c959f;
   --er-border: #d1d9e0;
   --er-grid: #e7ebef;
   --er-ctrl-bg: #34363a; /* 控件背景(设计指定精确值) */
-  --er-tag-blue-bg: #d2e8fc;
-  --er-tag-gray-bg: #e9edf2;
-  --er-tag-gray-text: #57606a;
+  --er-tag-blue-bg: rgba(102, 140, 247, 0.15); /* #668cf7 15%(设计指定精确值,明暗同值) */
+  --er-tag-blue-text: #8ca3fa; /* 设计指定精确值,明暗同值 */
+  --er-tag-gray-bg: rgba(174, 174, 174, 0.15); /* #aeaeae 15%(设计指定精确值,明暗同值) */
+  --er-tag-gray-text: #ffffff; /* 设计指定精确值,明暗同值 */
   --er-num-shadow: none;
   --er-lead-line: rgba(31, 35, 40, 0.2); /* 指标延伸线 */
 
@@ -34,14 +35,15 @@
 .dark .energy-right {
   --er-text: #e6edf3;
   --er-text-sub: #8b949e;
-  --er-blue: #58a6ff;
+  --er-blue: #6b9bfa; /* 设计指定精确值,明暗同值(与柱色一致) */
   --er-gray: #6e7681;
   --er-border: #30363d;
   --er-grid: #21262d;
   --er-ctrl-bg: #34363a; /* 控件背景(设计指定精确值) */
-  --er-tag-blue-bg: #1a3a5c;
-  --er-tag-gray-bg: #2d333b;
-  --er-tag-gray-text: #8b949e;
+  --er-tag-blue-bg: rgba(102, 140, 247, 0.15); /* #668cf7 15%(设计指定精确值,明暗同值) */
+  --er-tag-blue-text: #8ca3fa; /* 设计指定精确值,明暗同值 */
+  --er-tag-gray-bg: rgba(174, 174, 174, 0.15); /* #aeaeae 15%(设计指定精确值,明暗同值) */
+  --er-tag-gray-text: #ffffff; /* 设计指定精确值,明暗同值 */
   --er-num-shadow: 0 2px 10px rgba(0, 0, 0, 0.45);
   --er-lead-line: rgba(230, 237, 243, 0.25); /* 指标延伸线 */
 }
@@ -290,8 +292,9 @@
 
 .er-legend-swatch.hatch {
   background-color: #3a3a3b; /* 与图表斑马纹柱底色一致(设计指定精确值) */
-  /* 渐变轴 105° → 条纹"／"15°,2px 条纹 + 4px 间隔,与下方柱面 canvas 斑马纹比例一致 */
-  background-image: repeating-linear-gradient(105deg, #64d4a8 0 2px, transparent 2px 6px);
+  /* 渐变轴 165° → 条纹"／"与横向成 15°,与柱面 canvas 斑马纹(水平线逆时针旋 15°)倾角一致;
+   * 2px 条纹 + 4px 间隔亦与柱面比例一致 */
+  background-image: repeating-linear-gradient(165deg, #64d4a8 0 2px, transparent 2px 6px);
 }
 
 .er-head-divider {
@@ -522,7 +525,7 @@
 
 .er-tag.blue {
   background: var(--er-tag-blue-bg);
-  color: var(--er-blue);
+  color: var(--er-tag-blue-text);
 }
 
 .er-tag.gray {

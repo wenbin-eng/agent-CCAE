@@ -20,21 +20,44 @@ const TREND_MAX_DOWN = 100; // 下半轴:节省能耗 0~100(刻度 25/50/75)
 
 // 图表色板 — 与 index.css 的 --er-* 变量同源:浅色基线 / .dark 覆写值
 // zebraBase/zebraStripe: 0 线下斑马纹柱底色与条纹色(设计指定精确值,明暗同值)
+// nodeBlue/nodeGray: 节点闲忙堆叠柱的运行态/空闲态柱色(设计指定精确值,明暗同值,不随明暗切换)
+// tipHover: 节点闲忙 tooltip 的悬停轴带,随明暗取值(tooltip 其余外观见 TIP 常量)
+// blue: 趋势图总能耗柱色(设计指定精确值,明暗同值;CSS 侧 --er-blue 同步,图例/圆点随之统一)
 const LIGHT_PALETTE = {
   sub: "#57606a",
   grid: "#45484b", // y 轴网格线(设计指定精确值)
-  blue: "#0969da",
+  blue: "#6b9bfa",
   zebraBase: "#3a3a3b",
   zebraStripe: "#64d4a8",
   gray: "#8c959f",
+  nodeBlue: "#6b9bfa",
+  nodeGray: "#aeaeae",
+  tipHover: "rgba(31, 35, 40, 0.06)",
 };
 const DARK_PALETTE = {
   sub: "#8b949e",
   grid: "#45484b", // y 轴网格线(设计指定精确值)
-  blue: "#58a6ff",
+  blue: "#6b9bfa",
   zebraBase: "#3a3a3b",
   zebraStripe: "#64d4a8",
   gray: "#6e7681",
+  nodeBlue: "#6b9bfa",
+  nodeGray: "#aeaeae",
+  tipHover: "rgba(255, 255, 255, 0.07)",
+};
+
+// 节点闲忙 tooltip 固定外观(设计指定精确值,明暗同值,深底浅字):
+// 背景 #393939;投影 x0 / y8 / 模糊16 / 扩展0,颜色 #000000 50%
+// tagBlue/tagGray:行尾占比 tag 的配色,与卡片图例 tag 同款
+//   (#668cf7 15% 底 + #8ca3fa 字 / #aeaeae 15% 底 + 白字)
+const TIP = {
+  bg: "#393939",
+  border: "#30363d",
+  text: "#e6edf3",
+  sub: "#8b949e",
+  shadow: "0 8px 16px 0 rgba(0, 0, 0, 0.5)",
+  tagBlue: "background:rgba(102, 140, 247, 0.15);color:#8ca3fa;",
+  tagGray: "background:rgba(174, 174, 174, 0.15);color:#ffffff;",
 };
 
 // 0 基准线专用色:卡片背景为 rgb(52,54,58),需取对比可见的亮度
@@ -123,6 +146,41 @@ function TrendChart() {
       const c = isDark ? DARK_PALETTE : LIGHT_PALETTE;
       const dates = trendWeekly.map((d) => d.日期);
       return {
+        // 上下双 grid 指针联动:悬停任一侧,同一日期两侧行同步高亮
+        axisPointer: { link: [{ xAxisIndex: "all" }] },
+        // tooltip:轴触发悬浮卡 — 该日期的总能耗/节省能耗(与节点闲忙 tooltip 同款外观);
+        // 行首方形色块复用卡片图例 .er-legend-swatch(总能耗纯色 / 节省能耗斑马纹,与柱面一致),行尾无 tag
+        tooltip: {
+          trigger: "axis",
+          axisPointer: { type: "shadow", shadowStyle: { color: c.tipHover } },
+          backgroundColor: TIP.bg,
+          borderColor: TIP.border,
+          padding: [8, 12],
+          textStyle: { color: TIP.text, fontSize: 12 },
+          extraCssText: `border-radius:8px;box-shadow:${TIP.shadow};`,
+          formatter: (params) => {
+            const p0 = Array.isArray(params) ? params[0] : params;
+            const d = trendWeekly[p0.dataIndex] || trendWeekly[0];
+            const rows = [
+              { name: "总能耗", value: d.总能耗, cls: "er-legend-swatch" },
+              { name: "节省能耗", value: d.节省能耗, cls: "er-legend-swatch hatch" },
+            ]
+              .map(
+                (r) =>
+                  `<div style="display:flex;align-items:center;gap:6px;margin-top:6px;">` +
+                  `<i class="${r.cls}"></i>` +
+                  `<span style="color:${TIP.sub};">${r.name}</span>` +
+                  `<span style="margin-left:auto;padding-left:18px;font-weight:600;color:${TIP.text};">${r.value.toLocaleString("en-US")} kWh</span>` +
+                  `</div>`
+              )
+              .join("");
+            return (
+              `<div style="min-width:150px;">` +
+              `<div style="font-weight:600;color:${TIP.text};">${d.日期}</div>` +
+              `${rows}</div>`
+            );
+          },
+        },
         grid: [
           { left: 46, right: 16, top: 12, height: 78 }, // 上半:总能耗(左侧仅留刻度空间)
           { left: 46, right: 16, top: 90, bottom: 24 }, // 下半:节省能耗(与上半无缝相接)
@@ -225,6 +283,43 @@ function StackedChart({ yName, max, interval, series, formatTick }) {
     () => {
       const c = isDark ? DARK_PALETTE : LIGHT_PALETTE;
       return {
+        // tooltip:轴触发悬浮卡 — 该小时的运行态/空闲态数值(运行态在前,与卡片图例顺序一致;
+        // "间隔"为段间视觉缝隙,不参与展示;数值格式复用 y 轴刻度格式化,单位即 yName;
+        // 行尾附占比 tag — 该小时运行/空闲占比,配色与卡片图例 tag 同款)
+        tooltip: {
+          trigger: "axis",
+          axisPointer: { type: "shadow", shadowStyle: { color: c.tipHover } },
+          backgroundColor: TIP.bg,
+          borderColor: TIP.border,
+          padding: [8, 12],
+          textStyle: { color: TIP.text, fontSize: 12 },
+          extraCssText: `border-radius:8px;box-shadow:${TIP.shadow};`,
+          formatter: (params) => {
+            const fmt = (v) => (formatTick ? formatTick(v) : v);
+            const list = params
+              .filter((p) => p.seriesName !== "间隔")
+              .sort((a, b) => Number(b.seriesName === "运行态") - Number(a.seriesName === "运行态"));
+            const total = list.reduce((sum, p) => sum + p.value, 0); // 该小时运行+空闲合计
+            const rows = list
+              .map((p) => {
+                const ratio = `${total > 0 ? ((p.value / total) * 100).toFixed(1) : "0.0"}%`;
+                return (
+                  `<div style="display:flex;align-items:center;gap:6px;margin-top:6px;">` +
+                  `<i style="width:8px;height:8px;border-radius:50%;background:${p.color};flex:none;"></i>` +
+                  `<span style="color:${TIP.sub};">${p.seriesName}</span>` +
+                  `<span style="margin-left:auto;padding-left:18px;font-weight:600;color:${TIP.text};">${fmt(p.value)} ${yName}</span>` +
+                  `<span style="flex:none;padding:4px 8px;border-radius:var(--radius-base);font-size:14px;line-height:22px;${p.seriesName === "运行态" ? TIP.tagBlue : TIP.tagGray}">${ratio}</span>` +
+                  `</div>`
+                );
+              })
+              .join("");
+            return (
+              `<div style="min-width:150px;">` +
+              `<div style="font-weight:600;color:${TIP.text};">${params[0].axisValueLabel}</div>` +
+              `${rows}</div>`
+            );
+          },
+        },
         grid: { left: 46, right: 10, top: 20, bottom: 24 },
         xAxis: {
           type: "category",
@@ -257,7 +352,7 @@ function StackedChart({ yName, max, interval, series, formatTick }) {
             stack: "total",
             barWidth: 12,
             data: series.map((d) => d.idle),
-            itemStyle: { color: c.gray },
+            itemStyle: { color: c.nodeGray },
           },
           {
             // 两段之间的透明间隙(1px):堆叠中位序列
@@ -275,7 +370,7 @@ function StackedChart({ yName, max, interval, series, formatTick }) {
             stack: "total",
             barWidth: 12,
             data: series.map((d) => d.running),
-            itemStyle: { color: c.blue, borderRadius: [5, 5, 0, 0] },
+            itemStyle: { color: c.nodeBlue, borderRadius: [5, 5, 0, 0] },
           },
         ],
       };
