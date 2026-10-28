@@ -22,11 +22,22 @@ const LIGHT = {
   text: "#1f2328", sub: "#57606a", blue: "#0969da", green: "#1a7f37",
   purple: "#8250df", gray: "#8c959f", grid: "#42444a", border: "#d1d9e0",
   areaBlue: "rgba(9, 105, 218, 0.16)", zone: "rgba(110, 118, 129, 0.12)",
+  tipHover: "rgba(31, 35, 40, 0.06)",
 };
 const DARK = {
   text: "#e6edf3", sub: "#8b949e", blue: "#58a6ff", green: "#3fb950",
   purple: "#a371f7", gray: "#6e7681", grid: "#42444a", border: "#30363d",
   areaBlue: "rgba(88, 166, 255, 0.18)", zone: "rgba(110, 118, 129, 0.14)",
+  tipHover: "rgba(255, 255, 255, 0.07)",
+};
+
+// tooltip 悬浮卡外观(与右侧面板图表同款)
+const TIP = {
+  bg: "#393939",
+  border: "#30363d",
+  text: "#e6edf3",
+  sub: "#8b949e",
+  shadow: "0 8px 16px 0 rgba(0, 0, 0, 0.5)",
 };
 
 // 圆盘图:半圆环饼图(SSR 实测 startAngle 180→endAngle 360 为上半圆拱)
@@ -54,6 +65,43 @@ function gaugeOption(c, data) {
 // 功率趋势折线:蓝色实线 + 半透明面积 / 紫色虚线(预测时段)
 function powerLineOption(c) {
   return {
+    // tooltip:轴触发悬浮卡(与右侧面板图表同款外观);
+    // 指针为细竖线(折线图适用,非柱状图的粗列高亮)
+    tooltip: {
+      trigger: "axis",
+      axisPointer: { type: "line", lineStyle: { type: "solid", color: "rgba(201, 201, 201, 0.5)", width: 1 } },
+      backgroundColor: TIP.bg,
+      borderColor: TIP.border,
+      padding: [8, 12],
+      textStyle: { color: TIP.text, fontSize: 12 },
+      extraCssText: `border-radius:8px;box-shadow:${TIP.shadow};`,
+      formatter: (params) => {
+        const p0 = Array.isArray(params) ? params[0] : params;
+        const idx = p0.dataIndex;
+        const date = idx < 18 ? "9-13" : "9-14"; // index 18 为 00:00,跨天分界
+        const forecast = forecastPower[idx];
+        const rows = [
+          { name: "实际功率", value: actualPower[idx], cls: "nd-lg-line solid" },
+          ...(forecast !== null && forecast !== undefined
+            ? [{ name: "预测功率", value: forecast, cls: "nd-lg-line dashed" }]
+            : []),
+        ]
+          .map(
+            (r) =>
+              `<div style="display:flex;align-items:center;gap:6px;margin-top:6px;">` +
+              `<i class="${r.cls}"></i>` +
+              `<span style="color:${TIP.sub};">${r.name}</span>` +
+              `<span style="margin-left:auto;padding-left:18px;font-weight:600;color:${TIP.text};">${r.value.toFixed(2)} kW</span>` +
+              `</div>`
+          )
+          .join("");
+        return (
+          `<div style="min-width:150px;">` +
+          `<div style="font-weight:600;color:${TIP.text};">${date} ${powerTimes[idx]}</div>` +
+          `${rows}</div>`
+        );
+      },
+    },
     grid: { left: 46, right: 18, top: 14, bottom: 26 },
     xAxis: {
       type: "category",

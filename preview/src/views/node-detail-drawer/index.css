@@ -63,12 +63,25 @@
   background: linear-gradient(90deg, rgba(63, 185, 80, 0.15), rgba(63, 185, 80, 0) 100%);
 }
 
-/* 面板主体 */
+/* 面板主体(滚动条与左栏列表/右栏同款:6px 宽、#595959 圆角滑块、透明轨道) */
 .nd-panel {
   height: 100%;
   overflow-y: auto;
   background-color: rgb(25, 25, 25); /* 设计指定精确值 */
   color: var(--nd-text);
+}
+
+.nd-panel::-webkit-scrollbar {
+  width: 6px;
+}
+
+.nd-panel::-webkit-scrollbar-thumb {
+  background: var(--gray-60); /* #595959 */
+  border-radius: var(--radius-full);
+}
+
+.nd-panel::-webkit-scrollbar-track {
+  background: transparent;
 }
 
 /* ── 顶部节点信息栏:标题 → IP 两段(单行) → 关闭 ── */
