@@ -25,7 +25,7 @@ export default function EnergyLeft() {
   // 点击蜂窝六边形 → 打开右侧节点能耗详情抽屉(节点名由行列号生成,如 node-r12-n08)
   const [nodeDetail, setNodeDetail] = useState(null);
 
-  // 拓扑点击展开:idle 气泡 → scatter(点击球渐隐/四周球离心飞散) → honeycomb 蜂窝矩阵
+  // 拓扑点击展开:idle → zoom(点击球慢慢放大变模糊) → honeycomb(蜂窝呈现 + 四周球飞散)
   // fading:气泡层是否仍在退场(蜂窝出现后保留至飞散结束,交叉过渡)
   const [phase, setPhase] = useState("idle");
   const [fading, setFading] = useState(false);
@@ -41,11 +41,25 @@ export default function EnergyLeft() {
   const handleBubbleClick = (c) => {
     if (phase !== "idle") return;
     setHoneyOrigin(c);
-    // 点击瞬间蜂窝立即开始呈现:与点击球淡出/四周飞散同步进行,透过气泡即可见蜂窝
-    setPhase("honeycomb");
-    setFading(true);
-    // 其余球飞散(0.55s + 距离错峰)结束后移除气泡层
-    window.setTimeout(() => setFading(false), 900);
+    // 第一步:点击球轻微放大 + 变模糊(0.3s)
+    setPhase("zoom");
+    // 第二步:不等放大播完 —— 进行到中段(120ms)即切换,蜂窝呈现/四周球飞散与放大模糊
+    // 交叉进行(transform 目标值两阶段一致,过渡中途接续不回弹),整体连贯
+    window.setTimeout(() => {
+      setPhase("honeycomb");
+      setFading(true);
+      // 其余球飞散(0.55s + 距离错峰)结束后移除气泡层
+      window.setTimeout(() => setFading(false), 900);
+    }, 120);
+  };
+
+  // 鼠标映射光斑:内圆+外环跟随指针;直接写内联 left/top,不经 React 状态(避免重渲染引发文字抖动)
+  const handleCursorMove = (e) => {
+    const cur = e.currentTarget.querySelector(".bubble-cursor");
+    if (!cur) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    cur.style.left = `${e.clientX - rect.left}px`;
+    cur.style.top = `${e.clientY - rect.top}px`;
   };
 
   // 过滤(按机楼) + 排序(按能耗)
@@ -155,29 +169,57 @@ export default function EnergyLeft() {
             <div className="bubble-stage">
               {clusters.map((c) => {
                 const isOrigin = honeyOrigin && c.id === honeyOrigin.id;
-                // scatter 及其后的退场期:点击球渐隐;其余球沿离心方向飞散渐隐(按距离错峰)
+                // zoom:点击球慢慢放大变模糊(四周球不动);honeycomb:点击球保持放大模糊态淡出,
+                // 其余球沿离心方向飞散渐隐(按距离错峰)
                 let animStyle = {};
-                if (phase !== "idle") {
+                if (phase === "zoom") {
                   if (isOrigin) {
-                    // 点击球:快速淡出(0.18s,快于四周飞散)
-                    animStyle = { opacity: 0, transitionDuration: "0.18s", pointerEvents: "none" };
+                    // 弹簧式放大:轻微过冲回弹(back-out 缓冲模拟欠阻尼弹簧) + 模糊;
+                    // 文字由 .zooming 类先于球体虚化淡出
+                    animStyle = {
+                      transform: "translate(-50%, -50%) scale(1.35)",
+                      filter: "blur(0.3rem)",
+                      opacity: 0.7,
+                      transitionProperty: "transform, filter, opacity",
+                      transitionDuration: "0.42s",
+                      transitionTimingFunction: "cubic-bezier(0.3, 1.35, 0.55, 1)",
+                      pointerEvents: "none",
+                      animation: "none",
+                      zIndex: 3,
+                    };
+                  }
+                } else if (phase !== "idle") {
+                  if (isOrigin) {
+                    // 点击球:保持放大模糊态淡出(0.3s 与放大同节奏,中途接续不加速跳变)
+                    animStyle = {
+                      transform: "translate(-50%, -50%) scale(1.35)",
+                      filter: "blur(0.3rem)",
+                      opacity: 0,
+                      transitionProperty: "transform, filter, opacity",
+                      transitionDuration: "0.3s",
+                      pointerEvents: "none",
+                      animation: "none",
+                      zIndex: 3,
+                    };
                   } else {
                     const dx = c.x - honeyOrigin.x;
                     const dy = c.y - honeyOrigin.y;
                     const len = Math.hypot(dx, dy) || 1;
                     animStyle = {
-                      transform: `translate(-50%, -50%) translate(${Math.round((dx / len) * 420) / 16}rem, ${Math.round((dy / len) * 420) / 16}rem)`,
+                      // 挤开外飘 + 缩小渐隐(参考转场:与选中球保持间距被挤开,随后缩小、外飘、淡出)
+                      transform: `translate(-50%, -50%) translate(${Math.round((dx / len) * 420) / 16}rem, ${Math.round((dy / len) * 420) / 16}rem) scale(0.72)`,
                       opacity: 0,
                       transitionDuration: "0.55s",
                       transitionDelay: `${Math.round(len * 0.2)}ms`,
                       pointerEvents: "none",
+                      animation: "none",
                     };
                   }
                 }
                 return (
                   <div
                     key={c.id}
-                    className={`bubble ${c.on ? "on" : "off"} ${c.size >= 280 ? "xl" : c.size >= 200 ? "lg" : c.size >= 120 ? "md" : ""}`}
+                    className={`bubble ${c.on ? "on" : "off"} ${c.size >= 280 ? "xl" : c.size >= 200 ? "lg" : c.size >= 120 ? "md" : ""}${phase !== "idle" && isOrigin ? " zooming" : ""}`}
                     style={{
                       width: toRem(c.size),
                       height: toRem(c.size),
@@ -186,6 +228,7 @@ export default function EnergyLeft() {
                       ...animStyle,
                     }}
                     onClick={() => handleBubbleClick(c)}
+                    onMouseMove={handleCursorMove}
                   >
                     {/* 节能叶子水印(仅开启状态,垫在文字下方);设计稿自定义叶子路径 */}
                     {c.on && (
@@ -271,6 +314,12 @@ export default function EnergyLeft() {
                         )}
                       </g>
                     </svg>
+
+                    {/* 鼠标映射光斑:内圆(白22%) + 外层实心环带(白87%,窄环紧贴内圆),跟随指针,尺寸随气泡等比 */}
+                    <span className="bubble-cursor" aria-hidden="true">
+                      <span className="cursor-ring" />
+                      <span className="cursor-core" />
+                    </span>
                   </div>
                 );
               })}

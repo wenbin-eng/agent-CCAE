@@ -21,10 +21,11 @@ const LAST_CELL_COLOR = "#1c1c1c";
 const CLICK_OFF_X = 328;
 const CLICK_OFF_Y = 327;
 
-// 单元入场延迟系数(距点击位置每 px 延迟);适度节奏,球淡出时圆内蜂窝先行显现
-const DELAY_PER_PX = 1.3;
+// 单元入场延迟:距点击位置的凸函数(近处延迟小 → 前沿先快后慢,模拟弹簧减速扩散)
+const DELAY_K = 0.55;
+const DELAY_P = 1.18;
 // 光带延迟系数:略慢于入场 → 光波落后于扩展波,缀在其后扫过
-const FLASH_PER_PX = 1.7;
+const FLASH_K = 0.72;
 
 const toRem = (px) => `${px / 16}rem`;
 
@@ -44,6 +45,8 @@ function colorIndex(r, c) {
 }
 
 // 生成蜂窝单元:位置 + 延迟 + 行背景色 + 随机叶子 + tooltip 详情
+// isCore:距点击位置 < 95px 的一簇 = "融球"中心团,先以珠光高亮炸开再回归本色;
+// tier:光带峰值亮度档位(0~3 确定性伪随机),点亮时层次错落
 function buildCells(clickX, clickY) {
   const cells = [];
   for (let r = 0; r < ROWS; r += 1) {
@@ -53,6 +56,9 @@ function buildCells(clickX, clickY) {
       const isLast = r === ROWS - 1 && c === COLS - 1;
       const dist = Math.hypot(x + 24 - clickX, y + 24 - clickY);
       const on = !isLast && (c * 7 + r * 13) % 10 < 3;
+      const isCore = dist < 95;
+      const rnd = ((r * 31 + c * 17) % 100) / 100;
+      const tier = rnd < 0.3 ? 0 : rnd < 0.6 ? 1 : rnd < 0.85 ? 2 : 3;
       // tooltip 数据
       const nodeName = `node-r${String(r + 1).padStart(2, "0")}-n${String(c + 1).padStart(2, "0")}`;
       const osIp = `10.10.${r + 1}.${(c + 1) * 8 + 100}`;
@@ -64,8 +70,11 @@ function buildCells(clickX, clickY) {
         key: `${r}-${c}`,
         x,
         y,
-        delay: Math.round(dist * DELAY_PER_PX),
-        fdelay: Math.round(dist * FLASH_PER_PX),
+        // 融球中心团几乎立即亮起(线性小延迟);外围按凸函数先快后慢逐层展开
+        delay: Math.round(isCore ? dist * 0.4 : Math.pow(dist, DELAY_P) * DELAY_K),
+        fdelay: Math.round(isCore ? dist * 0.6 : Math.pow(dist, DELAY_P) * FLASH_K),
+        isCore,
+        tier,
         color: isLast ? LAST_CELL_COLOR : ROW_COLORS[colorIndex(r, c)],
         isLast,
         leaf: on,
@@ -180,7 +189,7 @@ export default function Honeycomb({ origin, onCellClick }) {
       {cells.map((cell) => (
         <div
           key={cell.key}
-          className={`honey-cell${activeCell === cell.key ? " active" : ""}`}
+          className={`honey-cell${activeCell === cell.key ? " active" : ""}${cell.isCore ? " core" : ""}${cell.tier ? ` fx${cell.tier}` : ""}`}
           style={{
             left: toRem(cell.x),
             top: toRem(cell.y),
@@ -208,7 +217,7 @@ export default function Honeycomb({ origin, onCellClick }) {
               />
             </svg>
           )}
-          {/* 六边形本体(底色),波扫过时颜色闪变(延迟 fdelay 滞后于入场) */}
+          {/* 六边形本体(底色),波扫过时按档位峰值亮度闪变(延迟 fdelay 滞后于入场) */}
           <span
             className="honey-hex"
             style={{

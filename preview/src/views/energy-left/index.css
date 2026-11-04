@@ -200,11 +200,23 @@
   text-align: center;
   cursor: pointer;
   transform: translate(-50%, -50%);
-  /* 点击展开:点击球渐隐 / 其余球离心飞散(内联样式驱动过渡) */
-  transition: transform 0.65s ease-out, opacity 0.65s ease-out;
+  /* 入场:0.3s 内从 85% 放大到 100%(backwards 结束后释放回自然值,不阻碍飞散内联 transform) */
+  animation: bubble-in 0.3s ease-out backwards;
+  /* 点击展开:点击球渐隐 / 其余球离心飞散(内联样式驱动过渡);filter 供 hover 提亮 */
+  transition: transform 0.65s ease-out, opacity 0.65s ease-out, filter 0.3s ease;
 }
 
-/* hover:不放大;SVG 反光光斑 —— 真实穹顶形(中间厚两端薄、内部渐暗、柔边),随旋转游走 */
+/* 气泡入场:0.3s 内从 85% 缩放到 100%(保持居中 translate,to 帧与自然值一致,结束无跳变) */
+@keyframes bubble-in {
+  from {
+    transform: translate(-50%, -50%) scale(0.85);
+  }
+  to {
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+/* hover:不放大;SVG 反光光斑 —— 真实穹顶形(中间厚两端薄、内部渐暗、柔边),对向双斑钟摆式晃动 */
 .roam-svg {
   position: absolute;
   inset: 0;
@@ -213,16 +225,24 @@
   pointer-events: none;
   opacity: 0;
   transition: opacity 0.3s ease;
-  /* 旋转常驻:离开时只淡出、角度不回弹,避免"闪现 4 个"的跳变 */
-  animation: bubble-rim-run 6s linear infinite;
+  /* 初始角 -40°:对向双斑起始方位(顶部斑从 12 点逆时针 40°) */
+  transform: rotate(-40deg);
+  /* 晃动:hover 时才运转;不可见时暂停 —— 常驻动画会持续重绘 SVG(内含高斯模糊无法合成缓存),
+     牵连同区域文字逐帧重新光栅化,是气泡文字抖动的根因 */
+  animation: bubble-rim-swing 5.6s ease-in-out infinite;
+  animation-play-state: paused;
 }
 
-/* 光弧颜色:浅色深灰,深色亮白 */
-.roam-stop {
-  stop-color: #4a4a4a;
+/* 光弧颜色分组:开启球 #8FE5C2 亮绿;关闭球浅色 #668CF7 蓝紫(白斑浅底不可见)、深色纯白 */
+.bubble.on .roam-stop {
+  stop-color: #8fe5c2;
 }
 
-.dark .roam-stop {
+.bubble.off .roam-stop {
+  stop-color: #668cf7;
+}
+
+.dark .bubble.off .roam-stop {
   stop-color: #ffffff;
 }
 
@@ -235,13 +255,19 @@
   stroke: #ffffff;
 }
 
-/* 关闭球:静态底色为亮灰半透光,白斑对比不足 ——
-   brightness 对纯白无效,改用白色辉光外晕增强可见度(配合 JSX 叠层) */
+/* 关闭球:静态底色为亮灰半透光,白斑对比不足 —— 外晕辉光增强可见度;
+   浅色用 #668CF7 蓝紫辉光,深色纯白(配合 JSX 叠层) */
 .bubble.off .roam-svg {
+  filter: drop-shadow(0 0 0.25rem rgb(102 140 247 / 0.65));
+}
+
+.dark .energy-left .bubble.off .roam-svg {
   filter: drop-shadow(0 0 0.25rem rgb(255 255 255 / 0.7));
 }
 
-/* hover 底衬:整个圆周淡淡的柔光 —— 自身径向渐变向圆周渐亮,无硬边 */
+/* hover 底衬:不规则边缘内阴影圈 —— conic 圆周明暗(固定上弱下强、峰值偏左下的不对称斑块)
+   × radial 环形遮罩(只留内缘环带);hover 时左右随机晃动(ring-wobble);
+   不可见时动画暂停,避免常驻重绘牵连文字抖动 */
 .bubble::after {
   content: "";
   position: absolute;
@@ -250,24 +276,53 @@
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.3s ease;
-  background: radial-gradient(
-    circle,
-    transparent 0 58%,
-    rgb(from var(--gray-90) r g b / 0.05) 63%,
-    rgb(from var(--gray-90) r g b / 0.13) 66.5%,
-    rgb(from var(--gray-90) r g b / 0.2) 69%,
-    rgb(from var(--gray-90) r g b / 0.25) 71%
+  animation: ring-wobble 5.6s ease-in-out infinite;
+  animation-play-state: paused;
+  /* 窄环带:内缘 66% 起实(70%~72%),外缘 76% 收 —— 紧贴圆周,径向宽约 10% */
+  -webkit-mask: radial-gradient(circle, transparent 0 66%, #000 70% 72%, transparent 76%);
+  mask: radial-gradient(circle, transparent 0 66%, #000 70% 72%, transparent 76%);
+}
+
+/* 绿色组(开启球):#8FE5C2 亮绿主光 + #63D5A8 次绿过渡 —— 顶部极弱,底部(198° 偏左下)最亮,
+   周向停靠点不等距,形成不规整斑块 */
+.bubble.on::after {
+  background: conic-gradient(
+    rgb(143 229 194 / 0.08) 0deg,
+    rgb(143 229 194 / 0.2) 55deg,
+    rgb(99 213 168 / 0.34) 112deg,
+    rgb(143 229 194 / 0.55) 168deg,
+    rgb(143 229 194 / 0.62) 198deg,
+    rgb(99 213 168 / 0.38) 248deg,
+    rgb(143 229 194 / 0.2) 306deg,
+    rgb(143 229 194 / 0.08) 360deg
   );
 }
 
-.dark .energy-left .bubble::after {
-  background: radial-gradient(
-    circle,
-    transparent 0 58%,
-    rgb(from var(--gray-0) r g b / 0.05) 63%,
-    rgb(from var(--gray-0) r g b / 0.13) 66.5%,
-    rgb(from var(--gray-0) r g b / 0.2) 69%,
-    rgb(from var(--gray-0) r g b / 0.25) 71%
+/* 白色组(关闭球·浅色):底色透明浅底,白光不可见 —— 灰系 + #668CF7 蓝紫斑块(左下强区) */
+.bubble.off::after {
+  background: conic-gradient(
+    rgb(0 0 0 / 0.04) 0deg,
+    rgb(102 140 247 / 0.14) 60deg,
+    rgb(0 0 0 / 0.16) 118deg,
+    rgb(102 140 247 / 0.3) 170deg,
+    rgb(0 0 0 / 0.3) 205deg,
+    rgb(102 140 247 / 0.26) 250deg,
+    rgb(0 0 0 / 0.12) 308deg,
+    rgb(0 0 0 / 0.04) 360deg
+  );
+}
+
+/* 白色组(关闭球·深色):#FFFFFF 主光 + #DFDFDF/#C4C4C4 灰阶 + #668CF7 蓝紫点缀 */
+.dark .energy-left .bubble.off::after {
+  background: conic-gradient(
+    rgb(255 255 255 / 0.06) 0deg,
+    rgb(223 223 223 / 0.18) 60deg,
+    rgb(255 255 255 / 0.3) 118deg,
+    rgb(102 140 247 / 0.36) 170deg,
+    rgb(255 255 255 / 0.55) 205deg,
+    rgb(102 140 247 / 0.3) 250deg,
+    rgb(196 196 196 / 0.22) 308deg,
+    rgb(255 255 255 / 0.06) 360deg
   );
 }
 
@@ -275,17 +330,124 @@
   z-index: 1;
 }
 
+/* hover 提亮:开启球绿色更亮(微增饱和),关闭球白色更亮(0.3s 平滑过渡) */
+.bubble.on:hover {
+  filter: brightness(1.16) saturate(1.06);
+}
+
+.bubble.off:hover {
+  filter: brightness(1.16);
+}
+
 .bubble:hover .roam-svg {
   opacity: 1;
+  animation-play-state: running;
 }
 
 .bubble:hover::after {
   opacity: 1;
+  animation-play-state: running;
 }
 
-@keyframes bubble-rim-run {
-  to {
-    transform: rotate(360deg);
+/* ── 鼠标映射光斑:hover 跟随指针的两层同心实心圆,尺寸随气泡等比(%) ──
+   两层均为 50% 半透明:
+   外层 = 等效色 rgb(221,225,229) @50%(透出气泡底,非白色实感);
+   内层 = rgb(13,40,54) @50%,叠外层复合色后呈现 (66,86,92) */
+.bubble-cursor {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 16%;
+  height: 16%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+  z-index: 2;
+}
+
+/* 外层:大圆盘(实心),极淡浅白 + 10% 半透明(近乎隐没的微光晕) */
+.cursor-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: var(--radius-full);
+  background: rgb(245 250 252 / 0.1);
+}
+
+/* 内层:小圆盘(实心),居中叠于大圆之上,亮青白 + 更不透明(70%);
+   尺寸保持气泡 11%(69%×16%) */
+.cursor-core {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 69%;
+  height: 69%;
+  transform: translate(-50%, -50%);
+  border-radius: var(--radius-full);
+  background: rgb(255 255 255 / 0.65);
+}
+
+.bubble:hover .bubble-cursor {
+  opacity: 1;
+}
+
+/* 浅色关闭球:底色透明,浅白外圆不可见 → 淡灰半透明(同步减弱);内层白点通用可见 */
+.bubble.off .cursor-ring {
+  background: rgb(0 0 0 / 0.07);
+}
+
+/* 文字防抖:气泡内文字统一提升为独立合成层 ——
+   与光斑 SVG 的重绘、容器入场/飞散缩放的光栅重算相互隔离;
+   过渡期间文字以稳定位图整体变换(轻微柔化,结束即恢复清晰),消除逐帧抖动 */
+.bubble-name,
+.bubble-desc,
+.bubble-value,
+.bubble-detail {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+/* 下钻转场:点击球(.zooming)内文字先于球体虚化淡出 —— 球还在放大中文字已散焦消失 */
+.bubble.zooming .bubble-name,
+.bubble.zooming .bubble-desc,
+.bubble.zooming .bubble-value,
+.bubble.zooming .bubble-detail,
+.bubble.zooming .bubble-leaf {
+  opacity: 0;
+  filter: blur(0.25rem);
+  transition: opacity 0.22s ease-out, filter 0.22s ease-out;
+}
+
+/* 光斑晃动:以初始角 -40° 为起点 → 逆时针摆 72°(至 -112°) → 顺时针摆回 72°,钟摆式往复;
+   5.6s 一个完整摆程;0%/100% 同值,循环衔接无跳变;ease-in-out 两端自然减速 */
+@keyframes bubble-rim-swing {
+  0%,
+  100% {
+    transform: rotate(-40deg);
+  }
+  50% {
+    transform: rotate(-112deg);
+  }
+}
+
+/* 内阴影圈随机晃动:左右平移 + 大幅旋转(与白光同步 5.6s / 72° 量级,带动不对称斑块流转);
+   各帧幅度/间隔不等距,模拟随机摆动;峰值差约 72°(30° ↔ -42°) */
+@keyframes ring-wobble {
+  0%,
+  100% {
+    transform: translateX(0) rotate(0deg);
+  }
+  18% {
+    transform: translateX(1.4%) rotate(30deg);
+  }
+  38% {
+    transform: translateX(-1.1%) rotate(-20deg);
+  }
+  58% {
+    transform: translateX(1.7%) rotate(16deg);
+  }
+  78% {
+    transform: translateX(-0.7%) rotate(-42deg);
   }
 }
 
@@ -748,14 +910,69 @@
   position: absolute;
   inset: 0;
   clip-path: url(#hexClip);
-  animation: honey-tint 0.26s ease-out;
+  animation: honey-tint 0.55s ease-out;
 }
 
-/* 颜色闪变:仅定义峰值帧(原色轻微提亮,色相不变),0%/100% 自动取原状态 */
-@keyframes honey-tint {
-  35% {
-    filter: brightness(1.35);
+/* 融球中心团:点击处一簇六边形先以珠光白绿高亮炸开(降饱和提亮),再回归本色 ——
+   读起来像一团亮的东西先凝聚后散开成格 */
+.honey-cell.core {
+  animation: honey-core-in 0.5s ease-out both;
+  z-index: 1;
+}
+
+@keyframes honey-core-in {
+  from {
+    opacity: 0;
+    transform: scale(0.35);
+    filter: brightness(2.3) saturate(0.55);
   }
+  55% {
+    opacity: 1;
+    filter: brightness(1.7) saturate(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+    filter: brightness(1) saturate(1);
+  }
+}
+
+/* 光带闪变:前沿到达快速亮起(前 20% 升到峰值),之后 80% 时长拖尾回落;
+   0%/100% 自动取原状态;四档峰值类(fx1/fx2/fx3)随机分布 → 逐层点亮时亮度错落有层次 */
+@keyframes honey-tint {
+  20% {
+    filter: brightness(1.4);
+  }
+}
+
+@keyframes honey-tint-1 {
+  20% {
+    filter: brightness(1.6);
+  }
+}
+
+@keyframes honey-tint-2 {
+  20% {
+    filter: brightness(1.75);
+  }
+}
+
+@keyframes honey-tint-3 {
+  20% {
+    filter: brightness(1.9);
+  }
+}
+
+.honey-cell.fx1 .honey-hex {
+  animation-name: honey-tint-1;
+}
+
+.honey-cell.fx2 .honey-hex {
+  animation-name: honey-tint-2;
+}
+
+.honey-cell.fx3 .honey-hex {
+  animation-name: honey-tint-3;
 }
 
 /* 随机叶子水印:设计稿自定义叶子路径,居中,统一左右镜像换向;更亮更白 */
@@ -929,9 +1146,11 @@
 @keyframes honey-in {
   from {
     opacity: 0;
+    transform: scale(0.55);
   }
   to {
     opacity: 1;
+    transform: scale(1);
   }
 }
 
