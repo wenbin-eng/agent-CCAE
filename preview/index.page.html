@@ -4600,10 +4600,14 @@ input.ant-input.ant-input-sm {
   transition: opacity 0.3s ease;
   /* 初始角 -40°:对向双斑起始方位(顶部斑从 12 点逆时针 40°) */
   transform: rotate(-40deg);
-  /* 晃动:hover 时才运转;不可见时暂停 —— 常驻动画会持续重绘 SVG(内含高斯模糊无法合成缓存),
-     牵连同区域文字逐帧重新光栅化,是气泡文字抖动的根因);
-     spring 缓动 cubic-bezier(0.34,1.56,0.64,1):到达极点 ~10% 过冲后弹回,打破匀速钟摆的平均感 */
-  animation: bubble-rim-swing 5.6s cubic-bezier(0.34, 1.56, 0.64, 1) infinite;
+  /* 晃动:hover 时才运转;双段动画 ——
+     intro(一次性 2.8s 慢启动):初始速度 0,温和 ease-in 加速到 -112°,末段速度与 loop 衔接平滑(不爆速);
+     loop(无限循环,延迟 2.8s 等 intro 完成后开始):稳定振荡,和以前一样的运动;
+     "只有一开始是 0,后面保持以前的运动";
+     不可见时暂停 —— 常驻动画会持续重绘 SVG(内含高斯模糊无法合成缓存),
+     牵连同区域文字逐帧重新光栅化,是气泡文字抖动的根因 */
+  animation: bubble-rim-intro 2.8s cubic-bezier(0.42, 0, 0.58, 1) forwards,
+    bubble-rim-loop 5.6s cubic-bezier(0.4, 0.2, 0.6, 0.8) infinite 2.8s;
   animation-play-state: paused;
 }
 
@@ -4876,15 +4880,24 @@ input.ant-input.ant-input-sm {
 
 /* 光斑晃动:以初始角 -40° 为起点 → 逆时针摆 72°(至 -112°) → 顺时针摆回 72°,钟摆式往复;
    5.6s 一个完整摆程;0%/100% 同值,循环衔接无跳变;ease-in-out 两端自然减速 */
-/* 光斑钟摆:两帧往复(-40° ↔ -112°);spring 缓动自带过冲,到达极点后越过再弹回,
-   无需多帧即可呈现弹簧质感(过冲量由 cubic-bezier(0.34,1.56,0.64,1) 决定,约 10% / 7°) */
-@keyframes bubble-rim-swing {
-  0%,
-  100% {
+/* 光斑钟摆 —— intro(一次性慢启动):从 -40° 温和加速到 -112°,初始速度 0,末段速度与 loop 衔接平滑;
+   loop(无限循环):从 -112° 稳定振荡到 -40° 再回,和以前一样的运动 */
+@keyframes bubble-rim-intro {
+  from {
     transform: rotate(-40deg);
   }
-  50% {
+  to {
     transform: rotate(-112deg);
+  }
+}
+
+@keyframes bubble-rim-loop {
+  0%,
+  100% {
+    transform: rotate(-112deg);
+  }
+  50% {
+    transform: rotate(-40deg);
   }
 }
 
@@ -5339,7 +5352,7 @@ input.ant-input.ant-input-sm {
   width: 41rem;
   height: 41.875rem;
   margin: 0 auto;
-  /* 容器整体放大:scale(0.98 → 1),前 25% 保持 0.98(中心单元先入场),随后 spring 放大与单元入场同步完成;
+  /* 容器整体放大:scale(0.98 → 1),前 25% 保持 0.98(中心单元先入场),随后 spring 放大;
      spring(mass=1, stiffness=60.921, damping=17.249) 阻尼比≈1.105 接近临界,平滑收敛无过冲,
      用 cubic-bezier(0.22,1,0.36,1) 近似 */
   transform-origin: center center;
@@ -5354,8 +5367,9 @@ input.ant-input.ant-input-sm {
   align-items: center;
   justify-content: center;
   /* 入场淡入 + 光波色散微光(挂在 cell 上,无 clip-path 限制,blur 朦胧可扩散);
-     honey-in 入场(opacity+scale) + honey-tint 光波(brightness+blur+hue-rotate) 双动画并存 */
-  animation: honey-in 0.32s ease-out both, honey-tint 0.85s ease-out;
+     honey-in 入场(opacity+scale) + honey-tint 光波(brightness+blur+hue-rotate+glow) 双动画并存;
+     光波缓动 ease-in-out:先加速后减速,对标光粒过渡"消散逐步加速、重组减速" */
+  animation: honey-in 0.32s ease-out both, honey-tint 0.5s ease-in-out;
   transition: filter 0.2s ease;
   cursor: default;
 }
@@ -5371,92 +5385,102 @@ input.ant-input.ant-input-sm {
 /* 融球中心团:点击处一簇六边形用专属入场凝聚动画(替代默认 honey-in + honey-tint);
    微暗 + 明显柔焦 + 微色散凝聚后回归本色 */
 .honey-cell.core {
-  animation: honey-core-in 0.5s ease-out both;
+  animation: honey-core-in 0.5s ease-in-out both;
   z-index: 1;
 }
 
-/* 融球中心团:点击处一簇六边形先以微暗 + 明显柔焦 + 微色散凝聚,再回归本色;
-   过渡时 brightness(0.9) 微暗 + blur(4px) 明显柔焦 + hue-rotate(5deg) 微色散;
-   回归 brightness(1) blur(0) 本色;类苹果 AI 记忆相册:朦胧光片先凝聚后散开 */
+/* 融球中心团(高光源):点击处一簇六边形作为"亮部率先破裂"的源头 ——
+   最亮(brightness 1.15) + 暖白偏移(hue-rotate 12°) + 暖色 glow(drop-shadow 暖白柔光);
+   glow 与 blur 同步消散:55% 处 glow 已大幅衰减(与 blur 2px 同步弱化),100% 同时归零,无残留 */
 @keyframes honey-core-in {
   from {
     opacity: 0;
     transform: scale(0.35);
-    filter: brightness(0.78) blur(4px) saturate(1.1) hue-rotate(5deg);
+    filter: brightness(1.15) blur(4px) saturate(1.2) hue-rotate(12deg)
+      drop-shadow(0 0 6px rgb(255 240 200 / 0.5));
   }
   55% {
     opacity: 1;
-    filter: brightness(0.82) blur(2px) saturate(1.05) hue-rotate(3deg);
+    filter: brightness(1.04) blur(1px) saturate(1.05) hue-rotate(3deg)
+      drop-shadow(0 0 1px rgb(255 240 200 / 0.1));
   }
   to {
     opacity: 1;
     transform: scale(1);
-    filter: brightness(1) blur(0) saturate(1);
+    filter: brightness(1) blur(0) saturate(1) drop-shadow(0 0 0 transparent);
   }
 }
 
-/* 光波微光:从内到外扫过,过渡时微暗 + 明显柔焦 blur(3~5px) + 微色散;
-   卡片始终可见,闪烁时明显朦胧柔焦 + 暖/冷微 fringe;
-   四档(fx1/fx2/fx3 随机)暖+/冷- 交替 → 回归本色;
-   类苹果 AI 记忆相册光片:朦胧微光扫过 */
+/* 光波微光(涟漪式层级递进):从内到外扫过,四档按 tier 分层 ——
+   亮度递减(tint 最亮 → tint-3 最暗),色温从暖到冷(tint 暖白 → tint-3 冷灰),
+   各档配对应色温的 glow;glow 与 blur 同步消散:35% 峰值后 glow 大幅衰减,100% 同时归零;
+   ease-in-out:先加速后减速 */
 @keyframes honey-tint {
   0% {
-    filter: brightness(0.78) blur(3.5px) saturate(1.08) hue-rotate(4deg);
+    filter: brightness(0.92) blur(3px) saturate(1.15) hue-rotate(8deg)
+      drop-shadow(0 0 5px rgb(255 235 190 / 0.4));
   }
   35% {
-    filter: brightness(0.8) blur(3px) saturate(1.12) hue-rotate(6deg);
+    filter: brightness(0.98) blur(1.5px) saturate(1.1) hue-rotate(4deg)
+      drop-shadow(0 0 1.5px rgb(255 235 190 / 0.12));
   }
   100% {
-    filter: brightness(1) blur(0) saturate(1);
+    filter: brightness(1) blur(0) saturate(1) drop-shadow(0 0 0 transparent);
   }
 }
 
 @keyframes honey-tint-1 {
   0% {
-    filter: brightness(0.76) blur(4px) saturate(1.1) hue-rotate(-5deg);
+    filter: brightness(0.88) blur(3.5px) saturate(1.12) hue-rotate(3deg)
+      drop-shadow(0 0 4px rgb(220 230 240 / 0.35));
   }
   35% {
-    filter: brightness(0.78) blur(3.2px) saturate(1.14) hue-rotate(-7deg);
+    filter: brightness(0.94) blur(1.5px) saturate(1.08) hue-rotate(2deg)
+      drop-shadow(0 0 1.5px rgb(220 230 240 / 0.1));
   }
   100% {
-    filter: brightness(1) blur(0) saturate(1);
+    filter: brightness(1) blur(0) saturate(1) drop-shadow(0 0 0 transparent);
   }
 }
 
 @keyframes honey-tint-2 {
   0% {
-    filter: brightness(0.79) blur(3.8px) saturate(1.12) hue-rotate(6deg);
+    filter: brightness(0.82) blur(4px) saturate(1.08) hue-rotate(-4deg)
+      drop-shadow(0 0 4px rgb(180 200 220 / 0.3));
   }
   35% {
-    filter: brightness(0.81) blur(3px) saturate(1.16) hue-rotate(8deg);
+    filter: brightness(0.92) blur(1.5px) saturate(1.06) hue-rotate(-2deg)
+      drop-shadow(0 0 1.5px rgb(180 200 220 / 0.08));
   }
   100% {
-    filter: brightness(1) blur(0) saturate(1);
+    filter: brightness(1) blur(0) saturate(1) drop-shadow(0 0 0 transparent);
   }
 }
 
 @keyframes honey-tint-3 {
   0% {
-    filter: brightness(0.77) blur(4.5px) saturate(1.14) hue-rotate(-6deg);
+    filter: brightness(0.76) blur(4.5px) saturate(1.05) hue-rotate(-10deg)
+      drop-shadow(0 0 4px rgb(150 170 190 / 0.28));
   }
   35% {
-    filter: brightness(0.79) blur(3.5px) saturate(1.18) hue-rotate(-8deg);
+    filter: brightness(0.9) blur(1.5px) saturate(1.04) hue-rotate(-5deg)
+      drop-shadow(0 0 1.5px rgb(150 170 190 / 0.08));
   }
   100% {
-    filter: brightness(1) blur(0) saturate(1);
+    filter: brightness(1) blur(0) saturate(1) drop-shadow(0 0 0 transparent);
   }
 }
 
 .honey-cell.fx1 {
-  animation: honey-in 0.32s ease-out both, honey-tint-1 0.85s ease-out;
+  animation: honey-in 0.32s ease-out both, honey-tint-1 0.5s ease-in-out;
 }
 
 .honey-cell.fx2 {
-  animation: honey-in 0.32s ease-out both, honey-tint-2 0.85s ease-out;
+  animation: honey-in 0.32s ease-out both, honey-tint-2 0.5s ease-in-out;
 }
 
 .honey-cell.fx3 {
-  animation: honey-in 0.32s ease-out both, honey-tint-3 0.85s ease-out;
+  animation: honey-in 0.32s ease-out both, honey-tint-3 0.5s ease-in-out;
 }
 
 /* 随机叶子水印:设计稿自定义叶子路径,居中,统一左右镜像换向;更亮更白 */
@@ -5627,7 +5651,7 @@ input.ant-input.ant-input-sm {
   }
 }
 
-/* 蜂窝容器放大:scale(0.98 → 1),前 25% 保持 0.98(中心单元先入场),随后 spring 放大与单元入场同步完成;
+/* 蜂窝容器放大:scale(0.98 → 1),前 25% 保持 0.98(中心单元先入场),随后 spring 放大;
    spring(mass=1, stiffness=60.921, damping=17.249) 阻尼比≈1.105 接近临界,平滑收敛无过冲 */
 @keyframes honey-wrap-in {
   0%,
