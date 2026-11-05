@@ -187,6 +187,23 @@ export default function EnergyLeft() {
                       animation: "none",
                       zIndex: 3,
                     };
+                  } else {
+                    // 四周球沿离心方向避让位移(保持与放大后点击球的间距,不被挤压覆盖);
+                    // 位移量 = 点击球放大量级(scale 1.35 → 半径增 0.35 倍),按离心方向推开;
+                    // 距离越近的球被推得越远(近处避让多、远处几乎不动),按距离错峰;
+                    const dx = c.x - honeyOrigin.x;
+                    const dy = c.y - honeyOrigin.y;
+                    const len = Math.hypot(dx, dy) || 1;
+                    // 位移量:基于点击球尺寸的 0.35 倍(放大增量),近处全量推开、远处衰减
+                    const push = Math.round((honeyOrigin.size * 0.35) * (1 - Math.min(len / 500, 0.6))) / 16;
+                    animStyle = {
+                      transform: `translate(-50%, -50%) translate(${(dx / len) * push}rem, ${(dy / len) * push}rem)`,
+                      transitionProperty: "transform",
+                      transitionDuration: "0.42s",
+                      transitionTimingFunction: "cubic-bezier(0.3, 1.35, 0.55, 1)",
+                      pointerEvents: "none",
+                      animation: "none",
+                    };
                   }
                 } else if (phase !== "idle") {
                   if (isOrigin) {
@@ -315,11 +332,8 @@ export default function EnergyLeft() {
                       </g>
                     </svg>
 
-                    {/* 鼠标映射光斑:内圆(白22%) + 外层实心环带(白87%,窄环紧贴内圆),跟随指针,尺寸随气泡等比 */}
-                    <span className="bubble-cursor" aria-hidden="true">
-                      <span className="cursor-ring" />
-                      <span className="cursor-core" />
-                    </span>
+                    {/* 鼠标映射光晕:单一柔光圆 + blur(30px),跟随指针,尺寸随气泡等比 */}
+                    <span className="bubble-cursor" aria-hidden="true" />
                   </div>
                 );
               })}

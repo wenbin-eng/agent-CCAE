@@ -217,12 +217,11 @@ export default function Honeycomb({ origin, onCellClick }) {
               />
             </svg>
           )}
-          {/* 六边形本体(底色),波扫过时按档位峰值亮度闪变(延迟 fdelay 滞后于入场) */}
+          {/* 六边形本体(底色);光波闪变挂在父级 .honey-cell 上(无 clip-path,blur 可扩散) */}
           <span
             className="honey-hex"
             style={{
               background: activeCell === cell.key ? "#A8DB81" : cell.color,
-              animationDelay: `${cell.fdelay}ms`,
             }}
             aria-hidden="true"
           />
