@@ -7978,9 +7978,18 @@ function hexGridDist(px, py, cx, cy) {
 // tier:光带峰值亮度档位(0~3 确定性伪随机),点亮时层次错落
 function buildCells(clickX, clickY, rowColors, lastCellColor) {
   const cells = [];
-  // 始终用网格中心作为展开中心(不从点击位置展开),保证所有气泡下钻后都从中间开始对称展开
-  const centerX = START_X + ((COLS - 1) / 2) * COL_STEP + 24;
-  const centerY = START_Y + ((ROWS - 1) / 2) * ROW_STEP + 24;
+  // 找点击位置最近的单元中心作为展开中心
+  let centerX = clickX, centerY = clickY;
+  let centerDist = 1e9;
+  for (let r = 0; r < ROWS; r += 1) {
+    for (let c = 0; c < COLS; c += 1) {
+      const x = START_X + c * COL_STEP + (r % 2 ? ROW_OFFSET : 0);
+      const y = START_Y + r * ROW_STEP;
+      const cx = x + 24, cy = y + 24;
+      const d = Math.hypot(cx - clickX, cy - clickY);
+      if (d < centerDist) { centerDist = d; centerX = cx; centerY = cy; }
+    }
+  }
   for (let r = 0; r < ROWS; r += 1) {
     for (let c = 0; c < COLS; c += 1) {
       const x = START_X + c * COL_STEP + (r % 2 ? ROW_OFFSET : 0);
