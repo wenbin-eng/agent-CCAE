@@ -983,7 +983,7 @@
      spring(mass=1, stiffness=60.921, damping=17.249) 阻尼比≈1.105 接近临界,平滑收敛无过冲,
      用 cubic-bezier(0.22,1,0.36,1) 近似 */
   transform-origin: center center;
-  animation: honey-wrap-in 1.1s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: honey-wrap-in 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
 .honey-cell {
@@ -996,7 +996,7 @@
   /* 入场淡入 + 光波色散微光(挂在 cell 上,无 clip-path 限制,blur 朦胧可扩散);
      honey-in 入场(opacity+scale) + honey-tint 光波(brightness+blur+hue-rotate+glow) 双动画并存;
      光波缓动 ease-in-out:先加速后减速,对标光粒过渡"消散逐步加速、重组减速" */
-  animation: honey-in 0.32s ease-out both, honey-tint 0.5s ease-in-out;
+  animation: honey-in 0.32s ease-out both, honey-tint 0.38s ease-in-out;
   transition: filter 0.2s ease;
   cursor: default;
 }
@@ -1012,7 +1012,7 @@
 /* 融球中心团:点击处一簇六边形用专属入场凝聚动画(替代默认 honey-in + honey-tint);
    微暗 + 明显柔焦 + 微色散凝聚后回归本色 */
 .honey-cell.core {
-  animation: honey-core-in 0.5s ease-in-out both;
+  animation: honey-core-in 0.38s ease-in-out both;
   z-index: 1;
 }
 
@@ -1158,15 +1158,15 @@
 }
 
 .honey-cell.fx1 {
-  animation: honey-in 0.32s ease-out both, honey-tint-1 0.5s ease-in-out;
+  animation: honey-in 0.32s ease-out both, honey-tint-1 0.38s ease-in-out;
 }
 
 .honey-cell.fx2 {
-  animation: honey-in 0.32s ease-out both, honey-tint-2 0.5s ease-in-out;
+  animation: honey-in 0.32s ease-out both, honey-tint-2 0.38s ease-in-out;
 }
 
 .honey-cell.fx3 {
-  animation: honey-in 0.32s ease-out both, honey-tint-3 0.5s ease-in-out;
+  animation: honey-in 0.32s ease-out both, honey-tint-3 0.38s ease-in-out;
 }
 
 /* 随机叶子水印:设计稿自定义叶子路径,居中,统一左右镜像换向;更亮更白 */

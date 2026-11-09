@@ -43,14 +43,14 @@ export default function EnergyLeft() {
     setHoneyOrigin(c);
     // 第一步:点击球轻微放大 + 变模糊(0.3s)
     setPhase("zoom");
-    // 第二步:不等放大播完 —— 进行到中段(120ms)即切换,蜂窝呈现/四周球飞散与放大模糊
+    // 第二步:不等放大播完 —— 进行到中段(80ms)即切换,蜂窝呈现/四周球飞散与放大模糊
     // 交叉进行(transform 目标值两阶段一致,过渡中途接续不回弹),整体连贯
     window.setTimeout(() => {
       setPhase("honeycomb");
       setFading(true);
-      // 其余球飞散(0.55s + 距离错峰)结束后移除气泡层
-      window.setTimeout(() => setFading(false), 900);
-    }, 120);
+      // 其余球飞散结束后移除气泡层
+      window.setTimeout(() => setFading(false), 700);
+    }, 80);
   };
 
   // 鼠标映射光斑:内圆+外环跟随指针;直接写内联 left/top,不经 React 状态(避免重渲染引发文字抖动)
