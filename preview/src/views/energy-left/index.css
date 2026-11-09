@@ -1016,16 +1016,75 @@
   z-index: 1;
 }
 
-/* 融球中心团(高光源):点击处一簇六边形作为"亮部率先破裂"的源头 ——
-   最亮(brightness 1.15) + 暖白偏移(hue-rotate 12°) + 暖色 glow(drop-shadow 暖白柔光);
-   glow 与 blur 同步消散:55% 处 glow 已大幅衰减(与 blur 2px 同步弱化),100% 同时归零,无残留 */
+/* 融球中心团:点击处一簇六边形先以白色 + 强模糊凝聚(光粒破裂源头),再回归本色;
+   亮起时 brightness(2.5) 大幅提亮 + saturate(0.25) 趋白 + blur(12px) 强模糊;
+   回归时 brightness(1) saturate(1) blur(0) 本色 */
 @keyframes honey-core-in {
   from {
     opacity: 0;
     transform: scale(0.35);
-    filter: brightness(1.15) blur(4px) saturate(1.2) hue-rotate(12deg)
-      drop-shadow(0 0 6px rgb(255 240 200 / 0.5));
+    filter: brightness(2.5) blur(12px) saturate(0.25);
   }
+  55% {
+    opacity: 1;
+    filter: brightness(1.5) blur(5px) saturate(0.5);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+    filter: brightness(1) blur(0) saturate(1);
+  }
+}
+
+/* 光波白色模糊涟漪:从内到外逐圈亮起,亮起时白色 + 强模糊(光粒扩散感),回归本色;
+   四档亮度递减,blur 同步消散;参考文档:炫光前沿白色光团逐层向外扩散 */
+@keyframes honey-tint {
+  0% {
+    filter: brightness(2.3) blur(10px) saturate(0.3);
+  }
+  35% {
+    filter: brightness(1.5) blur(5px) saturate(0.55);
+  }
+  100% {
+    filter: brightness(1) blur(0) saturate(1);
+  }
+}
+
+@keyframes honey-tint-1 {
+  0% {
+    filter: brightness(2.2) blur(11px) saturate(0.35);
+  }
+  35% {
+    filter: brightness(1.4) blur(5px) saturate(0.6);
+  }
+  100% {
+    filter: brightness(1) blur(0) saturate(1);
+  }
+}
+
+@keyframes honey-tint-2 {
+  0% {
+    filter: brightness(2) blur(12px) saturate(0.4);
+  }
+  35% {
+    filter: brightness(1.3) blur(6px) saturate(0.65);
+  }
+  100% {
+    filter: brightness(1) blur(0) saturate(1);
+  }
+}
+
+@keyframes honey-tint-3 {
+  0% {
+    filter: brightness(1.8) blur(13px) saturate(0.45);
+  }
+  35% {
+    filter: brightness(1.2) blur(6px) saturate(0.7);
+  }
+  100% {
+    filter: brightness(1) blur(0) saturate(1);
+  }
+}
   55% {
     opacity: 1;
     filter: brightness(1.04) blur(1px) saturate(1.05) hue-rotate(3deg)

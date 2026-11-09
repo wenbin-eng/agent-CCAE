@@ -362,6 +362,7 @@ export default function EnergyLeft() {
             <>
               <Honeycomb
                 origin={honeyOrigin}
+                isOn={honeyOrigin.on}
                 onCellClick={(key) => {
                   const [r, c] = key.split("-").map(Number);
                   setNodeDetail(`node-r${r + 1}-n${String(c + 1).padStart(2, "0")}`);

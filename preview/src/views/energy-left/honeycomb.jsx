@@ -12,20 +12,19 @@ const ROW_STEP = 44;  // 48 × 3/4 + 8 间隙(尖顶蜂窝错行咬合,收紧后
 const ROW_OFFSET = 25; // 奇数行右移半列
 const START_X = 34;   // 网格整体右移 10(原 24)
 const START_Y = 24;   // 整体下移 20(原 4)
-const ROW_COLORS = ["#34b787", "#268763", "#1b6148", "#113b2e"];
-const LAST_CELL_COLOR = "#1c1c1c";
+const ROW_COLORS_ON = ["#34b787", "#268763", "#1b6148", "#113b2e"];   // 绿色系(开启气泡):恢复原值
+// 白灰色系(关闭气泡):底层 #668CF7 20%(黑底上) + 上层 #F3F3F3 100%→40% 叠加;
+// 最亮档 F3F3F3 100% 覆盖(纯灰白带微蓝底);最暗档 F3F3F3 40%(透出蓝紫底色)
+// 混合:底 #141C31 + F3F3F3 α → 100%=#F3F3F3, 80%=#C5C5C5, 60%=#959595, 40%=#6D727F
+const ROW_COLORS_OFF = ["#c5c5c5", "#a5a5a5", "#85858a", "#6d727f"];
+const LAST_CELL_COLOR_ON = "#1c1c1c";
+const LAST_CELL_COLOR_OFF = "#1c1c1c";
 
 // 点击位置(气泡舞台中心系坐标)→ 蜂窝容器坐标系偏移:
 // 气泡舞台与蜂窝容器同宽(656),水平中心对齐;x 偏移 328;
 // 气泡舞台顶距信息栏 63+280=343,蜂窝容器顶距 16;y 偏移 327
 const CLICK_OFF_X = 328;
 const CLICK_OFF_Y = 327;
-
-// 单元入场延迟:距点击位置的凸函数(近处延迟小 → 前沿先快后慢,模拟弹簧减速扩散)
-const DELAY_K = 0.55;
-const DELAY_P = 1.18;
-// 光带延迟系数:略慢于入场 → 光波落后于扩展波,缀在其后扫过
-const FLASH_K = 0.72;
 
 const toRem = (px) => `${px / 16}rem`;
 
@@ -44,22 +43,46 @@ function colorIndex(r, c) {
   return Math.min(3, Math.floor((r + (c >= COLS / 2 ? 1 : 0)) / 4));
 }
 
+// 尖顶六边形(pointy-top,尖角朝上)网格距离(圈数);
+// 像素 → 立方坐标标准转换(redblobgames):size = 六边形外接圆半径 = 宽度/√3;
+// q = (√3/3 * x - 1/3 * y) / size, r = (2/3 * y) / size;
+// 立方坐标四舍五入确保网格对齐,距离 = (|q|+|r|+|s|)/2;
+// layer=0 中心1个,layer=1 围着中心的6个(正六边形邻居),layer=2 12个...
+const HEX_SIZE = COL_STEP / Math.sqrt(3); // 外接圆半径
+const SQ3 = Math.sqrt(3);
+function hexGridDist(px, py, cx, cy) {
+  const dx = px - cx, dy = py - cy;
+  const fq = (SQ3 / 3 * dx - 1 / 3 * dy) / HEX_SIZE;
+  const fr = (2 / 3 * dy) / HEX_SIZE;
+  const fs = -fq - fr;
+  // 立方坐标四舍五入
+  let rq = Math.round(fq), rr = Math.round(fr), rs = Math.round(fs);
+  const dq = Math.abs(rq - fq), dr = Math.abs(rr - fr), ds = Math.abs(rs - fs);
+  if (dq > dr && dq > ds) rq = -rr - rs;
+  else if (dr > ds) rr = -rq - rs;
+  return (Math.abs(rq) + Math.abs(rr) + Math.abs(-rq - rr)) / 2;
+}
+
 // 生成蜂窝单元:位置 + 延迟 + 行背景色 + 随机叶子 + tooltip 详情
 // isCore:距点击位置 < 95px 的一簇 = "融球"中心团,先以珠光高亮炸开再回归本色;
 // tier:光带峰值亮度档位(0~3 确定性伪随机),点亮时层次错落
-function buildCells(clickX, clickY) {
+function buildCells(clickX, clickY, rowColors, lastCellColor) {
   const cells = [];
+  // 始终用网格中心作为展开中心(不从点击位置展开),保证所有气泡下钻后都从中间开始对称展开
+  const centerX = START_X + ((COLS - 1) / 2) * COL_STEP + 24;
+  const centerY = START_Y + ((ROWS - 1) / 2) * ROW_STEP + 24;
   for (let r = 0; r < ROWS; r += 1) {
     for (let c = 0; c < COLS; c += 1) {
       const x = START_X + c * COL_STEP + (r % 2 ? ROW_OFFSET : 0);
       const y = START_Y + r * ROW_STEP;
+      const cx = x + 24, cy = y + 24;
+      // 六边形网格距离(圈数):用像素坐标立方坐标法计算,确保同一圈卡片距离一致
+      const layer = hexGridDist(cx, cy, centerX, centerY);
+      const ci = colorIndex(r, c);
       const isLast = r === ROWS - 1 && c === COLS - 1;
-      const dist = Math.hypot(x + 24 - clickX, y + 24 - clickY);
       const on = !isLast && (c * 7 + r * 13) % 10 < 3;
-      const isCore = dist < 95;
-      const rnd = ((r * 31 + c * 17) % 100) / 100;
-      const tier = rnd < 0.3 ? 0 : rnd < 0.6 ? 1 : rnd < 0.85 ? 2 : 3;
-      // tooltip 数据
+      const isCore = layer === 0;
+      const tier = Math.min(3, Math.floor(layer / 3));
       const nodeName = `node-r${String(r + 1).padStart(2, "0")}-n${String(c + 1).padStart(2, "0")}`;
       const osIp = `10.10.${r + 1}.${(c + 1) * 8 + 100}`;
       const ibmcIp = `172.16.${r + 1}.${(c + 1) * 8 + 100}`;
@@ -70,12 +93,11 @@ function buildCells(clickX, clickY) {
         key: `${r}-${c}`,
         x,
         y,
-        // 融球中心团几乎立即亮起(线性小延迟);外围按凸函数先快后慢逐层展开
-        delay: Math.round(isCore ? dist * 0.4 : Math.pow(dist, DELAY_P) * DELAY_K),
-        fdelay: Math.round(isCore ? dist * 0.6 : Math.pow(dist, DELAY_P) * FLASH_K),
+        delay: Math.round(layer * 90),
+        fdelay: Math.round(layer * 120),
         isCore,
         tier,
-        color: isLast ? LAST_CELL_COLOR : ROW_COLORS[colorIndex(r, c)],
+        color: isLast ? lastCellColor : rowColors[ci],
         isLast,
         leaf: on,
         leafColor: "#ffffff",
@@ -86,7 +108,7 @@ function buildCells(clickX, clickY) {
   return cells;
 }
 
-export default function Honeycomb({ origin, onCellClick }) {
+export default function Honeycomb({ origin, isOn = true, onCellClick }) {
   const clickX = CLICK_OFF_X + (origin ? origin.x : 0);
   const clickY = CLICK_OFF_Y + (origin ? origin.y : 0);
   const [activeCell, setActiveCell] = useState(null);
@@ -98,7 +120,9 @@ export default function Honeycomb({ origin, onCellClick }) {
     const t = window.setTimeout(() => setTooltipReady(true), 1500);
     return () => window.clearTimeout(t);
   });
-  const cells = buildCells(clickX, clickY);
+  const rowColors = isOn ? ROW_COLORS_ON : ROW_COLORS_OFF;
+  const lastCellColor = isOn ? LAST_CELL_COLOR_ON : LAST_CELL_COLOR_OFF;
+  const cells = buildCells(clickX, clickY, rowColors, lastCellColor);
   const hoveredData = cells.find((c) => c.key === hoveredCell);
 
   // 智能定位:tooltip 尺寸约 224×180(设计 px),根据单元格位置选最佳方向
