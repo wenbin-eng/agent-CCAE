@@ -1,3 +1,6 @@
 .DS_Store
 .history/
 preview/index.page.html
+.octo/
+__pycache__/
+*.pyc

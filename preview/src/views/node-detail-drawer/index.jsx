@@ -180,10 +180,14 @@ function CardHead({ title }) {
   );
 }
 
-export default function NodeDetailDrawer({ open, nodeName, onClose }) {
+export default function NodeDetailDrawer({ open, nodeName, onClose, appearance }) {
   const { isDark } = useApp();
   const c = isDark ? DARK : LIGHT; // 图表色板(仪表盘/折线 buildOption 闭包引用)
   const name = nodeName || nodeInfo.defaultName;
+  // 与选中节点共用合成后的实色，包含绿色与白蓝色两套四档配色。
+  const panelTier = appearance?.colorTier ?? 0;
+  const panelRgb = appearance?.solidRgb || "51 183 134";
+
 
   // 弹窗宽度与右栏 energy-right 一致:右栏为弹性列(视口 - 左栏 678 - 间距),宽度需实测;
   // 实测值喂给 Drawer width prop → rc-drawer 将其内联到 wrapper(源码验证过,可靠)
@@ -192,7 +196,7 @@ export default function NodeDetailDrawer({ open, nodeName, onClose }) {
     if (!open) return undefined;
     const sync = () => {
       const el = document.querySelector(".energy-right");
-      if (el) setPanelWidth(Math.round(el.getBoundingClientRect().width));
+      if (el) setPanelWidth(el.offsetWidth);
     };
     sync();
     window.addEventListener("resize", sync);
@@ -205,7 +209,16 @@ export default function NodeDetailDrawer({ open, nodeName, onClose }) {
       open={open}
       onClose={onClose}
       placement="right"
-      width={panelWidth || "min(1154px, 94vw)"} /* 与 energy-right 同宽;未实测到时兜底 */
+      getContainer={() => document.getElementById("root")}
+      rootStyle={{
+        position: "absolute",
+        "--nd-node-color": `rgb(${panelRgb})`,
+        "--nd-panel-rgb": panelRgb,
+        "--nd-leaf-opacity": appearance?.leafOpacity ?? 0.9,
+        "--nd-glow-opacity": [0.18, 0.24, 0.33, 0.45][panelTier],
+        "--nd-outline-opacity": [0.60, 0.75, 0.90, 1][panelTier],
+      }}
+      width={panelWidth || 1154} /* 与 energy-right 同宽;未实测到时兜底 */
       closable={false}
       mask={false} /* 不渲染 ant-drawer-mask 遮罩节点 */
       styles={{
@@ -229,7 +242,12 @@ export default function NodeDetailDrawer({ open, nodeName, onClose }) {
           <div className="nd-node">
             {/* 六边形叶子图标(与累计用能总览左侧图标一致:尖顶六边形 + 镜像白叶) */}
             <span className="nd-node-hex" aria-hidden="true">
-              <Icon name="leaf" size="0.6875rem" />
+              <svg className="nd-node-shape" viewBox="0 0 100 100" aria-hidden="true">
+                <path d="M 55.41 3.125 L 87.89 21.875 Q 93.3 25 93.3 31.25 L 93.3 68.75 Q 93.3 75 87.89 78.125 L 55.41 96.875 Q 50 100 44.59 96.875 L 12.11 78.125 Q 6.7 75 6.7 68.75 L 6.7 31.25 Q 6.7 25 12.11 21.875 L 44.59 3.125 Q 50 0 55.41 3.125 Z" fill="var(--nd-node-color)" />
+              </svg>
+              <svg style={{ display: appearance?.paletteOn === false ? "none" : undefined }} className="nd-node-leaf" viewBox="0 0 22 19.008141" aria-hidden="true">
+                <path d="M0 3.9565C0 3.02269 0.131119 1.64438 0.32775 0.599303C0.458869 -0.111973 1.07041 -0.15631 1.50735 0.288191C2.99295 1.8221 4.82824 2.02242 6.46671 2.02242C7.97424 2.02242 9.83127 1.60004 11.4916 1.60004C16.3416 1.60004 19.8153 4.02343 19.8153 9.07004C19.8153 9.53714 19.7936 10.026 19.7497 10.3376C19.6625 10.6709 19.2692 10.8707 18.9195 10.5153C14.5065 6.46893 10.159 9.07004 6.53222 5.84624C6.13896 5.53512 5.78956 5.82411 5.92068 6.15782C7.66824 10.8043 14.4409 8.33655 18.9195 12.5163C19.9902 13.4944 22 16.0069 22 17.4295C22 18.3411 21.3664 19.0081 20.6238 19.0081C20.296 19.0081 19.9247 18.8299 19.7936 18.3411C19.2473 16.5626 18.7667 15.2729 17.893 14.0944C16.9095 15.3621 14.8123 16.8515 11.448 16.8515C4.52223 16.8515 0 11.6937 0 3.9565Z" fill="currentColor" fillRule="evenodd" />
+              </svg>
             </span>
             <span className="nd-node-name">节点名称：{name}</span>
           </div>

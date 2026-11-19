@@ -58,9 +58,10 @@
   bottom: 0;
   left: 0;
   width: 15%;
+  mix-blend-mode: screen;
   z-index: 3;
   pointer-events: none;
-  background: linear-gradient(90deg, rgba(63, 185, 80, 0.15), rgba(63, 185, 80, 0) 100%);
+  background: linear-gradient(90deg, rgb(var(--nd-panel-rgb, 51 183 134) / var(--nd-glow-opacity, 0.18)), rgba(54, 193, 141, 0) 100%);
 }
 
 /* 面板主体(滚动条与左栏列表/右栏同款:6px 宽、#595959 圆角滑块、透明轨道) */
@@ -101,20 +102,28 @@
 
 /* 六边形叶子图标(与累计用能总览左侧图标一致:尖顶六边形 + 镜像白叶,蜂窝首行绿) */
 .nd-node-hex {
-  width: 1.375rem;
-  height: 1.375rem;
+  position: relative;
+  width: 28px;
+  height: 28px;
   flex: none;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: #34b787;
-  clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%);
 }
 
-.nd-node-hex svg {
-  transform: scaleX(-1); /* 与蜂窝叶子一致的镜像朝向 */
+.nd-node-shape {
+  position: absolute;
+  inset: 0;
+  width: 28px;
+  height: 28px;
+}
+
+.nd-node-leaf {
+  position: relative;
+  width: calc(11px * 22 / 19.008141);
+  height: 11px;
   color: #ffffff;
-  opacity: 0.85;
+  opacity: var(--nd-leaf-opacity, 0.9);
 }
 
 .nd-node-name {
@@ -557,4 +566,25 @@
   position: relative;
   min-width: 0;
   margin-top: 0.75rem; /* 与图例间距(原卡片 gap) */
+}
+
+/* 抽屉跟随设计画布缩放，避免组件默认 100vw 限制二次压缩宽度。 */
+#root .ant-drawer-content-wrapper {
+  max-width: 100% !important;
+}
+
+/* 外沿从左侧向右渐隐，在面板宽度 80% 处完全透明。 */
+.node-detail-drawer.ant-drawer-content::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  border-radius: 16px;
+  padding: 1px;
+  background: linear-gradient(90deg, rgb(var(--nd-panel-rgb, 51 183 134) / var(--nd-outline-opacity, 0.60)) 0%, rgba(54, 193, 141, 0) 80%);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  pointer-events: none;
 }

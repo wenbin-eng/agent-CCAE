@@ -4,7 +4,7 @@ import { Icon } from "../../../assets/shared/icon.jsx";
 // 单元 48×48(设计画布 px),尖角朝上的正六边形(宽高比 0.866,修正原压扁感),
 // 圆角 ~3px(SVG clipPath 裁剪),单元间隙 ~10;
 // 共 14 行,四种背景色自上而下按 4/4/4/2 行分段:
-// #34b787 → #268763 → #1b6148 → #113b2e;末格(300+)单独 #1c1c1c
+// #36C18D，透明度依次为 95% → 70% → 50% → 30%;末格(300+)单独 #1c1c1c
 const COLS = 11;
 const ROWS = 14;
 const COL_STEP = 50;  // 正六边形宽 41.6 + 8.4 间隙(收紧后)
@@ -12,11 +12,12 @@ const ROW_STEP = 44;  // 48 × 3/4 + 8 间隙(尖顶蜂窝错行咬合,收紧后
 const ROW_OFFSET = 25; // 奇数行右移半列
 const START_X = 34;   // 网格整体右移 10(原 24)
 const START_Y = 24;   // 整体下移 20(原 4)
-const ROW_COLORS_ON = ["#34b787", "#268763", "#1b6148", "#113b2e"];   // 绿色系(开启气泡):恢复原值
-// 白灰色系(关闭气泡):底层 #668CF7 20%(黑底上) + 上层 #F3F3F3 100%→40% 叠加;
-// 最亮档 F3F3F3 100% 覆盖(纯灰白带微蓝底);最暗档 F3F3F3 40%(透出蓝紫底色)
-// 混合:底 #141C31 + F3F3F3 α → 100%=#F3F3F3, 80%=#C5C5C5, 60%=#959595, 40%=#6D727F
-const ROW_COLORS_OFF = ["#c5c5c5", "#a5a5a5", "#85858a", "#6d727f"];
+export const ROW_COLORS_ON = ["rgba(54, 193, 141, 0.95)", "rgba(54, 193, 141, 0.70)", "rgba(54, 193, 141, 0.50)", "rgba(54, 193, 141, 0.30)"]; // 绿色系：同色四档透明度
+// 白色球：黑底上先叠加四档 #F3F3F3，再叠加 #66BCF7 20%。
+// 使用真实分层，图例与节点共用，避免在不同容器底色上混出不同颜色。
+export const ROW_COLORS_OFF = [1, 0.8, 0.6, 0.4].map((alpha) =>
+  `linear-gradient(rgba(102, 188, 247, 0.2), rgba(102, 188, 247, 0.2)), linear-gradient(rgba(243, 243, 243, ${alpha}), rgba(243, 243, 243, ${alpha})), #000`
+);
 const LAST_CELL_COLOR_ON = "#1c1c1c";
 const LAST_CELL_COLOR_OFF = "#1c1c1c";
 
@@ -89,7 +90,7 @@ function buildCells(clickX, clickY, rowColors, lastCellColor) {
       const layer = hexGridDist(cx, cy, centerX, centerY);
       const ci = colorIndex(r, c);
       const isLast = r === ROWS - 1 && c === COLS - 1;
-      const on = !isLast && (c * 7 + r * 13) % 10 < 3;
+      const on = rowColors === ROW_COLORS_ON && !isLast && (c * 7 + r * 13) % 10 < 3;
       const isCore = layer === 0;
       const tier = Math.min(3, Math.floor(layer / 3));
       const nodeName = `node-r${String(r + 1).padStart(2, "0")}-n${String(c + 1).padStart(2, "0")}`;
@@ -110,6 +111,13 @@ function buildCells(clickX, clickY, rowColors, lastCellColor) {
         isLast,
         leaf: on,
         leafColor: "#ffffff",
+        paletteOn: rowColors === ROW_COLORS_ON,
+        colorTier: ci,
+        solidRgb: isLast ? "28 28 28" : rowColors === ROW_COLORS_ON
+          ? [54, 193, 141].map(v => Math.round(v * [0.95, 0.70, 0.50, 0.30][ci])).join(" ")
+          : [102, 188, 247].map(v => Math.round(v * 0.2 + 243 * [1, 0.8, 0.6, 0.4][ci] * 0.8)).join(" "),
+        colorOpacity: [0.95, 0.70, 0.50, 0.30][ci],
+        leafOpacity: rowColors === ROW_COLORS_ON ? [0.9, 0.8, 0.7, 0.6][ci] : 0.72,
         tooltip: { nodeName, on, osIp, ibmcIp, energy, saved, gain },
       });
     }
@@ -117,10 +125,9 @@ function buildCells(clickX, clickY, rowColors, lastCellColor) {
   return cells;
 }
 
-export default function Honeycomb({ origin, isOn = true, onCellClick }) {
+export default function Honeycomb({ origin, isOn = true, activeCell = null, onCellClick }) {
   const clickX = CLICK_OFF_X + (origin ? origin.x : 0);
   const clickY = CLICK_OFF_Y + (origin ? origin.y : 0);
-  const [activeCell, setActiveCell] = useState(null);
   const [hoveredCell, setHoveredCell] = useState(null);
   // 提示框就绪:蜂窝入场动画期间(约 1.5s)不显示 tooltip,
   // 从气泡点击过渡过来时避免立即弹出提示框
@@ -222,8 +229,9 @@ export default function Honeycomb({ origin, isOn = true, onCellClick }) {
       {cells.map((cell) => (
         <div
           key={cell.key}
-          className={`honey-cell${activeCell === cell.key ? " active" : ""}${cell.isCore ? " core" : ""}${cell.tier ? ` fx${cell.tier}` : ""}`}
+          className={`honey-cell${activeCell === cell.key ? " active" : activeCell !== null ? " dimmed" : ""}${cell.isCore ? " core" : ""}${cell.tier ? ` fx${cell.tier}` : ""}`}
           style={{
+            "--honey-glow-rgb": cell.solidRgb,
             left: toRem(cell.x),
             top: toRem(cell.y),
             animationDelay: `${cell.delay}ms`,
@@ -231,11 +239,10 @@ export default function Honeycomb({ origin, isOn = true, onCellClick }) {
           onMouseEnter={() => setHoveredCell(cell.key)}
           onMouseLeave={() => setHoveredCell(null)}
           onClick={() => {
-            setActiveCell((k) => (k === cell.key ? null : cell.key));
-            onCellClick && onCellClick(cell.key);
+            onCellClick && onCellClick(activeCell === cell.key ? null : cell.key, cell);
           }}
         >
-          {/* 选中发光:白色辐射光晕 + 白色描边 + 表面白纱 */}
+          {/* 选中发光：主色光晕，保留节点原始底色 */}
           {activeCell === cell.key && (
             <span className="honey-halo" aria-hidden="true" />
           )}
@@ -254,12 +261,12 @@ export default function Honeycomb({ origin, isOn = true, onCellClick }) {
           <span
             className="honey-hex"
             style={{
-              background: activeCell === cell.key ? "#A8DB81" : cell.color,
+              background: cell.color,
             }}
             aria-hidden="true"
           />
           {cell.leaf && (
-            <span className="honey-leaf" style={{ color: cell.leafColor }} aria-hidden="true">
+            <span className="honey-leaf" style={{ color: cell.leafColor, opacity: cell.leafOpacity }} aria-hidden="true">
               {/* 设计稿叶子:自定义 SVG 路径,叶身单一路径,无独立中脉线 */}
               <svg viewBox="0 0 22 19.008141" aria-hidden="true">
                 <path

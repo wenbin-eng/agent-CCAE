@@ -3,7 +3,7 @@ import { Dropdown, Segmented, message } from "antd";
 import { Icon } from "../../../assets/shared/icon.jsx";
 import { useApp } from "../../context.jsx";
 import { energySummary, statItems, clusterList, buildingOptions } from "../../mock/energy-left.js";
-import Honeycomb from "./honeycomb.jsx";
+import Honeycomb, { ROW_COLORS_ON, ROW_COLORS_OFF } from "./honeycomb.jsx";
 import NodeDetailDrawer from "../node-detail-drawer/index.jsx";
 import "./index.css";
 
@@ -24,6 +24,9 @@ export default function EnergyLeft() {
   const [sortDesc, setSortDesc] = useState(true);
   // 点击蜂窝六边形 → 打开右侧节点能耗详情抽屉(节点名由行列号生成,如 node-r12-n08)
   const [nodeDetail, setNodeDetail] = useState(null);
+  const [nodeAppearance, setNodeAppearance] = useState(null);
+  const nodeMatch = nodeDetail?.match(/^node-r(\d+)-n(\d+)$/);
+  const activeNodeKey = nodeMatch ? `${Number(nodeMatch[1]) - 1}-${Number(nodeMatch[2]) - 1}` : null;
 
   // 拓扑点击展开:idle → zoom(点击球慢慢放大变模糊) → honeycomb(蜂窝呈现 + 四周球飞散)
   // fading:气泡层是否仍在退场(蜂窝出现后保留至飞散结束,交叉过渡)
@@ -363,7 +366,13 @@ export default function EnergyLeft() {
               <Honeycomb
                 origin={honeyOrigin}
                 isOn={honeyOrigin.on}
-                onCellClick={(key) => {
+                activeCell={activeNodeKey}
+                onCellClick={(key, cell) => {
+                  setNodeAppearance(cell);
+                  if (key === null) {
+                    setNodeDetail(null);
+                    return;
+                  }
                   const [r, c] = key.split("-").map(Number);
                   setNodeDetail(`node-r${r + 1}-n${String(c + 1).padStart(2, "0")}`);
                 }}
@@ -372,17 +381,16 @@ export default function EnergyLeft() {
               <div className="honey-foot">
                 <div className="foot-bar">
                   <span className="foot-clock">
-                    <Icon name="clock" size="0.875rem" />
+                    <img src="./assets/uploads/ic_public_clock.svg" width="14" height="14" alt="" aria-hidden="true" />
                   </span>
                   <span className="foot-label">近24h总能耗</span>
                   <span className="foot-value">
                     0<span className="foot-unit"> kWh</span>
                   </span>
                   <span className="foot-scale">
-                    <span className="seg" style={{ background: "#dff4cc" }} />
-                    <span className="seg" style={{ background: "#8fe5c2" }} />
-                    <span className="seg" style={{ background: "#abd881" }} />
-                    <span className="seg" style={{ background: "#058358" }} />
+                    {[...(honeyOrigin.on ? ROW_COLORS_ON : ROW_COLORS_OFF)].reverse().map((color, index) => (
+                      <span key={index} className="seg" style={{ background: color }} />
+                    ))}
                   </span>
                   <span className="foot-max">100 kWh</span>
                 </div>
@@ -475,7 +483,7 @@ export default function EnergyLeft() {
       )}
 
       {/* 节点能耗详情抽屉:点击蜂窝六边形弹出 */}
-      <NodeDetailDrawer open={!!nodeDetail} nodeName={nodeDetail} onClose={() => setNodeDetail(null)} />
+      <NodeDetailDrawer appearance={nodeAppearance} open={!!nodeDetail} nodeName={nodeDetail} onClose={() => setNodeDetail(null)} />
     </section>
   );
 }
